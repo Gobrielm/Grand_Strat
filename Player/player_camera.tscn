@@ -1,0 +1,70 @@
+[gd_scene load_steps=4 format=3 uid="uid://c6spn0m6m85vs"]
+
+[ext_resource type="Script" path="res://Player/player_camera.gd" id="1_7vtmc"]
+[ext_resource type="PackedScene" uid="uid://pbahdxufv0k5" path="res://Gui/track_button.tscn" id="2_f342f"]
+[ext_resource type="PackedScene" uid="uid://dv4710kbsjsqm" path="res://Gui/station_button.tscn" id="3_qhawj"]
+
+[node name="player_camera" type="Camera2D"]
+script = ExtResource("1_7vtmc")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+offset = Vector2(1000, 570)
+transform = Transform2D(1, 0, 0, 1, 1000, 570)
+
+[node name="station_button" parent="CanvasLayer" instance=ExtResource("3_qhawj")]
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 58.0
+offset_bottom = 58.0
+grow_horizontal = 1
+grow_vertical = 1
+
+[node name="track_button" parent="CanvasLayer" instance=ExtResource("2_f342f")]
+offset_left = 79.0
+offset_top = -1.0
+offset_right = 137.0
+offset_bottom = 57.0
+
+[node name="depot_button" parent="CanvasLayer" instance=ExtResource("2_f342f")]
+anchors_preset = -1
+anchor_left = -0.077
+anchor_right = -0.077
+offset_left = -0.29599
+offset_top = 2.0
+offset_right = 57.704
+offset_bottom = 60.0
+
+[node name="single_track_button" parent="CanvasLayer" instance=ExtResource("2_f342f")]
+offset_left = 79.0
+offset_top = -87.0
+offset_right = 137.0
+offset_bottom = -29.0
+
+[node name="Coordinate_Label" type="Label" parent="CanvasLayer"]
+anchors_preset = -1
+anchor_left = -0.852
+anchor_top = 0.06
+anchor_right = -0.852
+anchor_bottom = 0.06
+offset_left = -1.49591
+offset_top = 0.119999
+offset_right = 38.5041
+offset_bottom = 23.12
+text = "(0, 0)"
+
+[node name="Cash_Label" type="Label" parent="CanvasLayer"]
+anchors_preset = -1
+anchor_left = 0.076
+anchor_top = -0.864
+anchor_right = 0.076
+anchor_bottom = -0.864
+offset_left = 0.447998
+offset_top = -0.127991
+offset_right = 47.448
+offset_bottom = 22.872
+text = "100"

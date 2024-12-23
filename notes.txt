@@ -1,0 +1,28 @@
+Things to do:
+	Use dist to build expected time and compare that with the actual time to award different levels of money
+	
+	Add money system
+	
+	Add Train Cars
+	Add moving goods
+	Add Train that rotates to tracks
+	Re-Integrate things to multiplayer
+	
+
+
+Game Info:
+	Terminal: An object that deals with cargo/goods
+	Source -> Only Produces cargo
+		Base Industries
+	Sink <- Only takes cargo
+		Apex Industries
+	Hold <-> Takes and recieves cargo
+		Trains, Warehouses, stations
+		Fixed Hold <-> Specifies goods it can recieve
+			Cities, Middle Industries
+		
+	
+	Types of Industry Chains:
+		Base -> City
+		Base -> Middle -> City
+		Base -> Middle -> Apex

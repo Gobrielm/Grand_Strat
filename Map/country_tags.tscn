@@ -1,0 +1,34 @@
+[gd_scene load_steps=5 format=3 uid="uid://dofjx35821wip"]
+
+[ext_resource type="Texture2D" uid="uid://c8np01jiqqnap" path="res://Map_Icons/country_tags.png" id="1_fsh6w"]
+[ext_resource type="Script" path="res://Map/country_tags.gd" id="2_v04y3"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_whm44"]
+texture = ExtResource("1_fsh6w")
+margins = Vector2i(0, 64)
+separation = Vector2i(0, 64)
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_v5t2x"]
+tile_shape = 3
+tile_offset_axis = 1
+tile_size = Vector2i(128, 115)
+terrain_set_0/mode = 1
+terrain_set_0/terrain_0/name = "Terrain 0"
+terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
+custom_data_layer_0/name = "tag"
+custom_data_layer_0/type = 2
+sources/2 = SubResource("TileSetAtlasSource_whm44")
+
+[node name="Country_Tags" type="TileMap"]
+tile_set = SubResource("TileSet_v5t2x")
+format = 2
+script = ExtResource("2_v04y3")

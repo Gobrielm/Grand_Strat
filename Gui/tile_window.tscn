@@ -1,0 +1,134 @@
+[gd_scene load_steps=8 format=3 uid="uid://ow347jchu8vi"]
+
+[ext_resource type="Script" path="res://Gui/tile_window.gd" id="1_5gdtu"]
+[ext_resource type="PackedScene" uid="uid://bpfxqpu3nyf8k" path="res://Map/tile_info.tscn" id="2_qbujt"]
+[ext_resource type="Texture2D" uid="uid://cqdkw6b4bmsk5" path="res://Map_Icons/icon.svg" id="3_76jck"]
+[ext_resource type="PackedScene" uid="uid://bruqpviu5i3oq" path="res://Map/Cities/city_tile_map.tscn" id="4_21g1h"]
+[ext_resource type="Texture2D" uid="uid://cnt0fnx73uuf8" path="res://Gui/Icons/go.png" id="5_aqg8b"]
+[ext_resource type="Texture2D" uid="uid://dbdjkc3txkt6y" path="res://Gui/Icons/add.png" id="6_s6bvc"]
+[ext_resource type="PackedScene" uid="uid://bxw4u1guk62r1" path="res://Gui/train_car_browser.tscn" id="7_ncbx0"]
+
+[node name="tile_window" type="Window"]
+initial_position = 1
+size = Vector2i(700, 500)
+unresizable = true
+script = ExtResource("1_5gdtu")
+
+[node name="tile_info" parent="." instance=ExtResource("2_qbujt")]
+position = Vector2(68.6976, -300.443)
+
+[node name="Enter_City" type="Button" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 146.0
+offset_bottom = 146.0
+scale = Vector2(0.3, 0.3)
+icon = ExtResource("3_76jck")
+
+[node name="City_Tile_Map" parent="." instance=ExtResource("4_21g1h")]
+position = Vector2(100, 100)
+scale = Vector2(0.05, 0.05)
+
+[node name="Name" type="RichTextLabel" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -75.0
+offset_right = 75.0
+offset_bottom = 42.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "[center][font_size=30]City Name[/font_size][/center]
+"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="Size" type="RichTextLabel" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -122.5
+offset_top = 50.0
+offset_right = 122.5
+offset_bottom = 92.0
+grow_horizontal = 2
+bbcode_enabled = true
+text = "[center][font_size=30]PopulationName[/font_size][/center]
+"
+fit_content = true
+scroll_active = false
+autowrap_mode = 0
+
+[node name="Cargo_Box" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="GoodList" type="ItemList" parent="Cargo_Box"]
+layout_mode = 0
+offset_left = 450.0
+offset_top = 190.0
+offset_right = 650.0
+offset_bottom = 450.0
+
+[node name="GoodBox" type="ColorRect" parent="Cargo_Box"]
+layout_mode = 0
+offset_left = 450.0
+offset_top = 160.0
+offset_right = 650.0
+offset_bottom = 200.0
+color = Color(0.176419, 0.176419, 0.176419, 1)
+
+[node name="Title" type="RichTextLabel" parent="Cargo_Box/GoodBox"]
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 300.0
+text = "Goods:"
+
+[node name="Train_Box" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TrainList" type="ItemList" parent="Train_Box"]
+layout_mode = 0
+offset_top = 160.0
+offset_right = 400.0
+offset_bottom = 450.0
+focus_mode = 0
+
+[node name="Start_Trains" type="Button" parent="Train_Box/TrainList"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -29.0
+offset_right = 29.0
+offset_bottom = 58.0
+grow_horizontal = 0
+scale = Vector2(0.5, 0.5)
+focus_mode = 0
+icon = ExtResource("5_aqg8b")
+
+[node name="New_Train" type="Button" parent="Train_Box/TrainList"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -58.0
+offset_bottom = 58.0
+grow_horizontal = 0
+scale = Vector2(0.5, 0.5)
+focus_mode = 0
+icon = ExtResource("6_s6bvc")
+
+[node name="train_car_browser" parent="Train_Box" instance=ExtResource("7_ncbx0")]
+initial_position = 1
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="pressed" from="Enter_City" to="." method="_on_enter_city_pressed"]
+[connection signal="pressed" from="Train_Box/TrainList/Start_Trains" to="." method="_on_start_trains_pressed"]
+[connection signal="pressed" from="Train_Box/TrainList/New_Train" to="." method="_on_new_train_pressed"]
