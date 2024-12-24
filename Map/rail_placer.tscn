@@ -54,5 +54,20 @@ tile_set = SubResource("TileSet_68oqx")
 [node name="Rail_Layer_5" type="TileMapLayer" parent="."]
 tile_set = SubResource("TileSet_68oqx")
 
-[node name="Rail_Temp_Layer" type="TileMapLayer" parent="."]
+[node name="Rail_Temp_Layer0" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_68oqx")
+
+[node name="Rail_Temp_Layer1" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_68oqx")
+
+[node name="Rail_Temp_Layer2" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_68oqx")
+
+[node name="Rail_Temp_Layer3" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_68oqx")
+
+[node name="Rail_Temp_Layer4" type="TileMapLayer" parent="."]
+tile_set = SubResource("TileSet_68oqx")
+
+[node name="Rail_Temp_Layer5" type="TileMapLayer" parent="."]
 tile_set = SubResource("TileSet_68oqx")

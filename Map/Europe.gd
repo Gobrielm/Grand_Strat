@@ -1,5 +1,5 @@
 extends TileMapLayer
-var start
+var start = null
 var unique_id
 #Buttons
 @onready var camera = $player_camera
@@ -38,9 +38,9 @@ func _input(event):
 			tile_window.show_tile_info(get_cell_position())
 		elif track_button.active:
 			place_to_end_rail()
+		start = null
 	elif event.is_action_pressed("deselect"):
-		rail_placer.delete_hover_rail()
-		rail_placer.re_place_old_tile()
+		rail_placer.clear_all_temps()
 		camera.unpress_all_buttons()
 	elif event.is_action_pressed("debug_place_train"):
 		create_train.rpc(get_cell_position())
@@ -50,11 +50,13 @@ func _process(_delta):
 
 func update_hover():
 	if single_track_button.active:
-		rail_placer.hover(get_cell_position(), 0)
+		rail_placer.hover(get_cell_position(), 0, map_to_local(get_cell_position()), get_mouse_local_to_map())
 	elif depot_button.active:
-		rail_placer.hover(get_cell_position(), 1)
+		rail_placer.hover(get_cell_position(), 1, map_to_local(get_cell_position()), get_mouse_local_to_map())
 	elif station_button.active:
-		rail_placer.hover(get_cell_position(), 2)
+		rail_placer.hover(get_cell_position(), 2, map_to_local(get_cell_position()), get_mouse_local_to_map())
+	elif start != null and track_button.active:
+		get_rail_to_hover()
 
 func record_hover_click():
 	if !rail_placer.check_valid():
@@ -123,16 +125,39 @@ func place_to_end_rail():
 	queue.push_back(start)
 	while !queue.is_empty():
 		current = queue.pop_front()
-		if current == end:
-			break
 		if prev != null:
 			var orientation = get_orientation(current, prev)
 			if tile_info.can_place_here(get_cell_atlas_coords(current)):
 				place_rail_general(current, orientation, 0)
 			if tile_info.can_place_here(get_cell_atlas_coords(prev)):
 				place_rail_general(prev, (orientation + 3) % 6, 0)
+		if current == end:
+			break
 		queue.push_back(find_tile_with_min_distance(get_surrounding_cells(current), end))
 		prev = current
+	start = null
+
+func get_rail_to_hover():
+	var end : Vector2i = get_cell_position()
+	var queue = []
+	var toReturn = {}
+	var current: Vector2i
+	var prev = null
+	queue.push_back(start)
+	while !queue.is_empty():
+		current = queue.pop_front()
+		if prev != null:
+			var orientation = get_orientation(current, prev)
+			toReturn[current] = [Vector2i(orientation, 0)]
+			if toReturn.has(prev):
+				toReturn[prev].append(Vector2i((orientation + 3) % 6, 0))
+			else:
+				toReturn[prev] = [Vector2i((orientation + 3) % 6, 0)]
+		if current == end:
+			break
+		queue.push_back(find_tile_with_min_distance(get_surrounding_cells(current), end))
+		prev = current
+	rail_placer.hover_many_tiles(toReturn)
 
 func find_tile_with_min_distance(tiles_to_check: Array[Vector2i], target_tile: Vector2i):
 	var min_distance = 10000
