@@ -32,11 +32,9 @@ offset_bottom = 57.0
 
 [node name="depot_button" parent="CanvasLayer" instance=ExtResource("2_f342f")]
 anchors_preset = -1
-anchor_left = -0.077
-anchor_right = -0.077
-offset_left = -0.29599
+offset_left = -89.0
 offset_top = 2.0
-offset_right = 57.704
+offset_right = -31.0
 offset_bottom = 60.0
 
 [node name="single_track_button" parent="CanvasLayer" instance=ExtResource("2_f342f")]
@@ -47,24 +45,17 @@ offset_bottom = -29.0
 
 [node name="Coordinate_Label" type="Label" parent="CanvasLayer"]
 anchors_preset = -1
-anchor_left = -0.852
-anchor_top = 0.06
-anchor_right = -0.852
-anchor_bottom = 0.06
-offset_left = -1.49591
-offset_top = 0.119999
-offset_right = 38.5041
-offset_bottom = 23.12
+offset_left = -989.0
+offset_top = 44.0
+offset_right = -949.0
+offset_bottom = 67.0
+grow_vertical = 0
 text = "(0, 0)"
 
 [node name="Cash_Label" type="Label" parent="CanvasLayer"]
 anchors_preset = -1
-anchor_left = 0.076
-anchor_top = -0.864
-anchor_right = 0.076
-anchor_bottom = -0.864
-offset_left = 0.447998
-offset_top = -0.127991
-offset_right = 47.448
-offset_bottom = 22.872
+offset_left = 88.0
+offset_top = -560.0
+offset_right = 135.0
+offset_bottom = -537.0
 text = "100"

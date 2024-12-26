@@ -16,7 +16,7 @@ var unloading: bool = false
 var ticker: float = 0
 var player_owner: int
 
-
+const acceptable_angles = [0, -60, 60, -120, 120, 180, -180]
 const MIN_SPEED = 20
 const MAX_SPEED = 100
 const ACCELERATION_SPEED = 20
@@ -32,9 +32,6 @@ const train_car_scene = preload("res://Cargo/Cargo_Objects/train_car.tscn")
 var cargo_controller
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	train_car = train_car_scene.instantiate()
-	map.add_child(train_car)
-	train_car.assign_train(self, position)
 	window.hide()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -44,7 +41,7 @@ func _process(delta):
 	update_train.rpc(position)
 	var rotation_basis = Vector2(0, 1)
 	if velocity.length() != 0:
-		update_train_rotation.rpc(round(rotation_basis.angle_to(velocity)))
+		update_train_rotation.rpc(round(rotation_basis.angle_to(velocity) * 180 / PI) / 180 * PI)
 	ticker += delta
 	if near_stop:
 		deaccelerate_train(delta)
@@ -77,6 +74,11 @@ func create(new_location: Vector2i, new_cargo_controller, new_owner: int):
 	cargo_controller = new_cargo_controller
 	player_owner = new_owner
 	prep_update_cargo_gui()
+	
+	train_car = train_car_scene.instantiate()
+	map.add_child(train_car)
+	train_car.update_train(self)
+	train_car.position = position
 
 func check_ticker():
 	if ticker > 1:
@@ -94,6 +96,7 @@ func open_menu(mouse_pos: Vector2):
 func _on_window_close_requested():
 	window.deselect_add_stop()
 	window.hide()
+
 @rpc("any_peer", "unreliable", "call_local")
 func do_add_stop(new_location: Vector2i):
 	for num in map.get_tile_connections(new_location):
@@ -246,16 +249,18 @@ func update_cargo_gui(names: Array, amounts: Array):
 	for type in names.size():
 		$Window/Goods.add_item(names[type] + ", " + str(amounts[type]))
 
-
 func add_train_car():
 	cargo_hold.change_max_storage(0, TRAIN_CAR_SIZE)
 
 func delete_train_car():
 	cargo_hold.change_max_storage(0, -TRAIN_CAR_SIZE)
 
+
+
 func drive_train_to_route():
 	var direction = Vector2(map.map_to_local(route[current]) - map.map_to_local(location)).normalized()
 	acceleration_direction = direction
+	train_car.update_desination(position)
 
 func checkpoint_reached():
 	if current == -1:
@@ -264,7 +269,6 @@ func checkpoint_reached():
 	check_near_next_stop()
 	
 	if position.distance_to(route_local_pos) < 10:
-		train_car.update_desination(map.map_to_local(location))
 		location = route[current]
 		current += 1
 		cargo_hold.update_location(location)

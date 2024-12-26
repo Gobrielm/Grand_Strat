@@ -28,7 +28,13 @@ func _process(_delta):
 		position.x += 1 / zoom.x * instant_mouse_movement.x
 		position.y += 1 / zoom.y * instant_mouse_movement.y
 	last_mouse_position = get_viewport().get_mouse_position()
+	update_resolution()
 
+func update_resolution():
+	var viewport_size = get_viewport_rect().size
+	$CanvasLayer.offset = viewport_size - Vector2(150, 70)
+	$CanvasLayer/Coordinate_Label.position.x = -viewport_size.x + 150
+	$CanvasLayer/Cash_Label.position.y = -viewport_size.y + 100
 
 func unpress_all_buttons():
 	for element in $CanvasLayer.get_children():

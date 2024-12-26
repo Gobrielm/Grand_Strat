@@ -1,14 +1,14 @@
 extends Sprite2D
 var destination: Vector2
 var velocity = Vector2(0, 0)
+var speed = 0
 var train
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
 
-func assign_train(new_train, new_position: Vector2):
+func update_train(new_train):
 	train = new_train
-	position = new_position
 
 
 func _process(delta):
@@ -17,14 +17,18 @@ func _process(delta):
 	update_speed()
 
 func update_desination(new_dest: Vector2):
-	new_dest = destination
-	path_find_to_desination()
+	if check_dist():
+		destination = new_dest
+		path_find_to_desination()
+
+func check_dist() -> bool:
+	var dist = position.distance_to(train.position)
+	return dist > 100
 
 func path_find_to_desination():
 	var velocity_unit = (destination - position).normalized()
-	var magnitude = velocity.length()
-	velocity = velocity_unit * magnitude
+	velocity = velocity_unit * speed
 
 func update_speed():
-	var new_speed = train.get_speed()
-	velocity = velocity.normalized() * new_speed
+	speed = train.get_speed()
+	velocity = velocity.normalized() * speed
