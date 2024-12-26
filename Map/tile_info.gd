@@ -38,6 +38,8 @@ func init_track_connection(coords: Vector2i):
 	track_connection[coords] = [0, 0, 0, 0, 0, 0]
 @rpc("authority", "call_local", "reliable")
 func add_track_connection(coords: Vector2i, orientation):
+	if !track_connection.has(coords):
+		init_track_connection(coords)
 	track_connection[coords][orientation] = 1
 @rpc("authority", "call_local", "reliable")
 func delete_track_connection(coords: Vector2i, orientation):

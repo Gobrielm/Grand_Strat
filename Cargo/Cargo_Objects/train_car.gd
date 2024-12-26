@@ -1,10 +1,15 @@
 extends Sprite2D
 var destination: Vector2
 var velocity = Vector2(0, 0)
-@onready var train = get_parent()
+var train
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	pass
+
+func assign_train(new_train, new_position: Vector2):
+	train = new_train
+	position = new_position
+
 
 func _process(delta):
 	position.x += velocity.x * delta

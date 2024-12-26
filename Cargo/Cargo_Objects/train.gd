@@ -5,6 +5,7 @@ var stop_information: Dictionary = {} #Maps location -> station, nothing, depot,
 var route: Array = []
 var stop_number: int = -1
 var current: int = -1
+var train_car
 
 var near_stop: bool = false
 var acceleration_direction: Vector2
@@ -15,6 +16,7 @@ var unloading: bool = false
 var ticker: float = 0
 var player_owner: int
 
+
 const MIN_SPEED = 20
 const MAX_SPEED = 100
 const ACCELERATION_SPEED = 20
@@ -23,11 +25,16 @@ const TRAIN_CAR_SIZE = 16
 const LOAD_SPEED = 1
 const LOAD_TICK_AMOUNT = 1
 
+const train_car_scene = preload("res://Cargo/Cargo_Objects/train_car.tscn")
+
 @onready var map: TileMapLayer = get_parent()
 @onready var window: Window = $Window
 var cargo_controller
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	train_car = train_car_scene.instantiate()
+	map.add_child(train_car)
+	train_car.assign_train(self, position)
 	window.hide()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -35,6 +42,9 @@ func _process(delta):
 	position.x += velocity.x * delta
 	position.y += velocity.y * delta
 	update_train.rpc(position)
+	var rotation_basis = Vector2(0, 1)
+	if velocity.length() != 0:
+		update_train_rotation.rpc(round(rotation_basis.angle_to(velocity)))
 	ticker += delta
 	if near_stop:
 		deaccelerate_train(delta)
@@ -47,6 +57,10 @@ func _process(delta):
 @rpc("authority", "unreliable", "call_local")
 func update_train(new_position):
 	position = new_position
+
+@rpc("authority", "unreliable", "call_local")
+func update_train_rotation(new_rotation):
+	rotation = new_rotation
 
 func _input(event):
 	if event.is_action_pressed("click") and $Window/Routes/Add_Stop.button_pressed:
@@ -248,7 +262,9 @@ func checkpoint_reached():
 		return
 	var route_local_pos = map.map_to_local(route[current])
 	check_near_next_stop()
+	
 	if position.distance_to(route_local_pos) < 10:
+		train_car.update_desination(map.map_to_local(location))
 		location = route[current]
 		current += 1
 		cargo_hold.update_location(location)
