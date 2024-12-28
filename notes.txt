@@ -3,6 +3,7 @@ Things to do:
 	Store each vertices shortest path to every direct other vertice
 	Store waypoints as subvertices so that is kinda irrelavent
 	
+	The 2 connections is broken
 	
 	Add train pathfinding using direction, delete so it doesnt use visited
 	Good through prev_tile incrementally, the closer index is to 0 the sooner it is

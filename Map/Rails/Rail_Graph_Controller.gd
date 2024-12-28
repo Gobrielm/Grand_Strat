@@ -11,15 +11,51 @@ func add_rail_vertex(coordinates: Vector2i):
 	search_for_connections(rail_vertices[coordinates])
 
 func move_rail_vertex(coordinates: Vector2i, new_coordinates: Vector2i):
-	rail_vertices[coordinates].move_vertex()
+	rail_vertices[coordinates].move_vertex(new_coordinates)
 	rail_vertices[new_coordinates] = rail_vertices[coordinates]
 	rail_vertices.erase(coordinates)
 
 func get_vertex(coordinates: Vector2i) -> rail_vertex:
 	return rail_vertices[coordinates]
 
+func does_vertex_have_no_connections(coordinates: Vector2i) -> bool:
+	return get_vertex(coordinates).get_connections_count() == 0
+
 func is_tile_vertix(coordinates: Vector2i) -> bool:
 	return rail_vertices.has(coordinates)
+
+func connect_two_endpoints(coords1: Vector2i, coords2: Vector2i):
+	var vertex1 = get_vertex(coords1)
+	var vertex2 = get_vertex(coords2)
+	var connections = []
+	connections.append(vertex1.get_connection())
+	connections.append(vertex2.get_connection())
+	var length = get_length(vertex1, vertex2)
+	if connections[0] != null:
+		connections[0].remove_connection(vertex1)
+		delete_rail_vertex(coords1)
+	if connections[1] != null:
+		connections[1].remove_connection(vertex2)
+		delete_rail_vertex(coords2)
+	if connections[0] != null and connections[1] != null:
+		connections[0].add_connection(connections[1], length)
+		connections[1].add_connection(connections[0], length)
+	elif connections[0] != null:
+		connections[0].add_connection(vertex2, length)
+		vertex2.add_connection(connections[0], length)
+	else:
+		vertex1.add_connection(connections[1], length)
+		connections[1].add_connection(vertex1, length)
+	
+		
+
+func get_length(vertex1: rail_vertex, vertex2: rail_vertex) -> int:
+	var length = 0
+	if vertex1.get_connection() != null:
+		length += vertex1.get_connection().get_length(vertex1)
+	if vertex2.get_connection() != null:
+		length += vertex2.get_connection().get_length(vertex2)
+	return length + 1
 
 func search_for_connections(vertex: rail_vertex):
 	var coordinates = vertex.get_coordinates()

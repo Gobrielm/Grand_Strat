@@ -75,28 +75,37 @@ func place_rail(coords: Vector2i):
 		if !rail_graph.is_tile_vertix(coords):
 			rail_graph.add_rail_vertex(coords)
 	elif get_total_connections(coords) == 2:
-		var new_vertex = find_connected_existing_endpoint(coords)
-		if !new_vertex == null:
-			pass
+		var other_vertex = find_connected_existing_endpoint(coords)
+		if !other_vertex == null and !is_tile_endpoint(coords):
 			#Connecting two endpoints
+			print("connect")
+			rail_graph.connect_two_endpoints(coords, other_vertex)
 	elif get_total_connections(coords) == 1:
 		var other_endpoint = find_connected_existing_endpoint(coords)
 		if other_endpoint == null:
-			#New path from real vertex
-			pass
+			#New endpoint
+			print("new")
+			rail_graph.add_rail_vertex(coords)
+		elif rail_graph.does_vertex_have_no_connections(other_endpoint):
+			#New endpoint that connects to other endpoint
+			print("new")
+			rail_graph.add_rail_vertex(coords)
 		else:
+			#Extending Endpoint
+			print("extend")
 			rail_graph.move_rail_vertex(other_endpoint, coords)
 
 func find_bordering_non_existing_endpoint(coords: Vector2i):
 	for cell in map.get_surrounding_cells(coords):
-		if !rail_graph.is_tile_vertix(cell) and get_total_connections(cell) == 1 and are_tiles_connected_by_rail(coords, cell):
+		if !rail_graph.is_tile_vertix(cell) and get_total_connections(cell) <= 2 and are_tiles_connected_by_rail(coords, cell):
 			return cell
 	return null
 
 func find_connected_existing_endpoint(coords: Vector2i):
 	for cell in map.get_surrounding_cells(coords):
-		if rail_graph.is_tile_vertix(cell) and get_total_connections(cell) == 1 and are_tiles_connected_by_rail(coords, cell):
-			return cell
+		if rail_graph.is_tile_vertix(cell) and get_total_connections(cell) <= 2:
+			if are_tiles_connected_by_rail(coords, cell):
+				return cell
 	return null
 
 func get_total_connections(coords: Vector2i) -> int:
@@ -168,13 +177,21 @@ func get_track_connections(coords: Vector2i) -> Array:
 		return track_connection[coords]
 	else:
 		return [false, false, false, false, false, false]
-
 func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i) -> bool:
 	var track_connections1 = get_track_connections(coord1)
 	var track_connections2 = get_track_connections(coord2)
 	var bordering_cells = map.get_surrounding_cells(coord1)
 	for direction in bordering_cells.size():
-		var real_direction = (direction + 4) % 6
-		if bordering_cells[real_direction] == coord2:
+		var real_direction = (direction + 2) % 6
+		if bordering_cells[direction] == coord2:
 			return track_connections1[real_direction] and track_connections2[(real_direction + 3) % 6]
 	return false
+func is_tile_endpoint(coords: Vector2i) -> bool:
+	var track_connections = get_track_connections(coords)
+	var count = 0
+	for direction in track_connections.size():
+		if are_tiles_connected_by_rail(coords, rail_graph.get_neighbor_cell_given_direction(coords, direction)):
+			count += 1
+	return count < 2
+		
+		
