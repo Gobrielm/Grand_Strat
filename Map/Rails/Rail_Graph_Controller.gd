@@ -10,6 +10,11 @@ func add_rail_vertex(coordinates: Vector2i):
 	rail_vertices[coordinates] = rail_vertex.new(coordinates)
 	search_for_connections(rail_vertices[coordinates])
 
+func move_rail_vertex(coordinates: Vector2i, new_coordinates: Vector2i):
+	rail_vertices[coordinates].move_vertex()
+	rail_vertices[new_coordinates] = rail_vertices[coordinates]
+	rail_vertices.erase(coordinates)
+
 func get_vertex(coordinates: Vector2i) -> rail_vertex:
 	return rail_vertices[coordinates]
 
@@ -18,14 +23,14 @@ func is_tile_vertix(coordinates: Vector2i) -> bool:
 
 func search_for_connections(vertex: rail_vertex):
 	var coordinates = vertex.get_coordinates()
-	var stack = []
+	var queue = []
 	var visited = {}
 	var distance_away = {}
 	var current
-	stack.append(coordinates)
+	queue.append(coordinates)
 	distance_away[coordinates] = 0
-	while !stack.is_empty():
-		current = stack.pop_front()
+	while !queue.is_empty():
+		current = queue.pop_front()
 		visited[current] = 1
 		var rail_connections: Array = map.get_tile_connections(current)
 		for direction in rail_connections.size():
@@ -40,7 +45,7 @@ func search_for_connections(vertex: rail_vertex):
 						vertex.add_connection(vert, dist)
 						vert.add_connection(vertex, dist)
 					else:
-						stack.push_front(tile)
+						queue.append(tile)
 						distance_away[tile] = distance_away[current] + 1
 
 func get_neighbor_cell_given_direction(coords: Vector2i, num: int) -> Vector2i:

@@ -15,7 +15,7 @@ var orientation = 0
 var type = -1
 var old_coordinates
 
-@onready var map = get_parent()
+@onready var map: TileMapLayer = get_parent()
 var rail_graph: rail_graph_controller
 
 # Called when the node enters the scene tree for the first time.
@@ -71,10 +71,36 @@ func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
 
 func place_rail(coords: Vector2i):
 	#Is vertex
-	if get_total_connections(get_track_connections(coords)) > 2:
-		rail_graph.add_rail_vertex(coords)
+	if get_total_connections(coords) > 2:
+		if !rail_graph.is_tile_vertix(coords):
+			rail_graph.add_rail_vertex(coords)
+	elif get_total_connections(coords) == 2:
+		var new_vertex = find_connected_existing_endpoint(coords)
+		if !new_vertex == null:
+			pass
+			#Connecting two endpoints
+	elif get_total_connections(coords) == 1:
+		var other_endpoint = find_connected_existing_endpoint(coords)
+		if other_endpoint == null:
+			#New path from real vertex
+			pass
+		else:
+			rail_graph.move_rail_vertex(other_endpoint, coords)
 
-func get_total_connections(track_array: Array) -> int:
+func find_bordering_non_existing_endpoint(coords: Vector2i):
+	for cell in map.get_surrounding_cells(coords):
+		if !rail_graph.is_tile_vertix(cell) and get_total_connections(cell) == 1 and are_tiles_connected_by_rail(coords, cell):
+			return cell
+	return null
+
+func find_connected_existing_endpoint(coords: Vector2i):
+	for cell in map.get_surrounding_cells(coords):
+		if rail_graph.is_tile_vertix(cell) and get_total_connections(cell) == 1 and are_tiles_connected_by_rail(coords, cell):
+			return cell
+	return null
+
+func get_total_connections(coords: Vector2i) -> int:
+	var track_array = get_track_connections(coords)
 	var total = 0
 	for connected in track_array:
 		if connected:
@@ -86,8 +112,6 @@ func place_depot(coords: Vector2i):
 
 func place_station(coords: Vector2i):
 	rail_graph.add_rail_vertex(coords)
-
-
 
 func check_valid() -> bool:
 	for layer in temp_layer_array:
@@ -128,8 +152,6 @@ func get_temp_layer(curr_orientation: int):
 	if curr_orientation >= 0 and curr_orientation < 6:
 		return temp_layer_array[curr_orientation]
 
-
-
 @rpc("authority", "call_local", "reliable")
 func init_track_connection(coords: Vector2i):
 	track_connection[coords] = [false, false, false, false, false, false]
@@ -146,3 +168,13 @@ func get_track_connections(coords: Vector2i) -> Array:
 		return track_connection[coords]
 	else:
 		return [false, false, false, false, false, false]
+
+func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i) -> bool:
+	var track_connections1 = get_track_connections(coord1)
+	var track_connections2 = get_track_connections(coord2)
+	var bordering_cells = map.get_surrounding_cells(coord1)
+	for direction in bordering_cells.size():
+		var real_direction = (direction + 4) % 6
+		if bordering_cells[real_direction] == coord2:
+			return track_connections1[real_direction] and track_connections2[(real_direction + 3) % 6]
+	return false
