@@ -15,9 +15,7 @@ var tile_metadata: Dictionary = {
 var non_buildable_tiles: Dictionary = {
 	
 }
-var track_connection : Dictionary = {
-	
-}
+
 func _process(_delta):
 	pass
 
@@ -33,22 +31,6 @@ func _ready():
 	non_buildable_tiles[Vector2i(7, 0)] = 0
 	non_buildable_tiles[Vector2i(0, 1)] = 0
 
-@rpc("authority", "call_local", "reliable")
-func init_track_connection(coords: Vector2i):
-	track_connection[coords] = [0, 0, 0, 0, 0, 0]
-@rpc("authority", "call_local", "reliable")
-func add_track_connection(coords: Vector2i, orientation):
-	if !track_connection.has(coords):
-		init_track_connection(coords)
-	track_connection[coords][orientation] = 1
-@rpc("authority", "call_local", "reliable")
-func delete_track_connection(coords: Vector2i, orientation):
-	track_connection[coords][orientation] = 0
-func get_track_connections(coords: Vector2i) -> Array:
-	if track_connection.has(coords):
-		return track_connection[coords]
-	else:
-		return [0, 0, 0, 0, 0, 0]
 
 @rpc("authority", "call_local", "reliable")
 func update_tile_metadata(tile_coordinates : Vector2i, new_tile_metadata):

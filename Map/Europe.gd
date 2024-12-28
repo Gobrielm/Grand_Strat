@@ -22,7 +22,7 @@ func _ready():
 	if unique_id == 1:
 		money_controller = preload("res://Player/money_controller.gd").new(multiplayer.get_peers())
 		for cell in get_used_cells():
-			tile_info.init_track_connection.rpc(cell)
+			rail_placer.init_track_connection.rpc(cell)
 
 func _input(event):
 	update_hover()
@@ -44,6 +44,12 @@ func _input(event):
 		camera.unpress_all_buttons()
 	elif event.is_action_pressed("debug_place_train"):
 		create_train.rpc(get_cell_position())
+	elif event.is_action_pressed("debug_print"):
+		for coord in rail_placer.rail_graph.rail_vertices:
+			print(coord)
+			print(rail_placer.rail_graph.rail_vertices[coord].connections)
+			print("-----")
+		
 
 func _process(_delta):
 	pass
@@ -117,6 +123,8 @@ func record_start_rail():
 	start = get_cell_position()
 
 func place_to_end_rail():
+	if start == null:
+		return
 	var end : Vector2i = get_cell_position()
 	var queue = []
 	
@@ -215,7 +223,7 @@ func update_money_label(amount: int):
 
 #Tile Data
 func get_tile_connections(coords: Vector2i):
-	return tile_info.get_track_connections(coords)
+	return rail_placer.get_track_connections(coords)
 
 func request_tile_data(coordinates: Vector2i) -> TileData:
 	return get_cell_tile_data(coordinates)
@@ -224,7 +232,6 @@ func request_tile_data(coordinates: Vector2i) -> TileData:
 @rpc("authority", "call_local", "reliable")
 func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, new_owner: int):
 	rail_placer.place_tile(coords, orientation, type)
-	tile_info.add_track_connection(coords, orientation)
 	if type == 1:
 		encode_depot(coords)
 	elif type == 2:
