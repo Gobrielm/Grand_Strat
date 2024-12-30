@@ -69,6 +69,9 @@ func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
 	elif new_type == 2:
 		place_station(coords)
 
+func get_vertex(coords: Vector2i) -> rail_vertex:
+	return rail_graph.get_vertex(coords)
+
 func place_rail(coords: Vector2i):
 	#Is vertex
 	if get_total_connections(coords) > 2:
@@ -76,37 +79,39 @@ func place_rail(coords: Vector2i):
 			rail_graph.add_rail_vertex(coords)
 	elif get_total_connections(coords) == 2:
 		var other_vertex = find_connected_existing_endpoint(coords)
-		if !other_vertex == null and !is_tile_endpoint(coords):
+		if other_vertex != null and !is_tile_endpoint(coords):
 			#Connecting two endpoints
-			print("connect")
 			rail_graph.connect_two_endpoints(coords, other_vertex)
+		elif other_vertex != null and rail_graph.is_tile_vertix(coords):
+			rail_graph.search_for_connections(get_vertex(coords))
 	elif get_total_connections(coords) == 1:
 		var other_endpoint = find_connected_existing_endpoint(coords)
-		if other_endpoint == null:
+		if other_endpoint == null or !is_tile_endpoint_check_tile(other_endpoint):
 			#New endpoint
-			print("new")
+			print("new1")
 			rail_graph.add_rail_vertex(coords)
 		elif rail_graph.does_vertex_have_no_connections(other_endpoint):
 			#New endpoint that connects to other endpoint
-			print("new")
+			print("new2")
 			rail_graph.add_rail_vertex(coords)
 		else:
 			#Extending Endpoint
-			print("extend")
 			rail_graph.move_rail_vertex(other_endpoint, coords)
 
-func find_bordering_non_existing_endpoint(coords: Vector2i):
-	for cell in map.get_surrounding_cells(coords):
-		if !rail_graph.is_tile_vertix(cell) and get_total_connections(cell) <= 2 and are_tiles_connected_by_rail(coords, cell):
-			return cell
-	return null
-
 func find_connected_existing_endpoint(coords: Vector2i):
+	var potential = []
 	for cell in map.get_surrounding_cells(coords):
 		if rail_graph.is_tile_vertix(cell) and get_total_connections(cell) <= 2:
 			if are_tiles_connected_by_rail(coords, cell):
+				potential.append(cell)
+	if potential.size() == 0:
+		return null
+	elif potential.size() == 1:
+		return potential[0]
+	else:
+		for cell in potential:
+			if !get_vertex(coords).is_connected_to(get_vertex(cell)):
 				return cell
-	return null
 
 func get_total_connections(coords: Vector2i) -> int:
 	var track_array = get_track_connections(coords)
@@ -193,5 +198,8 @@ func is_tile_endpoint(coords: Vector2i) -> bool:
 		if are_tiles_connected_by_rail(coords, rail_graph.get_neighbor_cell_given_direction(coords, direction)):
 			count += 1
 	return count < 2
-		
-		
+func is_tile_endpoint_check_tile(coords: Vector2i) -> bool:
+	for item: TileMapLayer in get_children():
+		if item.name.begins_with("Rail_Layer") and !item.get_cell_atlas_coords(coords).y <= 0:
+			return false
+	return get_total_connections(coords) <= 2

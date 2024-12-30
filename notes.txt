@@ -9,6 +9,8 @@ Things to do:
 	Good through prev_tile incrementally, the closer index is to 0 the sooner it is
 	Start with index 0 and see if direction works, if not, try index 1...
 	
+	Add unmovable and moveable vertices, stations/depots/3 connects vs endpoints
+	
 	Use dist to build expected time and compare that with the actual time to award different levels of money
 	If adding two stops that have same coords, deleting one wont mess with the other
 	Add Train Cars

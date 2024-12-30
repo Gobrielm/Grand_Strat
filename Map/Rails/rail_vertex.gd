@@ -15,6 +15,12 @@ func move_vertex(new_location: Vector2i):
 		connections[vertex] += change
 		vertex.change_connection(self, change)
 
+func check_coonection_add_if_shorter(other_vertex: rail_vertex, distance: int):
+	if connections.has(other_vertex) and connections[other_vertex] > distance:
+		add_connection(other_vertex, distance)
+	elif !connections.has(other_vertex):
+		add_connection(other_vertex, distance)
+
 func add_connection(other_vertex: rail_vertex, distance: int):
 	connections[other_vertex] = distance
 
@@ -26,6 +32,9 @@ func get_connection() -> rail_vertex:
 		return connections.keys()[0]
 	return null
 
+func is_connected_to(vertex: rail_vertex) -> bool:
+	return connections.has(vertex)
+
 func get_length(vertex: rail_vertex) -> int:
 	if connections.has(vertex):
 		return connections[vertex]
@@ -36,6 +45,9 @@ func get_connections() -> Dictionary:
 
 func get_connections_count() -> int:
 	return connections.keys().size()
+
+func remove_all_connections():
+	connections = {}
 
 func remove_connection(other_vertex: rail_vertex):
 	connections.erase(other_vertex)

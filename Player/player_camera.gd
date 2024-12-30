@@ -23,7 +23,7 @@ func _process(_delta):
 	if Input.is_action_just_released("zoom_out") and zoom.x > 0.06:
 		zoom.x -= 0.05
 		zoom.y -= 0.05
-	if Input.is_action_pressed("pan_mouse"):
+	if Input.is_action_pressed("pan_mouse") and last_mouse_position:
 		var instant_mouse_movement = last_mouse_position - get_viewport().get_mouse_position()
 		position.x += 1 / zoom.x * instant_mouse_movement.x
 		position.y += 1 / zoom.y * instant_mouse_movement.y

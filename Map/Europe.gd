@@ -45,6 +45,8 @@ func _input(event):
 	elif event.is_action_pressed("debug_place_train"):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
+		for i in 5:
+			print(char(133))
 		for coord in rail_placer.rail_graph.rail_vertices:
 			print(coord)
 			print(rail_placer.rail_graph.rail_vertices[coord].connections)
@@ -243,8 +245,6 @@ func encode_depot(coords: Vector2i):
 func encode_station(coords: Vector2i, new_owner: int):
 	tile_info.update_tile_metadata(coords, [2, "Station"])
 	cargo_controller.create_station(coords, new_owner)
-	for tile in get_surrounding_cells(coords):
-		pass
 
 @rpc("any_peer", "call_local", "unreliable")
 func set_cell_rail_placer_request(coords: Vector2i, orientation: int, type: int):
