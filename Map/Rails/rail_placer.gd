@@ -70,6 +70,7 @@ func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
 	var rail_layer: TileMapLayer = get_rail_layer(new_orientation)
 	rail_layer.set_cell(coords, 0, Vector2i(new_orientation, new_type))
 	add_track_connection(coords, new_orientation)
+	#print(coords, new_orientation)
 	if new_type == 0:
 		place_rail(coords)
 	elif new_type == 1:
@@ -88,9 +89,9 @@ func place_rail(coords: Vector2i):
 	#Is vertex
 	if get_total_connections(coords) > 2:
 		for other_coords in map.get_surrounding_cells(coords):
-			if are_tiles_connected_by_rail(coords, other_coords):
-				rail_graph.check_for_misplaced_vertex_and_delete(other_coords)
-		if !rail_graph.is_tile_vertix(coords):
+			if are_tiles_connected_by_rail(coords, other_coords) and is_tile_misplaced_endpoint(other_coords):
+				rail_graph.delete_rail_vertex(other_coords)
+		if !rail_graph.is_tile_vertex(coords):
 			rail_graph.add_rail_vertex(coords)
 	elif get_total_connections(coords) == 2:
 		var other_vertex = find_connected_existing_endpoint(coords)
@@ -99,7 +100,7 @@ func place_rail(coords: Vector2i):
 			rail_graph.connect_two_endpoints(coords, other_vertex)
 		elif other_vertex != null and is_tile_misplaced_endpoint(coords) and is_tile_endpoint(other_vertex):
 			rail_graph.connect_two_endpoints(coords, other_vertex)
-		elif other_vertex != null and rail_graph.is_tile_vertix(coords):
+		elif other_vertex != null and rail_graph.is_tile_vertex(coords):
 			rail_graph.search_for_connections(get_vertex(coords))
 	elif get_total_connections(coords) == 1:
 		var other_endpoint = find_connected_existing_endpoint(coords)
@@ -137,13 +138,13 @@ func get_total_connections(coords: Vector2i) -> int:
 	return total
 
 func place_depot(coords: Vector2i):
-	if rail_graph.is_tile_vertix(coords) and !rail_graph.is_tile_stationary_vertix(coords):
+	if rail_graph.is_tile_vertex(coords) and !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.delete_rail_vertex(coords)
 	if !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.add_stationary_vertex(coords)
 
 func place_station(coords: Vector2i):
-	if rail_graph.is_tile_vertix(coords) and !rail_graph.is_tile_stationary_vertix(coords):
+	if rail_graph.is_tile_vertex(coords) and !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.delete_rail_vertex(coords)
 	if !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.add_stationary_vertex(coords)
@@ -203,6 +204,7 @@ func get_track_connections(coords: Vector2i) -> Array:
 		return track_connection[coords]
 	else:
 		return [false, false, false, false, false, false]
+
 func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i) -> bool:
 	var track_connections1 = get_track_connections(coord1)
 	var track_connections2 = get_track_connections(coord2)
@@ -212,14 +214,9 @@ func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i) -> bool:
 		if bordering_cells[direction] == coord2:
 			return track_connections1[real_direction] and track_connections2[(real_direction + 3) % 6]
 	return false
+
 func is_tile_endpoint(coords: Vector2i) -> bool:
 	return rail_graph.is_tile_endpoint(coords)
-
-#func is_tile_endpoint(coords: Vector2i) -> bool:
-	#for item: TileMapLayer in get_children():
-		#if item.name.begins_with("Rail_Layer") and !item.get_cell_atlas_coords(coords).y <= 0:
-			#return false
-	#return get_total_connections(coords) <= 2
 
 func is_tile_misplaced_endpoint(coords: Vector2i) -> bool:
 	return is_tile_endpoint(coords) and !is_tile_endpoint_check_tile(coords)
@@ -231,4 +228,24 @@ func is_tile_endpoint_check_tile(coords: Vector2i) -> bool:
 		if are_tiles_connected_by_rail(coords, rail_graph.get_neighbor_cell_given_direction(coords, direction)):
 			count += 1
 	return count < 2
-	
+
+
+func parse_entire_network(start: Vector2i):
+	var queue = [start]
+	var visited = {start = 1}
+	var curr: Vector2i
+	while !queue.is_empty():
+		curr = queue.pop_front()
+		var count_connections = 0
+		for cell in map.get_surrounding_cells(curr):
+			if are_tiles_connected_by_rail(curr, cell):
+				count_connections += 1
+				if !visited.has(cell):
+					queue.push_back(cell)
+					visited[cell] = 1
+		if count_connections == 1:
+			assert(rail_graph.is_tile_endpoint(curr))
+		elif count_connections == 2:
+			assert(!rail_graph.is_tile_vertex(curr))
+		elif count_connections > 2:
+			assert(rail_graph.is_tile_intersection(curr))

@@ -47,7 +47,7 @@ func get_vertex(coordinates: Vector2i) -> rail_vertex:
 func does_vertex_have_no_connections(coordinates: Vector2i) -> bool:
 	return get_vertex(coordinates).get_connections_count() == 0
 
-func is_tile_vertix(coordinates: Vector2i) -> bool:
+func is_tile_vertex(coordinates: Vector2i) -> bool:
 	return rail_vertices.has(coordinates)
 
 func is_tile_stationary_vertix(coordinates: Vector2i) -> bool:
@@ -59,13 +59,25 @@ func is_tile_endpoint(coordinates: Vector2i) -> bool:
 func is_tile_intersection(coordinates: Vector2i) -> bool:
 	return rail_vertices.has(coordinates) and rail_vertices[coordinates] is rail_vertex_intersection
 
-func check_for_misplaced_vertex_and_delete(coordinates: Vector2i):
-	if is_tile_endpoint(coordinates):
-		delete_rail_vertex(coordinates)
+func connect_and_delete_endpoint_to_non_endpoint(coords1: Vector2i, coords2: Vector2i):
+	var endpoint: rail_vertex_endpoint
+	var non_endpoint: rail_vertex
+	if get_vertex(coords1) is rail_vertex_endpoint and !(get_vertex(coords2) is rail_vertex_endpoint):
+		non_endpoint = get_vertex(coords2)
+		delete_rail_vertex(coords1)
+	else:
+		non_endpoint = get_vertex(coords1)
+		delete_rail_vertex(coords2)
+	search_for_connections(endpoint)
+	
 
 func connect_two_endpoints(coords1: Vector2i, coords2: Vector2i):
 	var vertex1 = get_vertex(coords1)
 	var vertex2 = get_vertex(coords2)
+	if vertex1 is rail_vertex_endpoint and vertex2 is rail_vertex and !(vertex2 is rail_vertex_endpoint):
+		connect_and_delete_endpoint_to_non_endpoint(coords1, coords2)
+	elif vertex2 is rail_vertex_endpoint and vertex1 is rail_vertex and !(vertex1 is rail_vertex_endpoint):
+		connect_and_delete_endpoint_to_non_endpoint(coords1, coords2)
 	var connections = []
 	connections.append(vertex1.get_connection())
 	connections.append(vertex2.get_connection())
@@ -137,7 +149,7 @@ func search_for_connections(vertex: rail_vertex):
 				var tile = get_neighbor_cell_given_direction(current, direction)
 				#Does this tile also connect back to path_find_pos
 				if map.get_tile_connections(tile)[(direction + 3) % 6] and !visited.has(tile):
-					if is_tile_vertix(tile):
+					if is_tile_vertex(tile):
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
 						vertex.check_coonection_add_if_shorter(vert, dist)

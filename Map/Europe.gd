@@ -54,6 +54,7 @@ func _input(event):
 			print(coord)
 			print(rail_placer.rail_graph.rail_vertices[coord].connections)
 			print("-----")
+		rail_placer.parse_entire_network(get_cell_position())
 		
 
 func _process(_delta):
