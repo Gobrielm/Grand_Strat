@@ -86,33 +86,28 @@ func get_vertex(coords: Vector2i) -> rail_vertex:
 	return rail_graph.get_vertex(coords)
 
 func place_rail(coords: Vector2i):
-	#Is vertex
-	if get_total_connections(coords) > 2:
-		for other_coords in map.get_surrounding_cells(coords):
-			if are_tiles_connected_by_rail(coords, other_coords) and is_tile_misplaced_endpoint(other_coords):
-				rail_graph.delete_rail_vertex(other_coords)
-		if !rail_graph.is_tile_vertex(coords):
-			rail_graph.add_rail_vertex(coords)
+	if get_total_connections(coords) == 1:
+		rail_graph.add_rail_vertex(coords)
 	elif get_total_connections(coords) == 2:
-		var other_vertex = find_connected_existing_endpoint(coords)
-		if other_vertex != null and is_tile_endpoint(coords) and is_tile_misplaced_endpoint(other_vertex):
-			#Connecting two endpoints
-			rail_graph.connect_two_endpoints(coords, other_vertex)
-		elif other_vertex != null and is_tile_misplaced_endpoint(coords) and is_tile_endpoint(other_vertex):
-			rail_graph.connect_two_endpoints(coords, other_vertex)
-		elif other_vertex != null and rail_graph.is_tile_vertex(coords):
-			rail_graph.search_for_connections(get_vertex(coords))
-	elif get_total_connections(coords) == 1:
-		var other_endpoint = find_connected_existing_endpoint(coords)
-		if other_endpoint == null or !is_tile_endpoint(other_endpoint):
-			#New endpoint
-			rail_graph.add_rail_vertex(coords)
-		elif rail_graph.does_vertex_have_no_connections(other_endpoint):
-			#New endpoint that connects to other endpoint
-			rail_graph.add_rail_vertex(coords)
+		if is_tile_misplaced_endpoint(coords):
+			rail_graph.delete_rail_vertex(coords)
 		else:
-			#Extending Endpoint
-			rail_graph.move_rail_vertex(other_endpoint, coords)
+			rail_graph.search_for_connections(get_vertex(coords))
+	elif get_total_connections(coords) > 2:
+		if is_tile_endpoint(coords):
+			rail_graph.check_convert_endpoint_intersection(coords)
+		else:
+			rail_graph.add_rail_vertex(coords)
+		
+	for cell in map.get_surrounding_cells(coords):
+		check_rails(cell)
+
+func check_rails(coords: Vector2i):
+	if get_total_connections(coords) == 1:
+		rail_graph.search_for_connections(get_vertex(coords))
+	elif get_total_connections(coords) == 2:
+		if is_tile_misplaced_endpoint(coords):
+			rail_graph.delete_rail_vertex(coords)
 
 func find_connected_existing_endpoint(coords: Vector2i):
 	var potential = []
@@ -229,7 +224,6 @@ func is_tile_endpoint_check_tile(coords: Vector2i) -> bool:
 			count += 1
 	return count < 2
 
-
 func parse_entire_network(start: Vector2i):
 	var queue = [start]
 	var visited = {start = 1}
@@ -244,8 +238,8 @@ func parse_entire_network(start: Vector2i):
 					queue.push_back(cell)
 					visited[cell] = 1
 		if count_connections == 1:
-			assert(rail_graph.is_tile_endpoint(curr))
+			assert(rail_graph.is_tile_vertex(curr))
 		elif count_connections == 2:
 			assert(!rail_graph.is_tile_vertex(curr))
 		elif count_connections > 2:
-			assert(rail_graph.is_tile_intersection(curr))
+			assert(rail_graph.is_tile_vertex(curr))

@@ -59,70 +59,6 @@ func is_tile_endpoint(coordinates: Vector2i) -> bool:
 func is_tile_intersection(coordinates: Vector2i) -> bool:
 	return rail_vertices.has(coordinates) and rail_vertices[coordinates] is rail_vertex_intersection
 
-func connect_and_delete_endpoint_to_non_endpoint(coords1: Vector2i, coords2: Vector2i):
-	var endpoint: rail_vertex_endpoint
-	var non_endpoint: rail_vertex
-	if get_vertex(coords1) is rail_vertex_endpoint and !(get_vertex(coords2) is rail_vertex_endpoint):
-		non_endpoint = get_vertex(coords2)
-		delete_rail_vertex(coords1)
-	else:
-		non_endpoint = get_vertex(coords1)
-		delete_rail_vertex(coords2)
-	search_for_connections(endpoint)
-	
-
-func connect_two_endpoints(coords1: Vector2i, coords2: Vector2i):
-	var vertex1 = get_vertex(coords1)
-	var vertex2 = get_vertex(coords2)
-	if vertex1 is rail_vertex_endpoint and vertex2 is rail_vertex and !(vertex2 is rail_vertex_endpoint):
-		connect_and_delete_endpoint_to_non_endpoint(coords1, coords2)
-	elif vertex2 is rail_vertex_endpoint and vertex1 is rail_vertex and !(vertex1 is rail_vertex_endpoint):
-		connect_and_delete_endpoint_to_non_endpoint(coords1, coords2)
-	var connections = []
-	connections.append(vertex1.get_connection())
-	connections.append(vertex2.get_connection())
-	var length = get_length(vertex1, vertex2)
-	if connections[0] == null and connections[1] == null:
-		connect_two_isolated_rails(vertex1, vertex2)
-		return
-	elif connections[0] == null:
-		connect_isolated_rail_to_rest(coords2, coords1)
-		return
-	elif connections[1] == null:
-		connect_isolated_rail_to_rest(coords1, coords2)
-		return
-	elif connections[0] == vertex2 and connections[1] == vertex1:
-		delete_rail_vertex(coords1)
-		delete_rail_vertex(coords2)
-		return
-	elif connections[0] == connections[1]:
-		delete_rail_vertex(coords1)
-		delete_rail_vertex(coords2)
-		connections[0].remove_connection(vertex1)
-		connections[0].remove_connection(vertex2)
-		return
-	connections[0].remove_connection(vertex1)
-	connections[1].remove_connection(vertex2)
-	delete_rail_vertex(coords1)
-	delete_rail_vertex(coords2)
-	connections[0].add_connection(connections[1], length)
-	connections[1].add_connection(connections[0], length)
-	
-func connect_isolated_rail_to_rest(coords1: Vector2i, coords2: Vector2i):
-	var vertex = get_vertex(coords1)
-	var vertex_isolated = get_vertex(coords2)
-	var connection = vertex.get_connection()
-	var length = get_length(vertex, vertex_isolated)
-	
-	connection.remove_connection(vertex)
-	delete_rail_vertex(coords1)
-	connection.add_connection(vertex_isolated, length)
-	vertex_isolated.add_connection(connection, length)
-		
-func connect_two_isolated_rails(vertex1: rail_vertex, vertex2: rail_vertex):
-	vertex1.add_connection(vertex2, 1)
-	vertex2.add_connection(vertex1, 1)
-
 func get_length(vertex1: rail_vertex, vertex2: rail_vertex) -> int:
 	var length = 0
 	if vertex1.get_connection() != null:
@@ -141,7 +77,7 @@ func search_for_connections(vertex: rail_vertex):
 	distance_away[coordinates] = 0
 	while !queue.is_empty():
 		current = queue.pop_front()
-		visited[current] = 1
+		visited.get_or_add(current)
 		var rail_connections: Array = map.get_tile_connections(current)
 		for direction in rail_connections.size():
 			#If there is connection in that direction could the train traverse there?
