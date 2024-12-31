@@ -16,6 +16,8 @@ var money_controller
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
 const depot = preload("res://Cargo/depot.gd")
+
+var testing
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	unique_id = multiplayer.get_unique_id()
@@ -23,6 +25,7 @@ func _ready():
 		money_controller = preload("res://Player/money_controller.gd").new(multiplayer.get_peers())
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
+	testing = preload("res://Test/testing.gd").new(self)
 
 func _input(event):
 	update_hover()
@@ -37,7 +40,7 @@ func _input(event):
 		if camera.are_all_buttons_unpressed() and !tile_window.visible:
 			tile_window.show_tile_info(get_cell_position())
 		elif track_button.active:
-			place_to_end_rail()
+			place_to_end_rail(start, get_cell_position())
 		start = null
 	elif event.is_action_pressed("deselect"):
 		rail_placer.clear_all_temps()
@@ -124,10 +127,11 @@ func get_number_of_trains() -> int:
 func record_start_rail():
 	start = get_cell_position()
 
-func place_to_end_rail():
+func place_to_end_rail(new_start, new_end):
+	start = new_start
 	if start == null:
 		return
-	var end : Vector2i = get_cell_position()
+	var end: Vector2i = new_end
 	var queue = []
 	
 	var current: Vector2i

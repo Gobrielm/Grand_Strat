@@ -6,6 +6,19 @@ var rail_vertices = {}
 func _init(new_map: TileMapLayer):
 	map = new_map
 
+func clear_and_clean_all_vertices():
+	for vertex in rail_vertices.values():
+		vertex.queue_free()
+	rail_vertices.clear()
+
+func add_stationary_vertex(coordinates: Vector2i):
+	rail_vertices[coordinates] = rail_vertex_stationary.new(coordinates)
+	search_for_connections(rail_vertices[coordinates])
+	var vertex = get_vertex(coordinates)
+	for vert in vertex.get_connections():
+		vert.remove_all_connections()
+		search_for_connections(vert)
+
 func add_rail_vertex(coordinates: Vector2i):
 	rail_vertices[coordinates] = rail_vertex.new(coordinates)
 	search_for_connections(rail_vertices[coordinates])
@@ -13,6 +26,15 @@ func add_rail_vertex(coordinates: Vector2i):
 	for vert in vertex.get_connections():
 		vert.remove_all_connections()
 		search_for_connections(vert)
+	check_convert_endpoint_intersection(coordinates)
+
+func check_convert_endpoint_intersection(coordinates: Vector2i):
+	var vertex = get_vertex(coordinates)
+	var count = vertex.connections.size()
+	if count < 2:
+		rail_vertices[coordinates] = rail_vertex_endpoint.new(vertex)
+	else:
+		rail_vertices[coordinates] = rail_vertex_intersection.new(vertex)
 
 func move_rail_vertex(coordinates: Vector2i, new_coordinates: Vector2i):
 	rail_vertices[coordinates].move_vertex(new_coordinates)
@@ -27,6 +49,19 @@ func does_vertex_have_no_connections(coordinates: Vector2i) -> bool:
 
 func is_tile_vertix(coordinates: Vector2i) -> bool:
 	return rail_vertices.has(coordinates)
+
+func is_tile_stationary_vertix(coordinates: Vector2i) -> bool:
+	return rail_vertices.has(coordinates) and rail_vertices[coordinates] is rail_vertex_stationary
+
+func is_tile_endpoint(coordinates: Vector2i) -> bool:
+	return rail_vertices.has(coordinates) and rail_vertices[coordinates] is rail_vertex_endpoint
+
+func is_tile_intersection(coordinates: Vector2i) -> bool:
+	return rail_vertices.has(coordinates) and rail_vertices[coordinates] is rail_vertex_intersection
+
+func check_for_misplaced_vertex_and_delete(coordinates: Vector2i):
+	if is_tile_endpoint(coordinates):
+		delete_rail_vertex(coordinates)
 
 func connect_two_endpoints(coords1: Vector2i, coords2: Vector2i):
 	var vertex1 = get_vertex(coords1)
@@ -72,7 +107,6 @@ func connect_isolated_rail_to_rest(coords1: Vector2i, coords2: Vector2i):
 	connection.add_connection(vertex_isolated, length)
 	vertex_isolated.add_connection(connection, length)
 		
-
 func connect_two_isolated_rails(vertex1: rail_vertex, vertex2: rail_vertex):
 	vertex1.add_connection(vertex2, 1)
 	vertex2.add_connection(vertex1, 1)
@@ -129,7 +163,9 @@ func get_neighbor_cell_given_direction(coords: Vector2i, num: int) -> Vector2i:
 
 func delete_rail_vertex(coordinates: Vector2i):
 	var vertex = get_vertex(coordinates)
+	for connected_vertex: rail_vertex in vertex.get_connections():
+		connected_vertex.add_connection(vertex, connected_vertex.get_length(vertex))
+		connected_vertex.remove_connection(vertex)
 	vertex.queue_free()
 	rail_vertices.erase(coordinates)
-	#Add dfs to find and remove routes that connect to vertex
-	#Then add dfs to try and connect routes again
+	
