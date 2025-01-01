@@ -63,6 +63,10 @@ func clear_all_temps():
 	for layer:TileMapLayer in temp_layer_array:
 		layer.clear()
 
+#func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
+	#var thread = Thread.new()
+	#thread.start(_thread_place_tile.bind(coords, new_orientation, new_type))
+
 func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
 	if is_already_built(coords, new_orientation):
 		return

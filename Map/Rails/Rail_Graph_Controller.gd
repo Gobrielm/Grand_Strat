@@ -72,6 +72,8 @@ func search_for_connections(vertex: rail_vertex):
 	var queue = []
 	var visited = {}
 	visited[coordinates] = -1
+	var from_vertex = {}
+	from_vertex[coordinates] = -1
 	var distance_away = {}
 	var current
 	queue.append(coordinates)
@@ -89,8 +91,12 @@ func search_for_connections(vertex: rail_vertex):
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
 						vertex.check_coonection_add_if_shorter(vert, direction, dist)
-						vert.check_coonection_add_if_shorter(vertex, -1, dist)
+						vert.check_coonection_add_if_shorter(vertex, (from_vertex[current] + 3) % 6, dist)
 					elif !visited.has(tile):
+						if from_vertex[current] == -1:
+							from_vertex[tile] = direction
+						else:
+							from_vertex[tile] = from_vertex[current]
 						queue.append(tile)
 						visited[tile] = direction
 						distance_away[tile] = distance_away[current] + 1
