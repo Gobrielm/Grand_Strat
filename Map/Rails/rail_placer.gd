@@ -228,7 +228,7 @@ func is_tile_endpoint_check_tile(coords: Vector2i) -> bool:
 
 func parse_entire_network(start: Vector2i):
 	var queue = []
-	queue.add(start)
+	queue.push_back(start)
 	var visited = {}
 	visited[start] = 1
 	var curr: Vector2i

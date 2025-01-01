@@ -317,12 +317,19 @@ func deaccelerate_train(delta):
 	velocity = acceleration_direction * speed
 
 func pathfind_to_next_stop() -> Array:
+	var route = []
+	return pathfind_to_next_vertix(stops[stop_number])
+	
+
+#func dijikstra_get_vertice_order() -> Array:
+	#pass
+
+func pathfind_to_next_vertix(end: Vector2i) -> Array:
 	var queue = [location]
 	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
 	var order = {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
 	var visited = {} # Vector2i -> Array[Bool for each direction]
 	visited[location] = get_train_dir_in_array()
-	var end = stops[stop_number]
 	var found = false
 	var curr: Vector2i
 	while !queue.is_empty():
@@ -342,10 +349,6 @@ func pathfind_to_next_stop() -> Array:
 			break
 	var route = [end]
 	var direction = null
-	print(tile_to_prev)
-	print("--------")
-	print(order)
-	print("--------")
 	if found:
 		found = false
 		curr = end
@@ -360,11 +363,8 @@ func pathfind_to_next_stop() -> Array:
 				var dir = order[curr][0]
 				curr = tile_to_prev[curr][dir]
 				direction = dir
-			print(curr)
-			print(direction)
 			route.push_front(curr)
 			if curr == location:
-				print("found")
 				found = true
 	if found:
 		return route
@@ -398,63 +398,6 @@ func intialize_order(order: Dictionary, coords: Vector2i, direction: int):
 	if !order.has(coords):
 		order[coords] = []
 	order[coords].append(direction)
-
-#func pathfind_to_next_stop() -> Array:
-	#var queue = []
-	#var tile_to_prev = {}
-	#var coords_to_train_direction = {}
-	#var end = stops[stop_number]
-	#var path_find_pos: Vector2i
-	#queue.append(location)
-	#coords_to_train_direction[location] = get_train_dir_in_array()
-	#while !queue.is_empty():
-		#path_find_pos = queue.pop_front()
-		#var rail_connections: Array = map.get_tile_connections(path_find_pos)
-		#var directions_train_could_traverse: Array = get_available_tiles_for_train(coords_to_train_direction[path_find_pos])
-		##Goes through each direction sequentially
-		#for direction in rail_connections.size():
-			##If there is connection in that direction could the train traverse there?
-			#if rail_connections[direction] and directions_train_could_traverse[direction]:
-				#var tile = get_neighbor_cell_given_direction(path_find_pos, direction)
-				##Does this tile also connect back to path_find_pos
-				#if map.get_tile_connections(tile)[(direction + 3) % 6]:
-					##Init train directions
-					#if !coords_to_train_direction.has(tile):
-						#coords_to_train_direction[tile] = [false, false, false, false, false, false]
-					##Add train direction
-					#if !coords_to_train_direction[tile][direction]:
-						#coords_to_train_direction[tile][direction] = true
-						#queue.append(tile)
-					#if !tile_to_prev.has(tile):
-						#tile_to_prev[tile] = []
-					#if !tile_to_prev[tile].has(path_find_pos):
-						#tile_to_prev[tile].append(path_find_pos)
-			#if path_find_pos == end:
-				#return get_pathfinding_route_from_end(end, tile_to_prev)
-	#return []
-
-func get_pathfinding_route_from_end(end: Vector2i, tile_to_prev: Dictionary) -> Array:
-	var parse_back_tile = end
-	var pathfinding_route = []
-	var tries = 0
-	var last_dir = -1
-	while parse_back_tile != location:
-		pathfinding_route.push_front(parse_back_tile)
-		var surrounding_tiles = map.get_surrounding_cells(parse_back_tile)
-		var index = 0
-		for tile in tile_to_prev[parse_back_tile]:
-			if surrounding_tiles.has(tile):
-				var dir = (surrounding_tiles.find(tile) + 4) % 6
-				if last_dir == -1 or (dir == last_dir or (dir + 1) % 6 == last_dir or (dir + 5) % 6 == last_dir):
-					parse_back_tile = tile
-					last_dir = dir
-					break
-			index += 1
-		tries += 1
-		if tries > 1000:
-			print("Broken")
-			return []
-	return pathfinding_route
 
 func get_train_dir_in_array() -> Array:
 	var toReturn = [false, false, false, false, false, false]
