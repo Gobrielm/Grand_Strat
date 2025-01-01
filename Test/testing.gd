@@ -4,7 +4,7 @@ var map: TileMapLayer
 
 func _init(new_map: TileMapLayer):
 	map = new_map
-	#test()
+	test()
 
 func test():
 	print("testing")
@@ -164,7 +164,7 @@ func basic_loop_with_station():
 
 
 func runtime_test():
-	var start = Time.get_ticks_msec()
+	var start: float = Time.get_ticks_msec()
 	var point1 = Vector2i(0, 0)
 	var point2 = Vector2i(400, -100)
 	var point3 = Vector2i(500, -100)
@@ -177,5 +177,5 @@ func runtime_test():
 	build_many_rails(point5, point1)
 	build_many_rails(point1, point3)
 	clear_test_stuff()
-	var end = Time.get_ticks_msec()
+	var end: float = Time.get_ticks_msec()
 	print(str((end - start) / 1000) + " Seconds passed")

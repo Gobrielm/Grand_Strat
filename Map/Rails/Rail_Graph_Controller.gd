@@ -42,7 +42,9 @@ func move_rail_vertex(coordinates: Vector2i, new_coordinates: Vector2i):
 	rail_vertices.erase(coordinates)
 
 func get_vertex(coordinates: Vector2i) -> rail_vertex:
-	return rail_vertices[coordinates]
+	if rail_vertices.has(coordinates):
+		return rail_vertices[coordinates]
+	return null
 
 func does_vertex_have_no_connections(coordinates: Vector2i) -> bool:
 	return get_vertex(coordinates).get_connections_count() == 0
@@ -68,6 +70,8 @@ func get_length(vertex1: rail_vertex, vertex2: rail_vertex) -> int:
 	return length + 1
 
 func search_for_connections(vertex: rail_vertex):
+	if vertex == null:
+		return
 	var coordinates = vertex.get_coordinates()
 	var queue = []
 	var visited = {}
@@ -122,6 +126,8 @@ func get_neighbor_cell_given_direction(coords: Vector2i, num: int) -> Vector2i:
 
 func delete_rail_vertex(coordinates: Vector2i):
 	var vertex = get_vertex(coordinates)
+	if vertex == null:
+		return
 	for connected_vertex: rail_vertex in vertex.get_connections():
 		connected_vertex.remove_connection(vertex)
 	vertex.queue_free()

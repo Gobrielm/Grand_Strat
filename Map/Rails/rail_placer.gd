@@ -14,6 +14,8 @@ var orientation = 0
 var type = -1
 var old_coordinates
 
+var threads: Array = []
+
 @onready var map: TileMapLayer = get_parent()
 var rail_graph: rail_graph_controller
 
@@ -62,10 +64,6 @@ func clear_all_real():
 func clear_all_temps():
 	for layer:TileMapLayer in temp_layer_array:
 		layer.clear()
-
-#func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
-	#var thread = Thread.new()
-	#thread.start(_thread_place_tile.bind(coords, new_orientation, new_type))
 
 func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
 	if is_already_built(coords, new_orientation):
