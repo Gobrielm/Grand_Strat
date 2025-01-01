@@ -71,28 +71,33 @@ func search_for_connections(vertex: rail_vertex):
 	var coordinates = vertex.get_coordinates()
 	var queue = []
 	var visited = {}
+	visited[coordinates] = -1
 	var distance_away = {}
 	var current
 	queue.append(coordinates)
 	distance_away[coordinates] = 0
 	while !queue.is_empty():
 		current = queue.pop_front()
-		visited.get_or_add(current)
 		var rail_connections: Array = map.get_tile_connections(current)
 		for direction in rail_connections.size():
 			#If there is connection in that direction could the train traverse there?
 			if rail_connections[direction]:
 				var tile = get_neighbor_cell_given_direction(current, direction)
 				#Does this tile also connect back to path_find_pos
-				if map.get_tile_connections(tile)[(direction + 3) % 6] and !visited.has(tile):
+				if can_direction_reach(visited[current], direction) and map.get_tile_connections(tile)[(direction + 3) % 6]:
 					if is_tile_vertex(tile):
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
-						vertex.check_coonection_add_if_shorter(vert, 0, dist)
-						vert.check_coonection_add_if_shorter(vertex, 0, dist)
-					else:
+						vertex.check_coonection_add_if_shorter(vert, direction, dist)
+						vert.check_coonection_add_if_shorter(vertex, -1, dist)
+					elif !visited.has(tile):
 						queue.append(tile)
+						visited[tile] = direction
 						distance_away[tile] = distance_away[current] + 1
+
+func can_direction_reach(direction: int, other_direction: int) -> bool:
+	return direction == -1 or direction == other_direction or (direction + 1) % 6 == other_direction or (direction + 5) % 6 == other_direction
+
 
 func get_neighbor_cell_given_direction(coords: Vector2i, num: int) -> Vector2i:
 	if num == 0:
