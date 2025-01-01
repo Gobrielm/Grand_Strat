@@ -88,8 +88,8 @@ func search_for_connections(vertex: rail_vertex):
 					if is_tile_vertex(tile):
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
-						vertex.check_coonection_add_if_shorter(vert, dist)
-						vert.check_coonection_add_if_shorter(vertex, dist)
+						vertex.check_coonection_add_if_shorter(vert, 0, dist)
+						vert.check_coonection_add_if_shorter(vertex, 0, dist)
 					else:
 						queue.append(tile)
 						distance_away[tile] = distance_away[current] + 1

@@ -12,20 +12,20 @@ func move_vertex(new_location: Vector2i):
 	var change = 0 if new_location == location else 1
 	location = new_location
 	for vertex in connections:
-		connections[vertex] += change
+		change_connection(vertex, change)
 		vertex.change_connection(self, change)
 
-func check_coonection_add_if_shorter(other_vertex: rail_vertex, distance: int):
-	if connections.has(other_vertex) and connections[other_vertex] > distance:
-		add_connection(other_vertex, distance)
+func check_coonection_add_if_shorter(other_vertex: rail_vertex, direction: int, distance: int):
+	if connections.has(other_vertex) and get_length(other_vertex) > distance:
+		add_connection(other_vertex, direction, distance)
 	elif !connections.has(other_vertex):
-		add_connection(other_vertex, distance)
+		add_connection(other_vertex, direction, distance)
 
-func add_connection(other_vertex: rail_vertex, distance: int):
-	connections[other_vertex] = distance
+func add_connection(other_vertex: rail_vertex, direction: int, distance: int):
+	connections[other_vertex] = [direction, distance]
 
 func change_connection(vertex_that_changed, distance_change):
-	connections[vertex_that_changed] += distance_change
+	connections[vertex_that_changed][1] += distance_change
 
 func get_connection() -> rail_vertex:
 	if get_connections_count() == 1:
@@ -37,7 +37,12 @@ func is_connected_to(vertex: rail_vertex) -> bool:
 
 func get_length(vertex: rail_vertex) -> int:
 	if connections.has(vertex):
-		return connections[vertex]
+		return connections[vertex][1]
+	return -1
+
+func get_direction(vertex: rail_vertex) -> int:
+	if connections.has(vertex):
+		return connections[vertex][0]
 	return -1
 
 func get_connections() -> Dictionary:
