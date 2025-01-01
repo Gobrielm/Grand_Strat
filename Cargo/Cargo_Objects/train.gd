@@ -100,10 +100,8 @@ func _on_window_close_requested():
 
 @rpc("any_peer", "unreliable", "call_local")
 func do_add_stop(new_location: Vector2i):
-	for num in map.get_tile_connections(new_location):
-		if num:
-			add_stop.rpc(new_location)
-			break
+	if map.is_tile_vertex(new_location):
+		add_stop.rpc(new_location)
 
 @rpc("authority", "unreliable", "call_local")
 func add_stop(new_location: Vector2i):
@@ -256,8 +254,6 @@ func add_train_car():
 func delete_train_car():
 	cargo_hold.change_max_storage(0, -TRAIN_CAR_SIZE)
 
-
-
 func drive_train_to_route():
 	var direction = Vector2(map.map_to_local(route[current]) - map.map_to_local(location)).normalized()
 	acceleration_direction = direction
@@ -321,38 +317,121 @@ func deaccelerate_train(delta):
 	velocity = acceleration_direction * speed
 
 func pathfind_to_next_stop() -> Array:
-	var queue = []
-	var tile_to_prev = {}
-	var coords_to_train_direction = {}
+	var queue = [location]
+	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
+	var order = {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
+	var visited = {} # Vector2i -> Array[Bool for each direction]
+	visited[location] = get_train_dir_in_array()
 	var end = stops[stop_number]
-	var path_find_pos: Vector2i
-	queue.append(location)
-	coords_to_train_direction[location] = get_train_dir_in_array()
+	var found = false
+	var curr: Vector2i
 	while !queue.is_empty():
-		path_find_pos = queue.pop_front()
-		var rail_connections: Array = map.get_tile_connections(path_find_pos)
-		var directions_train_could_traverse: Array = get_available_tiles_for_train(coords_to_train_direction[path_find_pos])
-		#Goes through each direction sequentially
-		for direction in rail_connections.size():
-			#If there is connection in that direction could the train traverse there?
-			if rail_connections[direction] and directions_train_could_traverse[direction]:
-				var tile = get_neighbor_cell_given_direction(path_find_pos, direction)
-				#Does this tile also connect back to path_find_pos
-				if map.get_tile_connections(tile)[(direction + 3) % 6]:
-					#Init train directions
-					if !coords_to_train_direction.has(tile):
-						coords_to_train_direction[tile] = [false, false, false, false, false, false]
-					#Add train direction
-					if !coords_to_train_direction[tile][direction]:
-						coords_to_train_direction[tile][direction] = true
-						queue.append(tile)
-					if !tile_to_prev.has(tile):
-						tile_to_prev[tile] = []
-					if !tile_to_prev[tile].has(path_find_pos):
-						tile_to_prev[tile].append(path_find_pos)
-			if path_find_pos == end:
-				return get_pathfinding_route_from_end(end, tile_to_prev)
+		curr = queue.pop_front()
+		var cells_to_check = get_cells_in_front(curr, visited[curr])
+		for direction in cells_to_check.size():
+			var tile = cells_to_check[direction]
+			if tile != null and map.do_tiles_connect(curr, tile) and !check_visited(visited, tile, direction):
+				intialize_visited(visited, tile, direction)
+				queue.push_back(tile)
+				intialize_tile_to_prev(tile_to_prev, tile, (direction + 3) % 6, curr)
+				intialize_order(order, tile, (direction + 3) % 6)
+				if tile == end:
+					found = true
+					break
+		if found:
+			break
+	var route = [end]
+	var direction = null
+	print(tile_to_prev)
+	print("--------")
+	print(order)
+	print("--------")
+	if found:
+		found = false
+		curr = end
+		while !found:
+			if direction != null:
+				for dir in order[curr]:
+					print(dir)
+					if dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6:
+						curr = tile_to_prev[curr][dir]
+						direction = dir
+			else:
+				var dir = order[curr][0]
+				curr = tile_to_prev[curr][dir]
+				direction = dir
+			print(curr)
+			print(direction)
+			route.push_front(curr)
+			if curr == location:
+				print("found")
+				found = true
+	if found:
+		return route
 	return []
+
+func get_cells_in_front(coords: Vector2i, directions: Array) -> Array:
+	var index = 2
+	var toReturn = [null, null, null, null, null, null]
+	for cell in map.get_surrounding_cells(coords):
+		if directions[index] or directions[(index + 1) % 6] or directions[(index + 5) % 6]:
+			toReturn[index] = cell
+		index = (index + 1) % 6
+	return toReturn
+
+func check_visited(visited: Dictionary, coords: Vector2i, direction: int) -> bool:
+	if visited.has(coords):
+		return visited[coords][direction]
+	return false
+
+func intialize_visited(visited: Dictionary, coords: Vector2i, direction: int):
+	if !visited.has(coords):
+		visited[coords] = [false, false, false, false, false, false]
+	visited[coords][direction] = true
+
+func intialize_tile_to_prev(tile_to_prev: Dictionary, coords: Vector2i, direction: int, prev: Vector2i):
+	if !tile_to_prev.has(coords):
+		tile_to_prev[coords] = [null, null, null, null, null, null]
+	tile_to_prev[coords][direction] = prev
+
+func intialize_order(order: Dictionary, coords: Vector2i, direction: int):
+	if !order.has(coords):
+		order[coords] = []
+	order[coords].append(direction)
+
+#func pathfind_to_next_stop() -> Array:
+	#var queue = []
+	#var tile_to_prev = {}
+	#var coords_to_train_direction = {}
+	#var end = stops[stop_number]
+	#var path_find_pos: Vector2i
+	#queue.append(location)
+	#coords_to_train_direction[location] = get_train_dir_in_array()
+	#while !queue.is_empty():
+		#path_find_pos = queue.pop_front()
+		#var rail_connections: Array = map.get_tile_connections(path_find_pos)
+		#var directions_train_could_traverse: Array = get_available_tiles_for_train(coords_to_train_direction[path_find_pos])
+		##Goes through each direction sequentially
+		#for direction in rail_connections.size():
+			##If there is connection in that direction could the train traverse there?
+			#if rail_connections[direction] and directions_train_could_traverse[direction]:
+				#var tile = get_neighbor_cell_given_direction(path_find_pos, direction)
+				##Does this tile also connect back to path_find_pos
+				#if map.get_tile_connections(tile)[(direction + 3) % 6]:
+					##Init train directions
+					#if !coords_to_train_direction.has(tile):
+						#coords_to_train_direction[tile] = [false, false, false, false, false, false]
+					##Add train direction
+					#if !coords_to_train_direction[tile][direction]:
+						#coords_to_train_direction[tile][direction] = true
+						#queue.append(tile)
+					#if !tile_to_prev.has(tile):
+						#tile_to_prev[tile] = []
+					#if !tile_to_prev[tile].has(path_find_pos):
+						#tile_to_prev[tile].append(path_find_pos)
+			#if path_find_pos == end:
+				#return get_pathfinding_route_from_end(end, tile_to_prev)
+	#return []
 
 func get_pathfinding_route_from_end(end: Vector2i, tile_to_prev: Dictionary) -> Array:
 	var parse_back_tile = end
@@ -381,8 +460,7 @@ func get_train_dir_in_array() -> Array:
 	var toReturn = [false, false, false, false, false, false]
 	var dir: int = round(rad_to_deg(rotation))
 	if dir < 0:
-		dir = dir + 360
-	dir = dir + 180
+		dir = dir * -1 + 180
 	toReturn[find_closest_acceptable_angle(dir)] = true
 	return toReturn
 

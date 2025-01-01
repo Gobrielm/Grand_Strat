@@ -10,7 +10,6 @@ var temp_layer_array = []
 var track_connection: Dictionary = {}
 var orientation_vectors = [Vector2(0, 1), Vector2(sqrt(3)/2, 0.5), Vector2(sqrt(3)/2, -0.5), Vector2(0, -1), Vector2(-sqrt(3)/2, -0.5), Vector2(-sqrt(3)/2, 0.5)]
 
-
 var orientation = 0
 var type = -1
 var old_coordinates
@@ -133,13 +132,13 @@ func get_total_connections(coords: Vector2i) -> int:
 	return total
 
 func place_depot(coords: Vector2i):
-	if rail_graph.is_tile_vertex(coords) and !rail_graph.is_tile_stationary_vertix(coords):
+	if is_tile_vertex(coords) and !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.delete_rail_vertex(coords)
 	if !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.add_stationary_vertex(coords)
 
 func place_station(coords: Vector2i):
-	if rail_graph.is_tile_vertex(coords) and !rail_graph.is_tile_stationary_vertix(coords):
+	if is_tile_vertex(coords) and !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.delete_rail_vertex(coords)
 	if !rail_graph.is_tile_stationary_vertix(coords):
 		rail_graph.add_stationary_vertex(coords)
@@ -213,6 +212,9 @@ func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i) -> bool:
 func is_tile_endpoint(coords: Vector2i) -> bool:
 	return rail_graph.is_tile_endpoint(coords)
 
+func is_tile_vertex(coords: Vector2i) -> bool:
+	return rail_graph.is_tile_vertex(coords)
+
 func is_tile_misplaced_endpoint(coords: Vector2i) -> bool:
 	return is_tile_endpoint(coords) and !is_tile_endpoint_check_tile(coords)
 
@@ -225,8 +227,10 @@ func is_tile_endpoint_check_tile(coords: Vector2i) -> bool:
 	return count < 2
 
 func parse_entire_network(start: Vector2i):
-	var queue = [start]
-	var visited = {start = 1}
+	var queue = []
+	queue.add(start)
+	var visited = {}
+	visited[start] = 1
 	var curr: Vector2i
 	while !queue.is_empty():
 		curr = queue.pop_front()
@@ -238,8 +242,8 @@ func parse_entire_network(start: Vector2i):
 					queue.push_back(cell)
 					visited[cell] = 1
 		if count_connections == 1:
-			assert(rail_graph.is_tile_vertex(curr))
+			assert(is_tile_vertex(curr))
 		elif count_connections == 2:
-			assert(!rail_graph.is_tile_vertex(curr))
+			assert(!is_tile_vertex(curr))
 		elif count_connections > 2:
-			assert(rail_graph.is_tile_vertex(curr))
+			assert(is_tile_vertex(curr))

@@ -235,6 +235,12 @@ func get_tile_connections(coords: Vector2i):
 func request_tile_data(coordinates: Vector2i) -> TileData:
 	return get_cell_tile_data(coordinates)
 
+#Rail Graph System
+func is_tile_vertex(coords: Vector2i) -> bool:
+	return rail_placer.is_tile_vertex(coords)
+
+func do_tiles_connect(coord1: Vector2i, coord2: Vector2i) -> bool:
+	return rail_placer.are_tiles_connected_by_rail(coord1, coord2)
 #Rail General
 @rpc("authority", "call_local", "reliable")
 func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, new_owner: int):

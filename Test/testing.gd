@@ -4,7 +4,7 @@ var map: TileMapLayer
 
 func _init(new_map: TileMapLayer):
 	map = new_map
-	test()
+	#test()
 
 func test():
 	print("testing")
@@ -20,6 +20,8 @@ func test():
 	print("basic_loop                   ✔️")
 	basic_loop_with_station()
 	print("basic_loop_with_station      ✔️")
+	print("runtime_test                 ✔️")
+	runtime_test()
 
 func build_rail(coords: Vector2i, orientation: int):
 	map.set_cell_rail_placer_server(coords, orientation, 0, 1)
@@ -159,3 +161,21 @@ func basic_loop_with_station():
 	assert(vertex2.is_connected_to(vertex1), "Not connected vertex")
 	assert(vertex3.is_connected_to(vertex2), "Not connected vertex")
 	clear_test_stuff()
+
+
+func runtime_test():
+	var start = Time.get_ticks_msec()
+	var point1 = Vector2i(0, 0)
+	var point2 = Vector2i(400, -100)
+	var point3 = Vector2i(500, -100)
+	var point4 = Vector2i(500, 100)
+	var point5 = Vector2i(300, 200)
+	build_many_rails(point1, point2)
+	build_many_rails(point2, point3)
+	build_many_rails(point3, point4)
+	build_many_rails(point4, point5)
+	build_many_rails(point5, point1)
+	build_many_rails(point1, point3)
+	clear_test_stuff()
+	var end = Time.get_ticks_msec()
+	print(str((end - start) / 1000) + " Seconds passed")
