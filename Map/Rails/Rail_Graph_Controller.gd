@@ -112,7 +112,7 @@ func get_neighbor_cell_given_direction(coords: Vector2i, num: int) -> Vector2i:
 func delete_rail_vertex(coordinates: Vector2i):
 	var vertex = get_vertex(coordinates)
 	for connected_vertex: rail_vertex in vertex.get_connections():
-		connected_vertex.add_connection(vertex, connected_vertex.get_length(vertex))
+		#connected_vertex.add_connection(vertex, connected_vertex.get_length(vertex))
 		connected_vertex.remove_connection(vertex)
 	vertex.queue_free()
 	rail_vertices.erase(coordinates)
