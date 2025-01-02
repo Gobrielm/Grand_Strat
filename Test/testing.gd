@@ -4,7 +4,7 @@ var map: TileMapLayer
 
 func _init(new_map: TileMapLayer):
 	map = new_map
-	test()
+	#test()
 
 func test():
 	print("testing")

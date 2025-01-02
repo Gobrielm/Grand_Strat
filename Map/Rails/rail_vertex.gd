@@ -16,6 +16,8 @@ func move_vertex(new_location: Vector2i):
 		vertex.change_connection(self, change)
 
 func check_coonection_add_if_shorter(other_vertex: rail_vertex, direction: int, distance: int):
+	if other_vertex == self:
+		print("A")
 	if connections.has(other_vertex) and get_length(other_vertex) > distance:
 		add_connection(other_vertex, direction, distance)
 	elif !connections.has(other_vertex):

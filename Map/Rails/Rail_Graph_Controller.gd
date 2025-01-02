@@ -94,6 +94,9 @@ func search_for_connections(vertex: rail_vertex):
 					if is_tile_vertex(tile):
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
+						if tile == coordinates:
+							print("Yes")
+							print(dist)
 						vertex.check_coonection_add_if_shorter(vert, direction, dist)
 						vert.check_coonection_add_if_shorter(vertex, (from_vertex[current] + 3) % 6, dist)
 					elif !visited.has(tile):

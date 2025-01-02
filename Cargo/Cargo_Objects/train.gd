@@ -318,11 +318,86 @@ func deaccelerate_train(delta):
 
 func pathfind_to_next_stop() -> Array:
 	var route = []
-	return pathfind_to_next_vertix(stops[stop_number])
+	var possible = get_possible_vertices()
+	print(dijikstra_get_vertice_order(possible, map.get_vertex(stops[stop_number])))
+	return []
+	#pathfind_to_next_vertix(stops[stop_number])
 	
 
-#func dijikstra_get_vertice_order() -> Array:
-	#pass
+func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vertex) -> Array:
+	var queue = priority_queue.new()
+	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
+	var order = {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
+	var visited = {} # Vector2i -> Array[Bool for each direction]
+	visited[location] = get_train_dir_in_array()
+	var start = map.get_vertex(location)
+	for vertex: rail_vertex in vertices_directions:
+		intialize_visited(visited, vertex.get_coordinates(), vertices_directions[vertex])
+		intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6, location)
+		intialize_order(order, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6)
+		queue.add_item(0, vertex)
+	
+	var found = false
+	var curr: rail_vertex
+	while !queue.is_empty():
+		curr = queue.pop_top()
+		for vertex: rail_vertex in curr.get_connections():
+			var direction = (curr.get_direction(vertex))
+			if (visited[curr.get_coordinates()][direction] or visited[curr.get_coordinates()][(direction + 1) % 6] or visited[curr.get_coordinates()][(direction + 5) % 6]) and !check_visited(visited, vertex.get_coordinates(), direction):
+				intialize_visited(visited, vertex.get_coordinates(), direction)
+				queue.add_item(curr.get_length(vertex), vertex)
+				intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), (direction + 3) % 6, curr.get_coordinates())
+				intialize_order(order, vertex.get_coordinates(), (direction + 3) % 6)
+				if vertex == end:
+					found = true
+					break
+		if found:
+			break
+	var route = [end.get_coordinates()]
+	var direction = null
+	print(tile_to_prev)
+	if found:
+		found = false
+		var curr_coords: Vector2i = end.get_coordinates()
+		while !found:
+			if direction != null:
+				for dir in order[curr_coords]:
+					if dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6:
+						curr_coords = tile_to_prev[curr_coords][dir]
+						direction = dir
+			else:
+				var dir = order[curr_coords][0]
+				curr_coords = tile_to_prev[curr_coords][dir]
+				direction = dir
+			route.push_front(curr_coords)
+			if curr_coords == location:
+				found = true
+	if found:
+		return route
+	return []
+		
+
+func get_possible_vertices() -> Dictionary:
+	var toReturn = {}
+	if map.is_tile_vertex(location):
+		toReturn[map.get_vertex(location)] = get_direction()
+		return toReturn
+	var queue = [location]
+	var visited = {} # Vector2i -> Array[Bool for each direction]
+	visited[location] = get_train_dir_in_array()
+	var curr
+	while !queue.is_empty():
+		curr = queue.pop_front()
+		var cells_to_check = get_cells_in_front(curr, visited[curr])
+		for direction in cells_to_check.size():
+			var tile = cells_to_check[direction]
+			if tile != null and map.do_tiles_connect(curr, tile) and !check_visited(visited, tile, direction):
+				if map.is_tile_vertex(tile):
+					toReturn[map.get_vertex(tile)] = direction
+				else:
+					queue.append(tile)
+					intialize_visited(visited, tile, direction)
+	return toReturn
 
 func pathfind_to_next_vertix(end: Vector2i) -> Array:
 	var queue = [location]
@@ -355,7 +430,6 @@ func pathfind_to_next_vertix(end: Vector2i) -> Array:
 		while !found:
 			if direction != null:
 				for dir in order[curr]:
-					print(dir)
 					if dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6:
 						curr = tile_to_prev[curr][dir]
 						direction = dir
@@ -369,6 +443,9 @@ func pathfind_to_next_vertix(end: Vector2i) -> Array:
 	if found:
 		return route
 	return []
+
+func can_direction_reach_dir(direction: int, dir: int) -> bool:
+	return dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6
 
 func get_cells_in_front(coords: Vector2i, directions: Array) -> Array:
 	var index = 2
@@ -401,11 +478,14 @@ func intialize_order(order: Dictionary, coords: Vector2i, direction: int):
 
 func get_train_dir_in_array() -> Array:
 	var toReturn = [false, false, false, false, false, false]
+	toReturn[get_direction()] = true
+	return toReturn
+
+func get_direction() -> int:
 	var dir: int = round(rad_to_deg(rotation))
 	if dir < 0:
 		dir = dir * -1 + 180
-	toReturn[find_closest_acceptable_angle(dir)] = true
-	return toReturn
+	return find_closest_acceptable_angle(dir)
 
 func find_closest_acceptable_angle(input_angle: int) -> int:
 	var min_index = -1

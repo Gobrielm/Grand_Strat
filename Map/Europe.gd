@@ -224,6 +224,7 @@ func get_money(id: int) -> int:
 
 func get_money_of_all_players() -> Dictionary:
 	return money_controller.get_money_dictionary()
+
 @rpc("authority", "unreliable", "call_local")
 func update_money_label(amount: int):
 	camera.update_cash_label(amount)
@@ -238,6 +239,9 @@ func request_tile_data(coordinates: Vector2i) -> TileData:
 #Rail Graph System
 func is_tile_vertex(coords: Vector2i) -> bool:
 	return rail_placer.is_tile_vertex(coords)
+
+func get_vertex(coords: Vector2i) -> rail_vertex:
+	return rail_placer.get_vertex(coords)
 
 func do_tiles_connect(coord1: Vector2i, coord2: Vector2i) -> bool:
 	return rail_placer.are_tiles_connected_by_rail(coord1, coord2)
