@@ -94,9 +94,6 @@ func search_for_connections(vertex: rail_vertex):
 					if is_tile_vertex(tile):
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
-						if tile == coordinates:
-							print("Yes")
-							print(dist)
 						vertex.check_coonection_add_if_shorter(vert, direction, dist)
 						vert.check_coonection_add_if_shorter(vertex, (from_vertex[current] + 3) % 6, dist)
 					elif !visited.has(tile):
@@ -107,6 +104,10 @@ func search_for_connections(vertex: rail_vertex):
 						queue.append(tile)
 						visited[tile] = direction
 						distance_away[tile] = distance_away[current] + 1
+					else:
+						var dir = visited[tile]
+						var dist = distance_away[tile] + distance_away[current]
+						vertex.check_coonection_add_if_shorter(vertex, direction, dist)
 
 func can_direction_reach(direction: int, other_direction: int) -> bool:
 	return direction == -1 or direction == other_direction or (direction + 1) % 6 == other_direction or (direction + 5) % 6 == other_direction
@@ -131,8 +132,14 @@ func delete_rail_vertex(coordinates: Vector2i):
 	var vertex = get_vertex(coordinates)
 	if vertex == null:
 		return
-	for connected_vertex: rail_vertex in vertex.get_connections():
-		connected_vertex.remove_connection(vertex)
-	vertex.queue_free()
+	var vertices_searched = {}
 	rail_vertices.erase(coordinates)
+	for connected_vertex: rail_vertex in vertex.get_connections():
+		if !vertices_searched.has(connected_vertex) and connected_vertex != vertex:
+			connected_vertex.remove_connection(vertex)
+			vertices_searched[connected_vertex] = 1
+			search_for_connections(connected_vertex)
+		
+	vertex.queue_free()
+	
 	
