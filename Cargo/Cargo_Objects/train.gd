@@ -319,6 +319,7 @@ func deaccelerate_train(delta):
 func pathfind_to_next_stop() -> Array:
 	var route = []
 	var possible = get_possible_vertices()
+	get_possible_vertices()
 	print(dijikstra_get_vertice_order(possible, map.get_vertex(stops[stop_number])))
 	return []
 	#pathfind_to_next_vertix(stops[stop_number])
@@ -327,27 +328,46 @@ func pathfind_to_next_stop() -> Array:
 func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vertex) -> Array:
 	var queue = priority_queue.new()
 	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
+	var tile_out = {} # Vector2i -> Array[Tile for each direction]
 	var order = {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
 	var visited = {} # Vector2i -> Array[Bool for each direction]
 	visited[location] = get_train_dir_in_array()
 	var start = map.get_vertex(location)
 	for vertex: rail_vertex in vertices_directions:
+		if vertex != start:
+			intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6, location)
+			intialize_order(order, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6)
 		intialize_visited(visited, vertex.get_coordinates(), vertices_directions[vertex])
-		intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6, location)
-		intialize_order(order, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6)
+		intialize_tile_out(tile_out, start.get_coordinates(), get_direction(), vertex.get_coordinates())
 		queue.add_item(0, vertex)
 	
+	var loop = false
 	var found = false
 	var curr: rail_vertex
 	while !queue.is_empty():
 		curr = queue.pop_top()
 		for vertex: rail_vertex in curr.get_connections():
 			var direction = (curr.get_direction(vertex))
-			if (visited[curr.get_coordinates()][direction] or visited[curr.get_coordinates()][(direction + 1) % 6] or visited[curr.get_coordinates()][(direction + 5) % 6]) and !check_visited(visited, vertex.get_coordinates(), direction):
-				intialize_visited(visited, vertex.get_coordinates(), direction)
+			var recieving_direction = (vertex.get_direction(curr))
+			if vertex == curr:
+				recieving_direction = vertex.get_direction_self()
+				loop = true
+			if (visited[curr.get_coordinates()][direction] or visited[curr.get_coordinates()][(direction + 1) % 6] or visited[curr.get_coordinates()][(direction + 5) % 6]) and !check_visited(visited, vertex.get_coordinates(), (recieving_direction + 3) % 6):
+				intialize_visited(visited, vertex.get_coordinates(), (recieving_direction + 3) % 6)
+				intialize_tile_out(tile_out, curr.get_coordinates(), direction, vertex.get_coordinates())
 				queue.add_item(curr.get_length(vertex), vertex)
-				intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), (direction + 3) % 6, curr.get_coordinates())
-				intialize_order(order, vertex.get_coordinates(), (direction + 3) % 6)
+				intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), recieving_direction, curr.get_coordinates())
+				intialize_order(order, vertex.get_coordinates(), recieving_direction)
+				if vertex == end:
+					found = true
+					break
+			elif loop and (visited[curr.get_coordinates()][recieving_direction] or visited[curr.get_coordinates()][(recieving_direction + 1) % 6] or visited[curr.get_coordinates()][(recieving_direction + 5) % 6]) and !check_visited(visited, vertex.get_coordinates(), (direction + 3) % 6):
+				intialize_visited(visited, vertex.get_coordinates(), (direction + 3) % 6)
+				intialize_tile_out(tile_out, curr.get_coordinates(), recieving_direction, vertex.get_coordinates())
+				queue.add_item(curr.get_length(vertex), vertex)
+				intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), direction, curr.get_coordinates())
+				intialize_order(order, vertex.get_coordinates(), direction)
+				loop = false
 				if vertex == end:
 					found = true
 					break
@@ -356,6 +376,13 @@ func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vert
 	var route = [end.get_coordinates()]
 	var direction = null
 	print(tile_to_prev)
+	print("------")
+	print(tile_out)
+	print("------")
+	print(order)
+	print("------")
+	print(found)
+	#return []
 	if found:
 		found = false
 		var curr_coords: Vector2i = end.get_coordinates()
@@ -363,12 +390,20 @@ func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vert
 			if direction != null:
 				for dir in order[curr_coords]:
 					if dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6:
+						var old_coords = curr_coords
 						curr_coords = tile_to_prev[curr_coords][dir]
-						direction = dir
+						var temp = (tile_out[curr_coords]).find(old_coords)
+						if temp == -1:
+							print(curr_coords)
+							print("error")
+							return []
+						direction = (temp + 3) % 6
+						break
 			else:
 				var dir = order[curr_coords][0]
+				var old_coords = curr_coords
 				curr_coords = tile_to_prev[curr_coords][dir]
-				direction = dir
+				direction = ((tile_out[curr_coords]).find(old_coords) + 3) % 6
 			route.push_front(curr_coords)
 			if curr_coords == location:
 				found = true
@@ -470,6 +505,11 @@ func intialize_tile_to_prev(tile_to_prev: Dictionary, coords: Vector2i, directio
 	if !tile_to_prev.has(coords):
 		tile_to_prev[coords] = [null, null, null, null, null, null]
 	tile_to_prev[coords][direction] = prev
+
+func intialize_tile_out(tile_out: Dictionary, coords: Vector2i, direction: int, next: Vector2i):
+	if !tile_out.has(coords):
+		tile_out[coords] = [null, null, null, null, null, null]
+	tile_out[coords][direction] = next
 
 func intialize_order(order: Dictionary, coords: Vector2i, direction: int):
 	if !order.has(coords):

@@ -21,7 +21,7 @@ func add_vertex_connection_if_shorter(other_vertex: rail_vertex, direction: int,
 
 func add_vertex_loop_if_shorter(direction: int, distance: int, direction2: int):
 	if (connections.has(self) and get_length(self) > distance) or !connections.has(self):
-		add_loop_connection(direction, direction2, distance)
+		add_loop_connection(direction, distance, direction2)
 
 func add_connection(other_vertex: rail_vertex, direction: int, distance: int):
 	connections[other_vertex] = [direction, distance]

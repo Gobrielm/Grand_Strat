@@ -92,10 +92,13 @@ func search_for_connections(vertex: rail_vertex):
 				#Does this tile also connect back to path_find_pos
 				if can_direction_reach(visited[current], direction) and map.get_tile_connections(tile)[(direction + 3) % 6]:
 					if is_tile_vertex(tile):
+						var dir = from_vertex[current]
+						if from_vertex[current] == -1:
+							dir = direction
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
 						vert.add_vertex_connection_if_shorter(vertex, (direction + 3) % 6, dist)
-						vertex.add_vertex_connection_if_shorter(vert, from_vertex[current], dist)
+						vertex.add_vertex_connection_if_shorter(vert, dir, dist)
 					elif !visited.has(tile):
 						if from_vertex[current] == -1:
 							from_vertex[tile] = direction
@@ -105,8 +108,8 @@ func search_for_connections(vertex: rail_vertex):
 						visited[tile] = direction
 						distance_away[tile] = distance_away[current] + 1
 					else:
-						var dir = visited[tile]
-						var other_dir = visited[current]
+						var dir = from_vertex[tile]
+						var other_dir = from_vertex[current]
 						var dist = distance_away[tile] + distance_away[current] + 2
 						vertex.add_vertex_loop_if_shorter(dir, dist, other_dir)
 

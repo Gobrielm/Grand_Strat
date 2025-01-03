@@ -5,6 +5,9 @@ Things to do:
 	
 	The 2 connections is broken
 	
+	Add output direction because dir is not the correct output, just input needed
+	
+	
 	Add train pathfinding using direction, delete so it doesnt use visited
 	Good through prev_tile incrementally, the closer index is to 0 the sooner it is
 	Start with index 0 and see if direction works, if not, try index 1...
