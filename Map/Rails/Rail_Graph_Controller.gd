@@ -94,8 +94,8 @@ func search_for_connections(vertex: rail_vertex):
 					if is_tile_vertex(tile):
 						var vert = get_vertex(tile)
 						var dist = distance_away[current] + 1
-						vertex.check_coonection_add_if_shorter(vert, direction, dist)
-						vert.check_coonection_add_if_shorter(vertex, (from_vertex[current] + 3) % 6, dist)
+						vert.add_vertex_connection_if_shorter(vertex, (direction + 3) % 6, dist)
+						vertex.add_vertex_connection_if_shorter(vert, from_vertex[current], dist)
 					elif !visited.has(tile):
 						if from_vertex[current] == -1:
 							from_vertex[tile] = direction
@@ -106,12 +106,12 @@ func search_for_connections(vertex: rail_vertex):
 						distance_away[tile] = distance_away[current] + 1
 					else:
 						var dir = visited[tile]
-						var dist = distance_away[tile] + distance_away[current]
-						vertex.check_coonection_add_if_shorter(vertex, direction, dist)
+						var other_dir = visited[current]
+						var dist = distance_away[tile] + distance_away[current] + 2
+						vertex.add_vertex_loop_if_shorter(dir, dist, other_dir)
 
 func can_direction_reach(direction: int, other_direction: int) -> bool:
 	return direction == -1 or direction == other_direction or (direction + 1) % 6 == other_direction or (direction + 5) % 6 == other_direction
-
 
 func get_neighbor_cell_given_direction(coords: Vector2i, num: int) -> Vector2i:
 	if num == 0:
