@@ -1,18 +1,6 @@
 Things to do:
-	For pathfinding, store stations, depots, and tiles with more than 3 track connections as vertices
-	Store each vertices shortest path to every direct other vertice
-	Store waypoints as subvertices so that is kinda irrelavent
-	
-	The 2 connections is broken
 	
 	Add output direction because dir is not the correct output, just input needed
-	
-	
-	Add train pathfinding using direction, delete so it doesnt use visited
-	Good through prev_tile incrementally, the closer index is to 0 the sooner it is
-	Start with index 0 and see if direction works, if not, try index 1...
-	
-	Add unmovable and moveable vertices, stations/depots/3 connects vs endpoints
 	
 	Use dist to build expected time and compare that with the actual time to award different levels of money
 	If adding two stops that have same coords, deleting one wont mess with the other

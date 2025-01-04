@@ -319,7 +319,7 @@ func deaccelerate_train(delta):
 func pathfind_to_next_stop() -> Array:
 	var route = []
 	var possible = get_possible_vertices()
-	get_possible_vertices()
+	print(possible)
 	print(dijikstra_get_vertice_order(possible, map.get_vertex(stops[stop_number])))
 	return []
 	#pathfind_to_next_vertix(stops[stop_number])
@@ -338,7 +338,8 @@ func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vert
 			intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6, location)
 			intialize_order(order, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6)
 		intialize_visited(visited, vertex.get_coordinates(), vertices_directions[vertex])
-		intialize_tile_out(tile_out, start.get_coordinates(), get_direction(), vertex.get_coordinates())
+		if start != null:
+			intialize_tile_out(tile_out, start.get_coordinates(), get_direction(), vertex.get_coordinates())
 		queue.add_item(0, vertex)
 	
 	var loop = false
@@ -392,6 +393,9 @@ func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vert
 					if dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6:
 						var old_coords = curr_coords
 						curr_coords = tile_to_prev[curr_coords][dir]
+						if curr_coords == location:
+							found = true
+							break
 						var temp = (tile_out[curr_coords]).find(old_coords)
 						if temp == -1:
 							print(curr_coords)

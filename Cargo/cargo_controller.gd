@@ -55,6 +55,18 @@ func create_cargo_types():
 	cargo_types.insert(2, "iron")
 	cargo_types.insert(3, "steel")
 	cargo_types.insert(4, "stone")
+	cargo_types.insert(5, "grain")
+	cargo_types.insert(6, "livestock")
+	cargo_types.insert(7, "wine")
+	cargo_types.insert(8, "iron")
+	cargo_types.insert(9, "gold")
+	cargo_types.insert(10, "silver")
+	cargo_types.insert(11, "copper")
+	cargo_types.insert(12, "wool")
+	cargo_types.insert(13, "silk")
+	cargo_types.insert(14, "spices")
+	cargo_types.insert(15, "porcelain")
+	cargo_types.insert(16, "salt")
 
 func get_cargo_name(index: int) -> String:
 	return cargo_types[index]

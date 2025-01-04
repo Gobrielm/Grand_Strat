@@ -1,6 +1,6 @@
 class_name terminal extends Node
 
-const NUMBER_OF_GOODS = 5
+const NUMBER_OF_GOODS = 17
 
 var location: Vector2i
 var player_owner: int

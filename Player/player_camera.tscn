@@ -31,7 +31,6 @@ offset_right = 137.0
 offset_bottom = 57.0
 
 [node name="depot_button" parent="CanvasLayer" instance=ExtResource("2_f342f")]
-anchors_preset = -1
 offset_left = -89.0
 offset_top = 2.0
 offset_right = -31.0
@@ -44,7 +43,6 @@ offset_right = 137.0
 offset_bottom = -29.0
 
 [node name="Coordinate_Label" type="Label" parent="CanvasLayer"]
-anchors_preset = -1
 offset_left = -989.0
 offset_top = 44.0
 offset_right = -949.0
@@ -53,7 +51,6 @@ grow_vertical = 0
 text = "(0, 0)"
 
 [node name="Cash_Label" type="Label" parent="CanvasLayer"]
-anchors_preset = -1
 offset_left = 88.0
 offset_top = -560.0
 offset_right = 135.0
