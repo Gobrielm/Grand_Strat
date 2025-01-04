@@ -2,7 +2,6 @@ extends Sprite2D
 var location: Vector2i
 var stops: Array = []
 var stop_number: int = -1
-var vertex_order: Array = []
 var route: Array = []
 
 var stop_information: Dictionary = {} #Maps location -> station, nothing, depot, ect
@@ -74,12 +73,6 @@ func checkpoint_reached():
 		location = route.pop_front()
 		cargo_hold.update_location(location)
 		
-		#Reached next vertex
-		if route.is_empty():
-			print("Near Vertex")
-			route = pathfind_to_next_vertex()
-			route.pop_front()
-
 		#If route is still empty then stop reached
 		if route.is_empty():
 			print("Near stop")
@@ -132,19 +125,6 @@ func deaccelerate_train(delta):
 	var speed = velocity.length()
 	speed = move_toward(speed, MIN_SPEED, delta * BREAKING_SPEED)
 	velocity = acceleration_direction * speed
-
-func pathfind_to_next_stop():
-	var possible = get_possible_vertices()
-	var end = map.get_vertex(stops[stop_number])
-	if possible.has(end):
-		vertex_order = [location, end.get_coordinates()]
-	else:
-		vertex_order = dijikstra_get_vertice_order(possible, end)
-
-func pathfind_to_next_vertex() -> Array:
-	if vertex_order.size() < 2:
-		return []
-	return create_route_to_next_vertex(vertex_order.pop_front(), vertex_order[0])
 
 func _input(event):
 	if event.is_action_pressed("click") and $Window/Routes/Add_Stop.button_pressed:
@@ -242,13 +222,12 @@ func start_train():
 		return
 	near_stop = false
 	velocity = Vector2(0, 0)
-	#pathfind_to_next_stop()
-	route = create_route_to_next_vertex(location, stops[0])
+	route = pathfind_to_next_stop()
 	#route = pathfind_to_next_vertex()
 	stopped = false
 	if route.is_empty() and stops.size() > 1:
 		increment_stop()
-		route = pathfind_to_next_vertex()
+		route = pathfind_to_next_stop()
 	if route.is_empty():
 		stop_train()
 		return
@@ -343,120 +322,10 @@ func add_train_car():
 func delete_train_car():
 	cargo_hold.change_max_storage(0, -TRAIN_CAR_SIZE)
 
-func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vertex) -> Array:
-	var queue = priority_queue.new()
-	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
-	var tile_out = {} # Vector2i -> Array[Tile for each direction]
-	var order = {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
-	var visited = {} # Vector2i -> Array[Bool for each direction]
-	visited[location] = get_train_dir_in_array()
-	var start = map.get_vertex(location)
-	for vertex: rail_vertex in vertices_directions:
-		if vertex != start:
-			intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6, location)
-			intialize_order(order, vertex.get_coordinates(), (vertices_directions[vertex] + 3) % 6)
-		intialize_visited(visited, vertex.get_coordinates(), vertices_directions[vertex])
-		if start != null:
-			intialize_tile_out(tile_out, start.get_coordinates(), get_direction(), vertex.get_coordinates())
-		queue.add_item(0, vertex)
-	
-	var loop = false
-	var found = false
-	var curr: rail_vertex
-	while !queue.is_empty():
-		curr = queue.pop_top()
-		for vertex: rail_vertex in curr.get_connections():
-			var direction = (curr.get_direction(vertex))
-			var recieving_direction = (vertex.get_direction(curr))
-			if vertex == curr:
-				recieving_direction = vertex.get_direction_self()
-				loop = true
-			if (visited[curr.get_coordinates()][direction] or visited[curr.get_coordinates()][(direction + 1) % 6] or visited[curr.get_coordinates()][(direction + 5) % 6]) and !check_visited(visited, vertex.get_coordinates(), (recieving_direction + 3) % 6):
-				intialize_visited(visited, vertex.get_coordinates(), (recieving_direction + 3) % 6)
-				intialize_tile_out(tile_out, curr.get_coordinates(), direction, vertex.get_coordinates())
-				queue.add_item(curr.get_length(vertex), vertex)
-				intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), recieving_direction, curr.get_coordinates())
-				intialize_order(order, vertex.get_coordinates(), recieving_direction)
-				if vertex == end:
-					found = true
-					break
-			elif loop and (visited[curr.get_coordinates()][recieving_direction] or visited[curr.get_coordinates()][(recieving_direction + 1) % 6] or visited[curr.get_coordinates()][(recieving_direction + 5) % 6]) and !check_visited(visited, vertex.get_coordinates(), (direction + 3) % 6):
-				intialize_visited(visited, vertex.get_coordinates(), (direction + 3) % 6)
-				intialize_tile_out(tile_out, curr.get_coordinates(), recieving_direction, vertex.get_coordinates())
-				queue.add_item(curr.get_length(vertex), vertex)
-				intialize_tile_to_prev(tile_to_prev, vertex.get_coordinates(), direction, curr.get_coordinates())
-				intialize_order(order, vertex.get_coordinates(), direction)
-				loop = false
-				if vertex == end:
-					found = true
-					break
-		if found:
-			break
-	var route = [end.get_coordinates()]
-	var direction = null
-	#print(tile_to_prev)
-	#print("------")
-	#print(tile_out)
-	#print("------")
-	#print(order)
-	#print("------")
-	#print(found)
-	#return []
-	if found:
-		found = false
-		var curr_coords: Vector2i = end.get_coordinates()
-		while !found:
-			if direction != null:
-				for dir in order[curr_coords]:
-					if dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6:
-						var old_coords = curr_coords
-						curr_coords = tile_to_prev[curr_coords][dir]
-						if curr_coords == location:
-							found = true
-							break
-						var temp = (tile_out[curr_coords]).find(old_coords)
-						if temp == -1:
-							print(curr_coords)
-							print("error")
-							return []
-						direction = (temp + 3) % 6
-						break
-			else:
-				var dir = order[curr_coords][0]
-				var old_coords = curr_coords
-				curr_coords = tile_to_prev[curr_coords][dir]
-				direction = ((tile_out[curr_coords]).find(old_coords) + 3) % 6
-			route.push_front(curr_coords)
-			if curr_coords == location:
-				found = true
-	if found:
-		return route
-	return []
-		
+func pathfind_to_next_stop():
+	return create_route_between_start_and_end(location, stops[stop_number])
 
-func get_possible_vertices() -> Dictionary:
-	var toReturn = {}
-	if map.is_tile_vertex(location):
-		toReturn[map.get_vertex(location)] = get_direction()
-		return toReturn
-	var queue = [location]
-	var visited = {} # Vector2i -> Array[Bool for each direction]
-	visited[location] = get_train_dir_in_array()
-	var curr
-	while !queue.is_empty():
-		curr = queue.pop_front()
-		var cells_to_check = get_cells_in_front(curr, visited[curr])
-		for direction in cells_to_check.size():
-			var tile = cells_to_check[direction]
-			if tile != null and map.do_tiles_connect(curr, tile) and !check_visited(visited, tile, direction):
-				if map.is_tile_vertex(tile):
-					toReturn[map.get_vertex(tile)] = direction
-				else:
-					queue.append(tile)
-					intialize_visited(visited, tile, direction)
-	return toReturn
-
-func create_route_to_next_vertex(start: Vector2i, end: Vector2i) -> Array:
+func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array:
 	var queue = [start]
 	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
 	var order = {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
