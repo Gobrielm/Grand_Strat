@@ -1,10 +1,11 @@
 extends Sprite2D
 var location: Vector2i
 var stops: Array = []
-var stop_information: Dictionary = {} #Maps location -> station, nothing, depot, ect
-var route: Array = []
 var stop_number: int = -1
-var current: int = -1
+var vertex_order: Array = []
+var route: Array = []
+
+var stop_information: Dictionary = {} #Maps location -> station, nothing, depot, ect
 var train_car
 
 var near_stop: bool = false
@@ -15,6 +16,7 @@ var loading: bool = false
 var unloading: bool = false
 var ticker: float = 0
 var player_owner: int
+var stopped = true
 
 const acceptable_angles = [0, 60, 120, 180, 240, 300, 360]
 const MIN_SPEED = 20
@@ -36,6 +38,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	if stopped:
+		return
 	position.x += velocity.x * delta
 	position.y += velocity.y * delta
 	update_train.rpc(position)
@@ -52,6 +56,7 @@ func _process(delta):
 	interact_stations()
 	check_ticker()
 
+
 @rpc("authority", "unreliable", "call_local")
 func update_train(new_position):
 	position = new_position
@@ -59,6 +64,87 @@ func update_train(new_position):
 @rpc("authority", "unreliable", "call_local")
 func update_train_rotation(new_rotation):
 	rotation_degrees = new_rotation
+
+func checkpoint_reached():
+	var route_local_pos = map.map_to_local(route[0])
+	check_near_next_stop()
+	
+	#Reached the next tile
+	if position.distance_to(route_local_pos) < 10:
+		location = route.pop_front()
+		cargo_hold.update_location(location)
+		
+		#Reached next vertex
+		if route.is_empty():
+			print("Near Vertex")
+			route = pathfind_to_next_vertex()
+			route.pop_front()
+
+		#If route is still empty then stop reached
+		if route.is_empty():
+			print("Near stop")
+			increment_stop()
+			if decide_stop_action():
+				stop_train()
+				return
+			start_train()
+		else:
+			drive_train_to_route()
+
+func drive_train_to_route():
+	var direction = Vector2(map.map_to_local(route[0]) - map.map_to_local(location)).normalized()
+	acceleration_direction = direction
+	train_car.update_desination(position)
+
+func check_near_next_stop():
+	var next_stop_local_pos = map.map_to_local(stops[stop_number])
+	if position.distance_to(next_stop_local_pos) < (velocity.length() / BREAKING_SPEED * 60):
+		near_stop = true
+
+func increment_stop():
+	stop_number = (stop_number + 1) % stops.size()
+
+func decide_stop_action() -> bool:
+	#Just a regular track
+	if !stops.has(location) or stop_information[location] == 3:
+		return false
+	var terminal_or_depot = map.get_depot_or_terminal(location)
+	#A Depot
+	if stop_information[location] == 1:
+		terminal_or_depot.add_train(self)
+		visible = false
+		return true
+	#Some sort of hold
+	elif stop_information[location] == 2:
+		unloading = true
+		return true
+	return false
+
+func get_speed() -> float:
+	return velocity.length()
+
+func accelerate_train(delta):
+	var speed = velocity.length()
+	speed = move_toward(speed, MAX_SPEED, delta * ACCELERATION_SPEED)
+	velocity = acceleration_direction * speed
+
+func deaccelerate_train(delta):
+	var speed = velocity.length()
+	speed = move_toward(speed, MIN_SPEED, delta * BREAKING_SPEED)
+	velocity = acceleration_direction * speed
+
+func pathfind_to_next_stop():
+	var possible = get_possible_vertices()
+	var end = map.get_vertex(stops[stop_number])
+	if possible.has(end):
+		vertex_order = [location, end.get_coordinates()]
+	else:
+		vertex_order = dijikstra_get_vertice_order(possible, end)
+
+func pathfind_to_next_vertex() -> Array:
+	if vertex_order.size() < 2:
+		return []
+	return create_route_to_next_vertex(vertex_order.pop_front(), vertex_order[0])
 
 func _input(event):
 	if event.is_action_pressed("click") and $Window/Routes/Add_Stop.button_pressed:
@@ -139,6 +225,7 @@ func clear_stops():
 	stops = []
 	stop_information.clear()
 	stop_number = -1
+	stopped = true
 
 func _on_start_pressed():
 	start_train()
@@ -155,14 +242,15 @@ func start_train():
 		return
 	near_stop = false
 	velocity = Vector2(0, 0)
-	route = pathfind_to_next_stop()
+	pathfind_to_next_stop()
+	route = pathfind_to_next_vertex()
+	stopped = false
 	if route.is_empty() and stops.size() > 1:
 		increment_stop()
-		route = pathfind_to_next_stop()
+		route = pathfind_to_next_vertex()
 	if route.is_empty():
 		stop_train()
 		return
-	current = 0
 	drive_train_to_route()
 
 @rpc("any_peer", "unreliable", "call_local")
@@ -170,7 +258,7 @@ func stop_train():
 	velocity = Vector2(0, 0)
 	acceleration_direction = Vector2(0, 0)
 	near_stop = false
-	current = -1
+	stopped = true
 
 func interact_stations():
 	unload_train()
@@ -254,77 +342,6 @@ func add_train_car():
 func delete_train_car():
 	cargo_hold.change_max_storage(0, -TRAIN_CAR_SIZE)
 
-func drive_train_to_route():
-	var direction = Vector2(map.map_to_local(route[current]) - map.map_to_local(location)).normalized()
-	acceleration_direction = direction
-	train_car.update_desination(position)
-
-func checkpoint_reached():
-	if current == -1:
-		return
-	var route_local_pos = map.map_to_local(route[current])
-	check_near_next_stop()
-	
-	if position.distance_to(route_local_pos) < 10:
-		location = route[current]
-		current += 1
-		cargo_hold.update_location(location)
-		#Last part of route, reached next stop
-		if current == route.size():
-			increment_stop()
-			if decide_stop_action():
-				stop_train()
-				return
-			start_train()
-		else:
-			drive_train_to_route()
-
-func check_near_next_stop():
-	var next_stop_local_pos = map.map_to_local(stops[stop_number])
-	if position.distance_to(next_stop_local_pos) < (velocity.length() / BREAKING_SPEED * 60):
-		near_stop = true
-
-func increment_stop():
-	stop_number = (stop_number + 1) % stops.size()
-
-func decide_stop_action() -> bool:
-	#Just a regular track
-	if !stops.has(location) or stop_information[location] == 3:
-		return false
-	var terminal_or_depot = map.get_depot_or_terminal(location)
-	#A Depot
-	if stop_information[location] == 1:
-		terminal_or_depot.add_train(self)
-		visible = false
-		return true
-	#Some sort of hold
-	elif stop_information[location] == 2:
-		unloading = true
-		return true
-	return false
-
-func get_speed() -> float:
-	return velocity.length()
-
-func accelerate_train(delta):
-	var speed = velocity.length()
-	speed = move_toward(speed, MAX_SPEED, delta * ACCELERATION_SPEED)
-	velocity = acceleration_direction * speed
-
-func deaccelerate_train(delta):
-	var speed = velocity.length()
-	speed = move_toward(speed, MIN_SPEED, delta * BREAKING_SPEED)
-	velocity = acceleration_direction * speed
-
-func pathfind_to_next_stop() -> Array:
-	var route = []
-	var possible = get_possible_vertices()
-	print(possible)
-	print(dijikstra_get_vertice_order(possible, map.get_vertex(stops[stop_number])))
-	return []
-	#pathfind_to_next_vertix(stops[stop_number])
-	
-
 func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vertex) -> Array:
 	var queue = priority_queue.new()
 	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
@@ -376,13 +393,13 @@ func dijikstra_get_vertice_order(vertices_directions: Dictionary, end: rail_vert
 			break
 	var route = [end.get_coordinates()]
 	var direction = null
-	print(tile_to_prev)
-	print("------")
-	print(tile_out)
-	print("------")
-	print(order)
-	print("------")
-	print(found)
+	#print(tile_to_prev)
+	#print("------")
+	#print(tile_out)
+	#print("------")
+	#print(order)
+	#print("------")
+	#print(found)
 	#return []
 	if found:
 		found = false
@@ -438,12 +455,12 @@ func get_possible_vertices() -> Dictionary:
 					intialize_visited(visited, tile, direction)
 	return toReturn
 
-func pathfind_to_next_vertix(end: Vector2i) -> Array:
-	var queue = [location]
+func create_route_to_next_vertex(start: Vector2i, end: Vector2i) -> Array:
+	var queue = [start]
 	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
 	var order = {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
 	var visited = {} # Vector2i -> Array[Bool for each direction]
-	visited[location] = get_train_dir_in_array()
+	visited[start] = get_train_dir_in_array()
 	var found = false
 	var curr: Vector2i
 	while !queue.is_empty():
@@ -469,7 +486,7 @@ func pathfind_to_next_vertix(end: Vector2i) -> Array:
 		while !found:
 			if direction != null:
 				for dir in order[curr]:
-					if dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6:
+					if can_direction_reach_dir(direction, dir):
 						curr = tile_to_prev[curr][dir]
 						direction = dir
 			else:
@@ -477,7 +494,7 @@ func pathfind_to_next_vertix(end: Vector2i) -> Array:
 				curr = tile_to_prev[curr][dir]
 				direction = dir
 			route.push_front(curr)
-			if curr == location:
+			if curr == start:
 				found = true
 	if found:
 		return route
@@ -542,15 +559,6 @@ func find_closest_acceptable_angle(input_angle: int) -> int:
 	if min_index == 6:
 		min_index = 0
 	return min_index
-
-func get_available_tiles_for_train(direction_array: Array) -> Array:
-	var toReturn = [false, false, false, false, false, false]
-	for dir in direction_array.size():
-		if direction_array[dir]:
-			toReturn[(dir + 1) % 6] = true
-			toReturn[(dir + 5) % 6] = true
-			toReturn[dir] = true
-	return toReturn
 
 func get_neighbor_cell_given_direction(coords: Vector2i, num: int) -> Vector2i:
 	if num == 0:
