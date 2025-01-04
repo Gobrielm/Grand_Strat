@@ -5,6 +5,8 @@ var map: TileMapLayer
 func _init(new_map: TileMapLayer):
 	map = new_map
 	#test()
+	#runtime_test()
+	train_algorithm_test()
 
 func test():
 	print("testing")
@@ -22,6 +24,7 @@ func test():
 	print("basic_loop_with_station      ✔️")
 	print("runtime_test                 ✔️")
 	runtime_test()
+	train_algorithm_test()
 
 func build_rail(coords: Vector2i, orientation: int):
 	map.set_cell_rail_placer_server(coords, orientation, 0, 1)
@@ -177,5 +180,27 @@ func runtime_test():
 	build_many_rails(point5, point1)
 	build_many_rails(point1, point3)
 	clear_test_stuff()
+	var end: float = Time.get_ticks_msec()
+	print(str((end - start) / 1000) + " Seconds passed")
+
+func train_algorithm_test():
+	var point1 = Vector2i(0, 0)
+	var point2 = Vector2i(300, 0)
+	
+	var end_stop = Vector2i(100, -50)
+	for i in 100:
+		build_many_rails(point1, point2)
+		point2.y = -i
+	for i in 100:
+		build_many_rails(point1, point2)
+		point1.y = -i
+	point1 = Vector2i(0, 0)
+	var start: float = Time.get_ticks_msec()
+	
+	map.create_train.rpc(point1)
+
+	var train = map.get_node("Train0")
+	train.add_stop(end_stop)
+	train.start_train()
 	var end: float = Time.get_ticks_msec()
 	print(str((end - start) / 1000) + " Seconds passed")

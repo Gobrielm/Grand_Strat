@@ -38,21 +38,21 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	if stopped:
-		return
-	position.x += velocity.x * delta
-	position.y += velocity.y * delta
-	update_train.rpc(position)
-	var rotation_basis = Vector2(0, 1)
-	if velocity.length() != 0:
-		var angle_degree = rad_to_deg(rotation_basis.angle_to(velocity))
-		update_train_rotation.rpc(round(angle_degree))
+	if !stopped:
+		position.x += velocity.x * delta
+		position.y += velocity.y * delta
+		update_train.rpc(position)
+		var rotation_basis = Vector2(0, 1)
+		if velocity.length() != 0:
+			var angle_degree = rad_to_deg(rotation_basis.angle_to(velocity))
+			update_train_rotation.rpc(round(angle_degree))
+		if near_stop:
+			deaccelerate_train(delta)
+		else:
+			accelerate_train(delta)
+		checkpoint_reached()
+	
 	ticker += delta
-	if near_stop:
-		deaccelerate_train(delta)
-	else:
-		accelerate_train(delta)
-	checkpoint_reached()
 	interact_stations()
 	check_ticker()
 
@@ -242,8 +242,9 @@ func start_train():
 		return
 	near_stop = false
 	velocity = Vector2(0, 0)
-	pathfind_to_next_stop()
-	route = pathfind_to_next_vertex()
+	#pathfind_to_next_stop()
+	route = create_route_to_next_vertex(location, stops[0])
+	#route = pathfind_to_next_vertex()
 	stopped = false
 	if route.is_empty() and stops.size() > 1:
 		increment_stop()
@@ -486,7 +487,7 @@ func create_route_to_next_vertex(start: Vector2i, end: Vector2i) -> Array:
 		while !found:
 			if direction != null:
 				for dir in order[curr]:
-					if can_direction_reach_dir(direction, dir):
+					if can_direction_reach_dir(direction, dir) and tile_to_prev[curr][dir] != null:
 						curr = tile_to_prev[curr][dir]
 						direction = dir
 			else:
