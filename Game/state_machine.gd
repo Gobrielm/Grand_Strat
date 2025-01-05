@@ -71,6 +71,9 @@ func is_controlling_camera() -> bool:
 func is_building() -> bool:
 	return building
 
+func is_selecting_unit() -> bool:
+	return unit_selected
+
 func click_unit():
 	unit_selected = !unit_selected
 	if click_unit:

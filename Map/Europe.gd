@@ -51,8 +51,11 @@ func _input(event):
 			place_to_end_rail(start, get_cell_position())
 		start = null
 	elif event.is_action_pressed("deselect"):
-		rail_placer.clear_all_temps()
-		camera.unpress_all_buttons()
+		if state_machine.is_selecting_unit():
+			unit_map.move_selected_unit(get_cell_position())
+		else:
+			rail_placer.clear_all_temps()
+			camera.unpress_all_buttons()
 	elif event.is_action_pressed("debug_place_train"):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
