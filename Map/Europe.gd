@@ -12,6 +12,7 @@ var unique_id
 @onready var game = get_parent().get_parent()
 @onready var rail_placer = $Rail_Placer
 @onready var cargo_controller = $cargo_controller
+@onready var unit_map = $unit_map
 var money_controller
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
@@ -48,13 +49,7 @@ func _input(event):
 	elif event.is_action_pressed("debug_place_train"):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
-		for i in 5:
-			print(char(133))
-		for coord in rail_placer.rail_graph.rail_vertices:
-			print(coord)
-			print(rail_placer.rail_graph.rail_vertices[coord].connections)
-			print("-----")
-		rail_placer.parse_entire_network(get_cell_position())
+		unit_map.create_unit(get_cell_position())
 		
 
 func _process(_delta):
@@ -71,8 +66,6 @@ func update_hover():
 		get_rail_to_hover()
 
 func record_hover_click():
-	if !rail_placer.check_valid():
-		return
 	var coords = rail_placer.get_coordinates()
 	var orientation = rail_placer.get_orientation()
 	if single_track_button.active:
