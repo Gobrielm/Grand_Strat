@@ -1,9 +1,9 @@
 extends Camera2D
 var last_mouse_position
+var state_machine
 @onready var coords_label = $CanvasLayer/Coordinate_Label
 # Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
+
 
 func _process(_delta):
 	if Input.is_action_pressed("pan_left"):
@@ -33,7 +33,11 @@ func update_resolution():
 	$CanvasLayer/Coordinate_Label.position.x = -viewport_size.x + 150
 	$CanvasLayer/Cash_Label.position.y = -viewport_size.y + 100
 
+func assign_state_machine(state_machine):
+	self.state_machine = state_machine
+
 func unpress_all_buttons():
+	state_machine.unpress_gui()
 	for element in $CanvasLayer.get_children():
 		if element is Button:
 			element.unpress()
@@ -50,3 +54,16 @@ func update_coord_label(coords: Vector2i):
 @rpc("authority", "unreliable")
 func update_cash_label(new_cash: int):
 	$CanvasLayer/Cash_Label.text = str(new_cash)
+
+
+func _on_station_button_pressed():
+	state_machine.station_button_toggled()
+
+func _on_track_button_pressed():
+	state_machine.many_track_button_toggled()
+
+func _on_depot_button_pressed():
+	state_machine.depot_button_toggled()
+
+func _on_single_track_button_pressed():
+	state_machine.track_button_toggled()

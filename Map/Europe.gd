@@ -14,6 +14,7 @@ var unique_id
 @onready var cargo_controller = $cargo_controller
 @onready var unit_map = $unit_map
 var money_controller
+var state_machine
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
 const depot = preload("res://Cargo/depot.gd")
@@ -24,6 +25,8 @@ func _ready():
 	unique_id = multiplayer.get_unique_id()
 	if unique_id == 1:
 		money_controller = preload("res://Player/money_controller.gd").new(multiplayer.get_peers())
+		state_machine = preload("res://Game/state_machine.gd").new()
+		camera.assign_state_machine(state_machine)
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
 	testing = preload("res://Test/testing.gd").new(self)
@@ -35,12 +38,16 @@ func _input(event):
 		for id in get_money_of_all_players():
 			update_money_label.rpc_id(id, get_money(id))
 	if event.is_action_pressed("click"):
-		record_start_rail()
-		record_hover_click()
+		if state_machine.is_building():
+			record_hover_click()
+		elif state_machine.is_building_many_rails():
+			record_start_rail()
+		else:
+			unit_map.select_unit(get_cell_position())
 	elif event.is_action_released("click"):
-		if camera.are_all_buttons_unpressed() and !tile_window.visible:
+		if state_machine.is_controlling_camera() and !tile_window.visible:
 			tile_window.show_tile_info(get_cell_position())
-		elif track_button.active:
+		elif state_machine.is_building_many_rails():
 			place_to_end_rail(start, get_cell_position())
 		start = null
 	elif event.is_action_pressed("deselect"):
@@ -50,7 +57,10 @@ func _input(event):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
 		unit_map.create_unit(get_cell_position())
-		
+
+#State_Machine
+func click_unit():
+	state_machine.click_unit()
 
 func _process(_delta):
 	pass
