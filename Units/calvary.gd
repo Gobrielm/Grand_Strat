@@ -1,6 +1,7 @@
 class_name calvary extends base_unit
 
-func _init():
+func _init(new_location: Vector2i):
+	super._init(new_location)
 	manpower = 600
 	morale = 100
 	

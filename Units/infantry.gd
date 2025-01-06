@@ -1,6 +1,7 @@
 class_name infantry extends base_unit
 
-func _init():
+func _init(new_location: Vector2i):
+	super._init(new_location)
 	manpower = 1000
 	morale = 100
 	

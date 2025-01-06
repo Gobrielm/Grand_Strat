@@ -1,6 +1,7 @@
 class_name artillery extends base_unit
 
-func _init():
+func _init(new_location: Vector2i):
+	super._init(new_location)
 	manpower = 200
 	morale = 100
 	

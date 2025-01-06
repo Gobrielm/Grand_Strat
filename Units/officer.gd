@@ -2,7 +2,8 @@ class_name officer extends base_unit
 
 var experience_aura_boost
 
-func _init():
+func _init(new_location: Vector2i):
+	super._init(new_location)
 	manpower = 50
 	morale = 100
 	

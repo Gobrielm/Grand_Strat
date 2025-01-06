@@ -52,22 +52,21 @@ func _input(event):
 		start = null
 	elif event.is_action_pressed("deselect"):
 		if state_machine.is_selecting_unit():
-			unit_map.move_selected_unit(get_cell_position())
+			unit_map.set_unit_route(get_cell_position())
 		else:
 			rail_placer.clear_all_temps()
 			camera.unpress_all_buttons()
 	elif event.is_action_pressed("debug_place_train"):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
+		highlight_cell(get_cell_position())
 		unit_map.create_unit(get_cell_position())
 
 #State_Machine
 func click_unit():
 	state_machine.click_unit()
 
-func _process(_delta):
-	pass
-
+#Tracks
 func update_hover():
 	if single_track_button.active:
 		rail_placer.hover(get_cell_position(), 0, map_to_local(get_cell_position()), get_mouse_local_to_map())
@@ -220,6 +219,14 @@ func get_mouse_local_to_camera():
 	var centered_at_top_left = get_viewport().get_mouse_position()
 	var final = -camera_middle + centered_at_top_left
 	return final / camera.zoom
+
+#Tile Effects
+func highlight_cell(coords: Vector2i):
+	var highlight: Sprite2D = Sprite2D.new()
+	highlight.texture = load("res://Map_Icons/selected.png")
+	add_child(highlight)
+	highlight
+	highlight.position = map_to_local(coords)
 
 #Money Stuff
 func add_money_to_player(id: int, amount: int):
