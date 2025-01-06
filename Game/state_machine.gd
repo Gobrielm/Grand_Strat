@@ -5,6 +5,7 @@ var building_many_rails = false
 var hovering_over_gui = false
 var controlling_camera = false
 var unit_selected = false
+var building_units = false
 
 func default():
 	all_off()
@@ -16,6 +17,7 @@ func all_off():
 	hovering_over_gui = false
 	controlling_camera = false
 	unit_selected = false
+	building_units = false
 
 func gui_button_pressed():
 	all_off()
@@ -82,3 +84,14 @@ func click_unit():
 		unit_selected = true
 	else:
 		default()
+
+func start_building_units():
+	all_off()
+	building_units = true
+
+func stop_building_units():
+	all_off()
+	default()
+
+func is_building_units() -> bool:
+	return building_units

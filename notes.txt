@@ -1,13 +1,30 @@
 Things to do:
+	Add Units, high costs for standing armies
+	Add Battle System
 	
-	Add output direction because dir is not the correct output, just input needed
+	Add deleting rails
+	Make multiplayer work again
 	
 	Use dist to build expected time and compare that with the actual time to award different levels of money
 	If adding two stops that have same coords, deleting one wont mess with the other
 	Add Train Cars
 	
+	Add different types of factories, mines, ect
+	Either place factories, mines, ect. down or add way to build them
 	Add System to switch factories to make certain goods
-	Add Units, high costs for standing armies
+	
+	Add ownership system for rails, factories, trains, armies, borders, ect
+	
+	Add trading
+	Add diplomacy
+	
+	Make gui better
+	Make art better
+	Add sounds/music
+	
+	
+	
+	
 	Add Ai
 	
 	

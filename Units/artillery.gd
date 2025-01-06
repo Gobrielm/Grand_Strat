@@ -1,7 +1,7 @@
 class_name artillery extends base_unit
 
-func _init(new_location: Vector2i):
-	super._init(new_location)
+func _init(new_location: Vector2i, new_player_id: int):
+	super._init(new_location, new_player_id)
 	manpower = 200
 	morale = 100
 	
@@ -15,4 +15,6 @@ func _init(new_location: Vector2i):
 	
 	experience = 0
 	combat_arm = 2
-	specific_type = 0
+
+func _to_string():
+	return "Artillery"

@@ -1,15 +1,19 @@
 class_name base_unit extends Node
 
-func _init(new_location):
+func _init(new_location: Vector2i, new_player_id: int):
 	location = new_location
-
-#one unit per tile or multiple
+	player_id = new_player_id
 
 #Where the unit is
 var location: Vector2i
 
 func set_location(new_location: Vector2i):
 	location = new_location
+
+var player_id: int
+
+func get_player_id() -> int:
+	return player_id
 
 #How much manpower the unit has
 var manpower: int
@@ -34,6 +38,14 @@ func get_next_location() -> Vector2i:
 
 func pop_next_location() -> Vector2i:
 	return route.pop_front()
+
+func is_route_empty() -> bool:
+	return route.is_empty()
+
+func get_destination():
+	if route.is_empty():
+		return null
+	return route.back()
 
 #The progress unit has to travel
 var progress: float

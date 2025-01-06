@@ -8,6 +8,7 @@ var unique_id
 @onready var depot_button = $player_camera/CanvasLayer/depot_button
 @onready var single_track_button = $player_camera/CanvasLayer/single_track_button
 @onready var tile_window = $tile_window
+@onready var unit_creator_window = $unit_creator_window
 @onready var tile_info = $tile_window/tile_info
 @onready var game = get_parent().get_parent()
 @onready var rail_placer = $Rail_Placer
@@ -15,15 +16,19 @@ var unique_id
 @onready var unit_map = $unit_map
 var money_controller
 var state_machine
+var untraversable_tiles = {}
+
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
 const depot = preload("res://Cargo/depot.gd")
+
 
 var testing
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	unique_id = multiplayer.get_unique_id()
 	if unique_id == 1:
+		create_untraversable_tiles()
 		money_controller = preload("res://Player/money_controller.gd").new(multiplayer.get_peers())
 		state_machine = preload("res://Game/state_machine.gd").new()
 		camera.assign_state_machine(state_machine)
@@ -42,8 +47,10 @@ func _input(event):
 			record_hover_click()
 		elif state_machine.is_building_many_rails():
 			record_start_rail()
+		elif state_machine.is_building_units():
+			unit_map.create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 		else:
-			unit_map.select_unit(get_cell_position())
+			unit_map.select_unit(get_cell_position(), unique_id)
 	elif event.is_action_released("click"):
 		if state_machine.is_controlling_camera() and !tile_window.visible:
 			tile_window.show_tile_info(get_cell_position())
@@ -52,19 +59,34 @@ func _input(event):
 		start = null
 	elif event.is_action_pressed("deselect"):
 		if state_machine.is_selecting_unit():
-			unit_map.set_unit_route(get_cell_position())
+			unit_map.set_selected_unit_route(get_cell_position())
 		else:
 			rail_placer.clear_all_temps()
 			camera.unpress_all_buttons()
 	elif event.is_action_pressed("debug_place_train"):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
-		highlight_cell(get_cell_position())
-		unit_map.create_unit(get_cell_position())
+		unit_creator_window.popup()
+		#highlight_cell(get_cell_position())
+		
+		#unit_map.create_unit(get_cell_position(), officer)
 
 #State_Machine
 func click_unit():
 	state_machine.click_unit()
+
+func start_building_units():
+	state_machine.start_building_units()
+
+#Units
+func create_untraversable_tiles():
+	untraversable_tiles[Vector2i(5, 0)] = 1
+	untraversable_tiles[Vector2i(6, 0)] = 1
+	untraversable_tiles[Vector2i(7, 0)] = 1
+
+func is_tile_traversable(tile_to_check: Vector2i) -> bool:
+	var atlas_coords = get_cell_atlas_coords(tile_to_check)
+	return !untraversable_tiles.has(atlas_coords)
 
 #Tracks
 func update_hover():
@@ -225,7 +247,6 @@ func highlight_cell(coords: Vector2i):
 	var highlight: Sprite2D = Sprite2D.new()
 	highlight.texture = load("res://Map_Icons/selected.png")
 	add_child(highlight)
-	highlight
 	highlight.position = map_to_local(coords)
 
 #Money Stuff

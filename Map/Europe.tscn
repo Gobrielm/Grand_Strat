@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=4 uid="uid://dy24s42glgktx"]
+[gd_scene load_steps=13 format=4 uid="uid://dy24s42glgktx"]
 
 [ext_resource type="Texture2D" uid="uid://bq1dap6gjpxr7" path="res://Map_Icons/7SEYHd.png" id="1_jgce8"]
 [ext_resource type="PackedScene" uid="uid://c6spn0m6m85vs" path="res://Player/player_camera.tscn" id="2_if10o"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://denddx5f87r3r" path="res://Map/Rails/rail_placer.tscn" id="6_4lcrx"]
 [ext_resource type="PackedScene" uid="uid://s7iqd4d70g3r" path="res://Cargo/cargo_controller.tscn" id="7_nl1l5"]
 [ext_resource type="PackedScene" uid="uid://du4xxwp8ky6v6" path="res://Map/unit_map.tscn" id="8_m7t12"]
+[ext_resource type="PackedScene" uid="uid://d2x16vqu0dy7j" path="res://Units/unit_managers/unit_creator_window.tscn" id="9_k4rfp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tywjw"]
 texture = ExtResource("1_jgce8")
@@ -118,3 +119,5 @@ auto_translate_mode = 1
 [node name="cargo_controller" parent="." instance=ExtResource("7_nl1l5")]
 
 [node name="unit_map" parent="." instance=ExtResource("8_m7t12")]
+
+[node name="unit_creator_window" parent="." instance=ExtResource("9_k4rfp")]
