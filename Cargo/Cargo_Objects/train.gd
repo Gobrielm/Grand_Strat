@@ -348,7 +348,7 @@ func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array
 					break
 		if found:
 			break
-	var route = [end]
+	var to_return = [end]
 	var direction = null
 	if found:
 		found = false
@@ -363,11 +363,11 @@ func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array
 				var dir = order[curr][0]
 				curr = tile_to_prev[curr][dir]
 				direction = dir
-			route.push_front(curr)
+			to_return.push_front(curr)
 			if curr == start:
 				found = true
 	if found:
-		return route
+		return to_return
 	return []
 
 func can_direction_reach_dir(direction: int, dir: int) -> bool:

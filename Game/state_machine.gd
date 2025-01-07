@@ -79,7 +79,6 @@ func is_selecting_unit() -> bool:
 func click_unit():
 	unit_selected = !unit_selected
 	if click_unit:
-		print("clicked")
 		all_off()
 		unit_selected = true
 	else:

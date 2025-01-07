@@ -33,8 +33,8 @@ func update_resolution():
 	$CanvasLayer/Coordinate_Label.position.x = -viewport_size.x + 150
 	$CanvasLayer/Cash_Label.position.y = -viewport_size.y + 100
 
-func assign_state_machine(state_machine):
-	self.state_machine = state_machine
+func assign_state_machine(new_state_machine):
+	state_machine = new_state_machine
 
 func unpress_all_buttons():
 	state_machine.unpress_gui()

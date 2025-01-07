@@ -2,7 +2,8 @@ class_name artillery extends base_unit
 
 func _init(new_location: Vector2i, new_player_id: int):
 	super._init(new_location, new_player_id)
-	manpower = 200
+	max_manpower = 200
+	manpower = max_manpower
 	morale = 100
 	
 	organization = null

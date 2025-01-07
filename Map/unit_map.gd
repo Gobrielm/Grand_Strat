@@ -3,9 +3,11 @@ extends TileMapLayer
 var map: TileMapLayer
 var unit_creator
 var unit_data: Dictionary = {}
+var battle_script
 var labels: Dictionary = {}
 var unit_selected_coords: Vector2i
 func _ready():
+	battle_script = load("res://Units/unit_managers/battle_script.gd").new()
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
 	map = get_parent()
 
@@ -82,7 +84,6 @@ func create_route_from_tile_to_prev(start: Vector2i, destination: Vector2i, tile
 		current = tile_to_prev[current]
 	return route
 
-
 func move_label(coords: Vector2i, move_to: Vector2i):
 	var label = labels[coords]
 	labels.erase(coords)
@@ -91,13 +92,37 @@ func move_label(coords: Vector2i, move_to: Vector2i):
 	label.position.x -= (label.size.x / 2)
 	label.position.y += label.size.y
 
+func unit_battle(attacker: base_unit, defender: base_unit):
+	var result = battle_script.unit_battle(attacker, defender)
+	#Defender killed
+	if result == 0:
+		pass
+	#Defender retreated
+	elif result == 1:
+		pass
+	#Attacker killed
+	elif result == 2:
+		pass
+	#Attacker retreated
+	elif result == 3:
+		pass
+
 #Selecting Units
+
+func get_selected_unit() -> base_unit:
+	return unit_data[unit_selected_coords]
+
 func select_unit(coords: Vector2i, player_id: int):
 	if is_player_id_match(coords, player_id):
 		var soldier_atlas = get_cell_atlas_coords(coords)
 		unit_selected_coords = coords
 		if soldier_atlas != Vector2i(-1, -1):
 			map.click_unit()
+	else:
+		unit_selected_coords = coords
+
+func is_unit_double_clicked(coords: Vector2i, player_id: int) -> bool:
+	return is_player_id_match(coords, player_id) and unit_selected_coords == coords
 
 func _process(delta):
 	for location: Vector2i in unit_data:

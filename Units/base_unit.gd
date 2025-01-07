@@ -15,10 +15,37 @@ var player_id: int
 func get_player_id() -> int:
 	return player_id
 
+#Max manpower the unit has
+var max_manpower: int
 #How much manpower the unit has
 var manpower: int
+
+func get_manpower() -> int:
+	return manpower
+
+func add_manpower(amount: int) -> int:
+	var amount_added = min(amount, max_manpower - manpower)
+	manpower += amount_added
+	return amount_added
+
+func remove_manpower(amount: int) -> bool:
+	manpower -= amount
+	return manpower <= 0
+
+const max_morale = 100
 #The desire for the unit to fight
 var morale: int
+
+func get_morale() -> int:
+	return morale
+
+func add_morale(amount: int):
+	morale += amount
+
+func remove_morale(amount: int) -> bool:
+	morale -= round(amount * float(cohesion / 100))
+	return morale <= 0
+
 #How fast a unit can move
 var speed: int
 
@@ -61,13 +88,20 @@ func ready_to_move(progress_needed) -> bool:
 		reset_progress()
 		return true
 	return false
-	
+
+#TODO: Add more variables
+func get_shock_damage() -> int:
+	return round(shock * (1 + float(experience / 1000)))
+#TODO: Add more variables
+func get_fire_damage() -> int:
+	return round(firepower * (1 + float(experience / 1000)))
 
 #The amount of supplies the unit has
 var organization
 
 #The morale damage a unit does
 var shock: int
+
 #The general damage
 var firepower: int
 

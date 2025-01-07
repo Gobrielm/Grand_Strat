@@ -49,6 +49,8 @@ func _input(event):
 			record_start_rail()
 		elif state_machine.is_building_units():
 			unit_map.create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
+		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
+			$unit_info_window.show_unit(unit_map.get_selected_unit())
 		else:
 			unit_map.select_unit(get_cell_position(), unique_id)
 	elif event.is_action_released("click"):

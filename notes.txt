@@ -49,3 +49,13 @@ Game Info:
 		Base -> City
 		Base -> Middle -> City
 		Base -> Middle -> Apex
+	
+	Unit Stuff:
+		Two enemies cannot be on the same tile
+		Units can attack each other if they adjacent or 1 tile away depending on range
+		Can walk through friendly units but suffer speed penalty and potential attrition penalties
+		
+		Micro: Unit is told to attack a tile and every tick it attacks, once it wins it will move into that tile...
+		the other unit will either retreat or die depending on circumstances
+		
+		Macro: A collection of units is told to push a certain way and they will push based on parameters

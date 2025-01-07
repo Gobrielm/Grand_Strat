@@ -4,7 +4,8 @@ var experience_aura_boost
 
 func _init(new_location: Vector2i, new_player_id: int):
 	super._init(new_location, new_player_id)
-	manpower = 50
+	max_manpower = 50
+	manpower = max_manpower
 	morale = 100
 	
 	organization = null
