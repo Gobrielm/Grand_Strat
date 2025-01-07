@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://b7tfaoaesuw3p"]
+
+[ext_resource type="Texture2D" uid="uid://cu6gtw4s5yi8j" path="res://Map_Icons/unit_models.png" id="1_bodqu"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_o3i8j"]
+texture = ExtResource("1_bodqu")
+margins = Vector2i(0, 64)
+separation = Vector2i(0, 64)
+texture_region_size = Vector2i(128, 128)
+0:0/0 = 0
+0:1/0 = 0
+0:2/0 = 0
+0:3/0 = 0
+0:4/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_x2d0v"]
+tile_shape = 3
+tile_offset_axis = 1
+tile_size = Vector2i(128, 115)
+sources/0 = SubResource("TileSetAtlasSource_o3i8j")
+
+[node name="client_unit_map" type="TileMapLayer"]
+tile_set = SubResource("TileSet_x2d0v")

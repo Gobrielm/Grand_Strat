@@ -8,6 +8,7 @@ func _init(new_location: Vector2i, new_player_id: int):
 	
 	organization = null
 	speed = 80
+	range = 1
 	shock = 100
 	firepower = 25
 	cohesion = 40

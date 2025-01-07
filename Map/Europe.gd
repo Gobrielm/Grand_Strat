@@ -13,7 +13,7 @@ var unique_id
 @onready var game = get_parent().get_parent()
 @onready var rail_placer = $Rail_Placer
 @onready var cargo_controller = $cargo_controller
-@onready var unit_map = $unit_map
+var unit_map
 var money_controller
 var state_machine
 var untraversable_tiles = {}
@@ -22,7 +22,7 @@ const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
 const depot = preload("res://Cargo/depot.gd")
 
-
+var AAAAAAAAAAA = 0
 var testing
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -32,9 +32,15 @@ func _ready():
 		money_controller = preload("res://Player/money_controller.gd").new(multiplayer.get_peers())
 		state_machine = preload("res://Game/state_machine.gd").new()
 		camera.assign_state_machine(state_machine)
+		unit_map = load("res://Map/unit_map.tscn").instantiate()
+		add_child(unit_map)
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
-	testing = preload("res://Test/testing.gd").new(self)
+		testing = preload("res://Test/testing.gd").new(self)
+	else:
+		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
+		add_child(unit_map)
+
 
 func _input(event):
 	update_hover()
@@ -48,11 +54,13 @@ func _input(event):
 		elif state_machine.is_building_many_rails():
 			record_start_rail()
 		elif state_machine.is_building_units():
-			unit_map.create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
+			unit_map.create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id + AAAAAAAAAAA)
+			AAAAAAAAAAA += 1
 		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
-			$unit_info_window.show_unit(unit_map.get_selected_unit())
+			show_unit_info_window(unit_map.get_selected_unit())
 		else:
 			unit_map.select_unit(get_cell_position(), unique_id)
+			update_info_window(unit_map.get_selected_unit())
 	elif event.is_action_released("click"):
 		if state_machine.is_controlling_camera() and !tile_window.visible:
 			tile_window.show_tile_info(get_cell_position())
@@ -62,6 +70,7 @@ func _input(event):
 	elif event.is_action_pressed("deselect"):
 		if state_machine.is_selecting_unit():
 			unit_map.set_selected_unit_route(get_cell_position())
+			update_info_window(unit_map.get_selected_unit())
 		else:
 			rail_placer.clear_all_temps()
 			camera.unpress_all_buttons()
@@ -85,10 +94,17 @@ func create_untraversable_tiles():
 	untraversable_tiles[Vector2i(5, 0)] = 1
 	untraversable_tiles[Vector2i(6, 0)] = 1
 	untraversable_tiles[Vector2i(7, 0)] = 1
+	untraversable_tiles[Vector2i(-1, -1)] = 1
 
 func is_tile_traversable(tile_to_check: Vector2i) -> bool:
 	var atlas_coords = get_cell_atlas_coords(tile_to_check)
 	return !untraversable_tiles.has(atlas_coords)
+
+func show_unit_info_window(unit: base_unit):
+	$unit_info_window.show_unit(unit)
+
+func update_info_window(unit: base_unit):
+	$unit_info_window.update_unit(unit)
 
 #Tracks
 func update_hover():

@@ -1,11 +1,23 @@
 class_name base_unit extends Node
 
+const speed_mult_hilly = 0.75
+const speed_mult_other_unit = 0.5
+
 func _init(new_location: Vector2i, new_player_id: int):
 	location = new_location
 	player_id = new_player_id
 
+func get_speed_mult(terrain_num: int):
+	if terrain_num == -1:
+		return 1
+	elif terrain_num == 1:
+		return speed_mult_hilly
+
 #Where the unit is
 var location: Vector2i
+
+func get_location() -> Vector2i:
+	return location
 
 func set_location(new_location: Vector2i):
 	location = new_location
@@ -43,7 +55,9 @@ func add_morale(amount: int):
 	morale += amount
 
 func remove_morale(amount: int) -> bool:
-	morale -= round(amount * float(cohesion / 100))
+	morale -= round(amount / float(cohesion / 20))
+	if morale < 0:
+		morale = 0
 	return morale <= 0
 
 #How fast a unit can move
@@ -51,6 +65,8 @@ var speed: int
 
 func get_speed() -> int:
 	return speed
+
+var range: int
 
 #The route the unit takes if travelling
 var route: Array
@@ -83,7 +99,7 @@ func update_progress(num: float):
 func reset_progress():
 	progress = 0
 
-func ready_to_move(progress_needed) -> bool:
+func ready_to_move(progress_needed: float) -> bool:
 	if progress_needed < progress:
 		reset_progress()
 		return true

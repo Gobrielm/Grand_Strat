@@ -4,12 +4,18 @@ var map: TileMapLayer
 var unit_creator
 var unit_data: Dictionary = {}
 var battle_script
-var labels: Dictionary = {}
 var unit_selected_coords: Vector2i
+
+var units_to_kill = []
+var units_to_retreat = []
+
 func _ready():
 	battle_script = load("res://Units/unit_managers/battle_script.gd").new()
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
 	map = get_parent()
+
+func tile_has_enemy_unit(tile_to_check: Vector2i, player_id):
+	return unit_data.has(tile_to_check) and unit_data[tile_to_check].get_player_id() != player_id
 
 func tile_has_no_unit(tile_to_check: Vector2i) -> bool:
 	return !unit_data.has(tile_to_check)
@@ -26,19 +32,41 @@ func create_unit(coords: Vector2i, type, player_id: int):
 
 func create_label(coords: Vector2i, text: String):
 	var label: Label = Label.new()
-	add_child(label)
+	label.name = "Label"
+	var node = Control.new()
+	add_child(node)
+	node.add_child(label)
+	node.name = str(coords)
 	label.text = text
-	label.position = map_to_local(coords)
-	label.position.x -= (label.size.x / 2)
-	label.position.y += label.size.y
-	labels[coords] = label
+	move_label(coords, coords)
+	label.position = Vector2(-label.size.x / 2, label.size.y)
+	var progress_bar = create_progress_bar(label.size)
+	node.add_child(progress_bar)
+
+func create_progress_bar(size: Vector2) -> ProgressBar:
+	var progress_bar: ProgressBar = ProgressBar.new()
+	progress_bar.name = "ProgressBar"
+	progress_bar.show_percentage = false
+	progress_bar.value = 100
+	progress_bar.size = size
+	progress_bar.position = Vector2(-size.x / 2, size.y * 2)
+	var background_color = StyleBoxFlat.new()
+	background_color.bg_color = Color(1, 1, 1, 0)
+	var fill_color = StyleBoxFlat.new()
+	fill_color.bg_color = Color(0.5, 1, 0.5, 1)
+	progress_bar.add_theme_stylebox_override("background", background_color)
+	progress_bar.add_theme_stylebox_override("fill", fill_color)
+	return progress_bar
 
 #Moving Units
 func set_selected_unit_route(move_to: Vector2i):
 	if unit_data.has(unit_selected_coords):
 		var soldier_data: base_unit = unit_data[unit_selected_coords]
-		soldier_data.set_route(dfs_to_destination(unit_selected_coords, move_to))
-	
+		set_unit_route(soldier_data, move_to)
+		
+
+func set_unit_route(unit_to_move: base_unit, move_to: Vector2i):
+	unit_to_move.set_route(dfs_to_destination(unit_to_move.get_location(), move_to))
 
 func move_unit(coords: Vector2i):
 	var soldier_atlas = get_cell_atlas_coords(coords)
@@ -56,25 +84,58 @@ func move_unit(coords: Vector2i):
 		var end = soldier_data.get_destination()
 		set_selected_unit_route(end)
 
+func move_label(coords: Vector2i, move_to: Vector2i):
+	var node = get_node(str(coords))
+	node.name = str(move_to)
+	node.position = map_to_local(move_to)
+
+func location_is_attack(coords_of_defender: Vector2i, attacker: base_unit) -> bool:
+	return unit_data.has(coords_of_defender) and unit_data[coords_of_defender].get_player_id() != attacker.get_player_id()
+
+func check_range_to_unit(coords_of_defender: Vector2i, attacker: base_unit) -> int:
+	var coords_of_attacker = attacker.get_location()
+	var local_def = map.map_to_local(coords_of_defender)
+	var local_att = map.map_to_local(coords_of_attacker)
+	var dist = local_att.distance_to(local_def)
+	if dist > 231:
+		return -1
+	elif dist > 190:
+		return 2
+	else:
+		return 1
+
 func next_location_is_available(coords: Vector2i) -> bool:
 	return !unit_data.has(coords)
 
 func dfs_to_destination(coords: Vector2i, destination: Vector2i) -> Array:
+	#FIXME
 	var current
+	var unit = unit_data[coords]
 	var queue: priority_queue = priority_queue.new()
 	var tile_to_prev = {}
 	var visited = {}
+	var found = false
 	queue.add_item(0, coords)
 	while !queue.is_empty():
 		current = queue.pop_top()
-		if current == destination:
+		if current == destination or found:
+			found = true
 			break
 		for tile in map.get_surrounding_cells(current):
 			if !visited.has(tile) and map.is_tile_traversable(tile) and tile_has_no_unit(tile):
 				queue.add_item(tile.distance_to(destination), tile)
 				visited[tile] = true
 				tile_to_prev[tile] = current
-	return create_route_from_tile_to_prev(coords, destination, tile_to_prev)
+			elif tile == destination:
+				if tile_has_enemy_unit(tile, unit.get_player_id()):
+					tile_to_prev[tile] = current
+					found = true
+					break
+				return create_route_from_tile_to_prev(coords, current, tile_to_prev)
+	if found:
+		return create_route_from_tile_to_prev(coords, destination, tile_to_prev)
+	else:
+		return []
 	
 func create_route_from_tile_to_prev(start: Vector2i, destination: Vector2i, tile_to_prev: Dictionary) -> Array:
 	var current = destination
@@ -84,33 +145,37 @@ func create_route_from_tile_to_prev(start: Vector2i, destination: Vector2i, tile
 		current = tile_to_prev[current]
 	return route
 
-func move_label(coords: Vector2i, move_to: Vector2i):
-	var label = labels[coords]
-	labels.erase(coords)
-	labels[move_to] = label
-	label.position = map_to_local(move_to)
-	label.position.x -= (label.size.x / 2)
-	label.position.y += label.size.y
-
 func unit_battle(attacker: base_unit, defender: base_unit):
 	var result = battle_script.unit_battle(attacker, defender)
 	#Defender killed
 	if result == 0:
-		pass
+		units_to_kill.append(defender)
 	#Defender retreated
 	elif result == 1:
-		pass
+		units_to_retreat.append(defender)
 	#Attacker killed
 	elif result == 2:
-		pass
+		units_to_kill.append(attacker)
 	#Attacker retreated
 	elif result == 3:
-		pass
+		units_to_retreat.append(attacker)
+
+func kill_unit(unit: base_unit):
+	unit_data.erase(unit.get_location())
+	var coords = unit.get_location()
+	var node: Control = get_node(str(coords))
+	for child in node.get_children():
+		child.queue_free()
+	node.queue_free()
+	unit.queue_free()
+	erase_cell(coords)
 
 #Selecting Units
 
 func get_selected_unit() -> base_unit:
-	return unit_data[unit_selected_coords]
+	if unit_data.has(unit_selected_coords):
+		return unit_data[unit_selected_coords]
+	return null
 
 func select_unit(coords: Vector2i, player_id: int):
 	if is_player_id_match(coords, player_id):
@@ -127,9 +192,43 @@ func is_unit_double_clicked(coords: Vector2i, player_id: int) -> bool:
 func _process(delta):
 	for location: Vector2i in unit_data:
 		var unit: base_unit = unit_data[location]
+		if units_to_kill.has(unit):
+		 #or units_to_retreat.has(unit):
+			continue
 		unit.update_progress(delta)
-		if unit.get_next_location() != location:
+		var next_location = unit.get_next_location()
+		if next_location != location:
 			#TODO: Terrain check
-			if unit.ready_to_move(100 / unit.get_speed()):
-				move_unit(location)
-			
+			var terrain = map.get_cell_tile_data(next_location).terrain
+			if unit.ready_to_move(100.0 / unit.get_speed() / unit.get_speed_mult(terrain)):
+				if location_is_attack(next_location, unit):
+					unit_battle(unit, unit_data[next_location])
+					update_unit(unit_data[next_location])
+				else:
+					move_unit(location)
+				update_unit(unit)
+	retreat_units()
+	clean_up_killed_units()
+
+func update_unit(unit: base_unit):
+	map.update_info_window(unit)
+	var coords = unit.get_location()
+	var progress_bar: ProgressBar = get_node(str(coords)).get_node("ProgressBar")
+	progress_bar.value = unit.get_morale()
+
+func clean_up_killed_units():
+	for unit in units_to_kill:
+		kill_unit(unit)
+	units_to_kill.clear()
+
+func retreat_units():
+	for unit: base_unit in units_to_retreat:
+		set_unit_route(unit, find_surrounding_open_tile(unit.get_location()))
+	units_to_retreat.clear()
+
+func find_surrounding_open_tile(coords: Vector2i) -> Vector2i:
+	for cell in map.get_surrounding_cells(coords):
+		if map.is_tile_traversable(cell) and tile_has_no_unit(cell):
+			return cell
+	units_to_kill.append(unit_data[coords])
+	return coords

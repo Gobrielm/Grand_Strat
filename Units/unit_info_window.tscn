@@ -4,6 +4,7 @@
 
 [node name="unit_info_window" type="Window"]
 size = Vector2i(500, 500)
+unfocusable = true
 script = ExtResource("1_g6u0w")
 
 [node name="stat_label" type="Label" parent="."]
