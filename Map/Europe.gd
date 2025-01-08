@@ -17,6 +17,7 @@ var unit_map
 var money_controller
 var state_machine
 var untraversable_tiles = {}
+var visible_tiles = []
 
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
@@ -38,7 +39,9 @@ func _ready():
 		testing = preload("res://Test/testing.gd").new(self)
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
+		unit_map.name = "unit_map"
 		add_child(unit_map)
+		visible_tiles.append(Vector2i(0, 0))
 
 
 func _input(event):
@@ -53,7 +56,7 @@ func _input(event):
 		elif state_machine.is_building_many_rails():
 			record_start_rail()
 		elif state_machine.is_building_units():
-			create_unit.rpc(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
+			create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
 			show_unit_info_window(unit_map.get_selected_unit())
 		else:
@@ -104,6 +107,10 @@ func update_info_window(unit: base_unit):
 @rpc("any_peer", "call_local", "unreliable")
 func create_unit(coords: Vector2i, type: int, id: int):
 	unit_map.create_unit(coords, type, id)
+
+@rpc("authority", "call_remote", "unreliable")
+func refresh_unit_map(unit_tiles: Dictionary):
+	unit_map.refresh_map(visible_tiles, unit_tiles)
 
 #Tracks
 func update_hover():
