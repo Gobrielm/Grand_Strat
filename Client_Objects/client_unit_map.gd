@@ -3,6 +3,9 @@ extends TileMapLayer
 var unit_creator
 var unit_selected_coords
 var map: TileMapLayer
+var unit_data: Dictionary = {}
+
+const client_unit = preload("res://Client_Objects/client_base_unit.gd")
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
@@ -24,13 +27,15 @@ func request_refresh(tile: Vector2i, sender_id: int):
 	pass
 
 @rpc("any_peer", "call_remote", "unreliable")
-func refresh_unit(tile: Vector2i, morale: int):
+func refresh_unit(tile: Vector2i, unit_info: Array):
 	var unit_node = get_node(str(tile))
+	unit_data[tile].update_stats(unit_info)
 	var morale_bar = unit_node.get_node(str("ProgressBar"))
-	morale_bar.value = morale
+	morale_bar.value = unit_info[2]
 
 func create_unit(coords: Vector2i, atlas: Vector2i):
 	set_cell(coords, 0, atlas)
+	unit_data[coords] = client_unit.new()
 	var unit_class = unit_creator.get_unit_class(atlas.y)
 	create_label(coords, str(unit_class.toString()))
 
@@ -71,6 +76,18 @@ func move_unit(coords: Vector2i, move_to: Vector2i):
 @rpc("any_peer", "call_local", "unreliable")
 func select_unit(coords: Vector2i, player_id: int):
 	unit_selected_coords = coords
+
+func selected_unit_exists_and_owned() -> bool:
+	return unit_data.has(unit_selected_coords) and unit_data[unit_selected_coords].get_owned()
+
+func get_selected_unit() -> base_unit:
+	if selected_unit_exists_and_owned():
+		map.click_unit()
+		return unit_data[unit_selected_coords]
+	return null
+
+func is_unit_double_clicked(coords: Vector2i, _unique_id: int):
+	return unit_selected_coords == coords and selected_unit_exists_and_owned()
 
 func move_label(coords: Vector2i, move_to: Vector2i):
 	var node = get_node(str(coords))

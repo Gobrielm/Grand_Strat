@@ -27,11 +27,11 @@ var testing
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	unique_id = multiplayer.get_unique_id()
+	state_machine = preload("res://Game/state_machine.gd").new()
+	camera.assign_state_machine(state_machine)
 	if unique_id == 1:
 		create_untraversable_tiles()
 		money_controller = preload("res://Player/money_controller.gd").new(multiplayer.get_peers())
-		state_machine = preload("res://Game/state_machine.gd").new()
-		camera.assign_state_machine(state_machine)
 		unit_map = load("res://Map/unit_map.tscn").instantiate()
 		add_child(unit_map)
 		for cell in get_used_cells():
@@ -42,7 +42,6 @@ func _ready():
 		unit_map.name = "unit_map"
 		add_child(unit_map)
 		visible_tiles.append(Vector2i(0, 0))
-
 
 func _input(event):
 	update_hover()
@@ -56,7 +55,7 @@ func _input(event):
 		elif state_machine.is_building_many_rails():
 			record_start_rail()
 		elif state_machine.is_building_units():
-			create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
+			create_unit.rpc_id(1, get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
 			show_unit_info_window(unit_map.get_selected_unit())
 		else:

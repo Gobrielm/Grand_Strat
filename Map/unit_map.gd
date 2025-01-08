@@ -24,7 +24,7 @@ func refresh_map(visible_tiles: Array, unit_atlas: Dictionary):
 @rpc("any_peer", "call_remote", "unreliable")
 func request_refresh(tile: Vector2i, sender_id: int):
 	if unit_data.has(tile):
-		refresh_unit.rpc_id(sender_id, tile, unit_data[tile].get_morale())
+		refresh_unit.rpc_id(sender_id, tile, unit_data[tile].convert_to_client_array(sender_id))
 
 @rpc("any_peer", "call_remote", "unreliable")
 func refresh_unit(tile: Vector2i, morale: int):
