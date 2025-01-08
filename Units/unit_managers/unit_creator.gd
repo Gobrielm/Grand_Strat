@@ -1,15 +1,15 @@
 extends Node
 
-var unit_dictionary: Dictionary = {} # int -> type, y-coord of atlas
+var unit_array: Array = []
 
 func _init():
-	unit_dictionary[infantry] = 0
-	unit_dictionary[calvary] = 1
-	unit_dictionary[artillery] = 2
-	unit_dictionary[engineer] = 3
-	unit_dictionary[officer] = 4
+	unit_array.append(infantry)
+	unit_array.append(calvary)
+	unit_array.append(artillery)
+	unit_array.append(engineer)
+	unit_array.append(officer)
 
-func get_y_atlas_from_unit_type(type) -> int:
-	if unit_dictionary.has(type):
-		return unit_dictionary[type]
-	return -1
+func get_unit_class(type):
+	if type >= 0 and type < unit_array.size():
+		return unit_array[type]
+	return null

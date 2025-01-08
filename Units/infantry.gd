@@ -19,3 +19,6 @@ func _init(new_location: Vector2i, new_player_id: int):
 
 func _to_string():
 	return "Infantry"
+
+static func toString() -> String:
+	return "Infantry"

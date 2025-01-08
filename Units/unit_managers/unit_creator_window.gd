@@ -13,31 +13,31 @@ func clear_type_selected():
 	type_selected = null
 
 func _on_infantry_button_pressed():
-	type_selected = infantry
+	type_selected = 0
 	map.start_building_units()
 	hide()
 
 
 func _on_calvary_button_pressed():
-	type_selected = calvary
+	type_selected = 1
 	map.start_building_units()
 	hide()
 
 
 func _on_artillery_button_pressed():
-	type_selected = artillery
+	type_selected = 2
 	map.start_building_units()
 	hide()
 
 
 func _on_engineer_button_pressed():
-	type_selected = engineer
+	type_selected = 3
 	map.start_building_units()
 	hide()
 
 
 func _on_officer_button_pressed():
-	type_selected = officer
+	type_selected = 4
 	map.start_building_units()
 	hide()
 

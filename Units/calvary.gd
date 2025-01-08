@@ -20,3 +20,6 @@ func _init(new_location: Vector2i, new_player_id: int):
 
 func _to_string() -> String:
 	return "Calvary"
+
+static func toString() -> String:
+	return "Calvary"

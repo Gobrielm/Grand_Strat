@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://b7tfaoaesuw3p"]
+[gd_scene load_steps=5 format=3 uid="uid://b7tfaoaesuw3p"]
 
 [ext_resource type="Texture2D" uid="uid://cu6gtw4s5yi8j" path="res://Map_Icons/unit_models.png" id="1_bodqu"]
+[ext_resource type="Script" path="res://Client_Objects/client_unit_map.gd" id="2_j5hs4"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_o3i8j"]
 texture = ExtResource("1_bodqu")
@@ -21,3 +22,4 @@ sources/0 = SubResource("TileSetAtlasSource_o3i8j")
 
 [node name="client_unit_map" type="TileMapLayer"]
 tile_set = SubResource("TileSet_x2d0v")
+script = ExtResource("2_j5hs4")

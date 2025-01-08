@@ -22,7 +22,6 @@ const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
 const depot = preload("res://Cargo/depot.gd")
 
-var AAAAAAAAAAA = 0
 var testing
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -54,8 +53,7 @@ func _input(event):
 		elif state_machine.is_building_many_rails():
 			record_start_rail()
 		elif state_machine.is_building_units():
-			unit_map.create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id + AAAAAAAAAAA)
-			AAAAAAAAAAA += 1
+			create_unit.rpc(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
 			show_unit_info_window(unit_map.get_selected_unit())
 		else:
@@ -78,9 +76,6 @@ func _input(event):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
 		unit_creator_window.popup()
-		#highlight_cell(get_cell_position())
-		
-		#unit_map.create_unit(get_cell_position(), officer)
 
 #State_Machine
 func click_unit():
@@ -105,6 +100,10 @@ func show_unit_info_window(unit: base_unit):
 
 func update_info_window(unit: base_unit):
 	$unit_info_window.update_unit(unit)
+
+@rpc("any_peer", "call_local", "unreliable")
+func create_unit(coords: Vector2i, type: int, id: int):
+	unit_map.create_unit(coords, type, id)
 
 #Tracks
 func update_hover():

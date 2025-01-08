@@ -27,3 +27,6 @@ func recalculate_experience_aura_boost():
 
 func _to_string():
 	return "Officer"
+
+static func toString() -> String:
+	return "Officer"
