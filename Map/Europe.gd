@@ -12,7 +12,7 @@ var unique_id
 @onready var tile_info = $tile_window/tile_info
 @onready var game = get_parent().get_parent()
 @onready var rail_placer = $Rail_Placer
-@onready var cargo_controller = $cargo_controller
+var cargo_controller
 var unit_map
 var money_controller
 var state_machine
@@ -37,6 +37,8 @@ func _ready():
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
 		testing = preload("res://Test/testing.gd").new(self)
+		cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
+		add_child(cargo_controller)
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"
@@ -47,9 +49,6 @@ func _ready():
 func _input(event):
 	update_hover()
 	camera.update_coord_label(get_cell_position())
-	#if unique_id == 1:
-		#for id in get_money_of_all_players():
-			#update_money_label.rpc_id(id, get_money(id))
 	if event.is_action_pressed("click"):
 		if state_machine.is_building():
 			record_hover_click()
@@ -61,7 +60,6 @@ func _input(event):
 			show_unit_info_window(unit_map.get_unit_client_array(get_cell_position()))
 		else:
 			unit_map.select_unit(get_cell_position(), unique_id)
-			#show_unit_info_window(unit_map.get_unit_client_array(get_cell_position()))
 	elif event.is_action_released("click"):
 		if state_machine.is_controlling_camera() and !tile_window.visible:
 			tile_window.show_tile_info(get_cell_position())
@@ -144,6 +142,9 @@ func is_location_depot(coords: Vector2i) -> bool:
 
 func is_location_hold(coords: Vector2i) -> bool:
 	return cargo_controller.is_location_hold(coords)
+
+func is_location_valid_stop(coords: Vector2i) -> bool:
+	return get_depot_or_terminal(coords) is terminal
 
 func get_depot_or_terminal(coords: Vector2i) -> terminal:
 	var depot_to_return = tile_info.get_tile_metadata(coords)

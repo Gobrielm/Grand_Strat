@@ -109,13 +109,13 @@ func get_temp_layer(curr_orientation: int):
 func init_track_connection(coords: Vector2i):
 	track_connection[coords] = [false, false, false, false, false, false]
 @rpc("authority", "call_local", "reliable")
-func add_track_connection(coords: Vector2i, orientation):
+func add_track_connection(coords: Vector2i, new_orientation: int):
 	if !track_connection.has(coords):
 		init_track_connection(coords)
-	track_connection[coords][orientation] = true
+	track_connection[coords][new_orientation] = true
 @rpc("authority", "call_local", "reliable")
-func delete_track_connection(coords: Vector2i, orientation):
-	track_connection[coords][orientation] = false
+func delete_track_connection(coords: Vector2i, new_orientation: int):
+	track_connection[coords][new_orientation] = false
 func get_track_connections(coords: Vector2i) -> Array:
 	if track_connection.has(coords):
 		return track_connection[coords]

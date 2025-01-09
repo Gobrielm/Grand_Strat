@@ -61,7 +61,7 @@ func add_morale(amount: int):
 	morale += amount
 
 func remove_morale(amount: int) -> bool:
-	morale -= round(amount / float(cohesion / 20))
+	morale -= round(amount / float(cohesion) * 20)
 	if morale < 0:
 		morale = 0
 	return morale <= 0
@@ -72,7 +72,7 @@ var speed: int
 func get_speed() -> int:
 	return speed
 
-var range: int
+var unit_range: int
 
 #The route the unit takes if travelling
 var route: Array
@@ -113,10 +113,10 @@ func ready_to_move(progress_needed: float) -> bool:
 
 #TODO: Add more variables
 func get_shock_damage() -> int:
-	return round(shock * (1 + float(experience / 1000)))
+	return round(shock * (1 + (float(experience) / 1000)))
 #TODO: Add more variables
 func get_fire_damage() -> int:
-	return round(firepower * (1 + float(experience / 1000)))
+	return round(firepower * (1 + (float(experience) / 1000)))
 
 #The amount of supplies the unit has
 var organization

@@ -18,7 +18,7 @@ func send_data_to_clients():
 	map.refresh_unit_map.rpc(get_used_cells_dictionary())
 
 @rpc("authority", "call_remote", "unreliable")
-func refresh_map(visible_tiles: Array, unit_atlas: Dictionary):
+func refresh_map(_visible_tiles: Array, _unit_atlas: Dictionary):
 	pass
 
 @rpc("any_peer", "call_remote", "unreliable")
@@ -103,7 +103,6 @@ func set_unit_route(unit_to_move: base_unit, move_to: Vector2i):
 	unit_to_move.set_route(dfs_to_destination(unit_to_move.get_location(), move_to))
 
 func check_move(coords: Vector2i):
-	var soldier_atlas = get_cell_atlas_coords(coords)
 	var unit: base_unit = unit_data[coords]
 	var move_to = unit.pop_next_location()
 	if next_location_is_available(move_to):

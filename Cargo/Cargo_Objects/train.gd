@@ -166,7 +166,7 @@ func _on_window_close_requested():
 
 @rpc("any_peer", "unreliable", "call_local")
 func do_add_stop(new_location: Vector2i):
-	if map.is_tile_vertex(new_location):
+	if map.is_location_valid_stop(new_location):
 		add_stop.rpc(new_location)
 
 @rpc("authority", "unreliable", "call_local")
