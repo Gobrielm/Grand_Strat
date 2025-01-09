@@ -4,10 +4,12 @@
 [ext_resource type="Script" path="res://Map/unit_map.gd" id="2_cuon8"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hwa8g"]
+resource_name = "unit_models"
 texture = ExtResource("1_sa2cv")
 margins = Vector2i(0, 64)
 separation = Vector2i(0, 64)
 texture_region_size = Vector2i(128, 128)
+use_texture_padding = false
 0:0/0 = 0
 0:1/0 = 0
 0:2/0 = 0

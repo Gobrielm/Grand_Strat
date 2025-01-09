@@ -1,7 +1,11 @@
 class_name infantry extends base_unit
 
+static func get_cost() -> int:
+	return 300
+
 func _init(new_location: Vector2i, new_player_id: int):
 	super._init(new_location, new_player_id)
+	
 	manpower = 1000
 	morale = 100
 	

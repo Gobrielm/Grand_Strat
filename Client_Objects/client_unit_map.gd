@@ -23,14 +23,14 @@ func refresh_map(visible_tiles: Array, unit_atlas: Dictionary):
 			request_refresh.rpc_id(1, coords, multiplayer.get_unique_id())
 
 @rpc("any_peer", "call_remote", "unreliable")
-func request_refresh(tile: Vector2i, sender_id: int):
+func request_refresh(tile: Vector2i):
 	pass
 
 @rpc("authority", "call_local", "unreliable")
 func refresh_unit(unit_info: Array):
 	var coords: Vector2i = unit_info[1]
 	if !unit_data.has(coords):
-		request_refresh(coords, multiplayer.get_unique_id())
+		request_refresh(coords)
 	var unit_node = get_node(str(coords))
 	unit_data[coords].update_stats(unit_info)
 	var morale_bar = unit_node.get_node(str("ProgressBar"))

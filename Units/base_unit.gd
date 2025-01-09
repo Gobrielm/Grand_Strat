@@ -16,6 +16,9 @@ func get_speed_mult(terrain_num: int):
 	elif terrain_num == 1:
 		return speed_mult_hilly
 
+static func get_cost() -> int:
+	return 0
+
 #Where the unit is
 var location: Vector2i
 

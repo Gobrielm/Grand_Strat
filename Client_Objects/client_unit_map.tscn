@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://Client_Objects/client_unit_map.gd" id="2_j5hs4"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_o3i8j"]
+resource_name = "unit_models"
 texture = ExtResource("1_bodqu")
 margins = Vector2i(0, 64)
 separation = Vector2i(0, 64)

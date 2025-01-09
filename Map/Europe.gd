@@ -31,7 +31,7 @@ func _ready():
 	camera.assign_state_machine(state_machine)
 	if unique_id == 1:
 		create_untraversable_tiles()
-		money_controller = preload("res://Player/money_controller.gd").new(multiplayer.get_peers())
+		money_controller = load("res://Player/money_controller.gd").new(multiplayer.get_peers(), self)
 		unit_map = load("res://Map/unit_map.tscn").instantiate()
 		add_child(unit_map)
 		for cell in get_used_cells():
@@ -47,9 +47,9 @@ func _ready():
 func _input(event):
 	update_hover()
 	camera.update_coord_label(get_cell_position())
-	if unique_id == 1:
-		for id in get_money_of_all_players():
-			update_money_label.rpc_id(id, get_money(id))
+	#if unique_id == 1:
+		#for id in get_money_of_all_players():
+			#update_money_label.rpc_id(id, get_money(id))
 	if event.is_action_pressed("click"):
 		if state_machine.is_building():
 			record_hover_click()
@@ -275,6 +275,12 @@ func highlight_cell(coords: Vector2i):
 #Money Stuff
 func add_money_to_player(id: int, amount: int):
 	money_controller.add_money_to_player(id, amount)
+
+func remove_money(id: int, amount: int):
+	money_controller.add_money_to_player(id, -amount)
+
+func player_has_enough_money(id: int, amount: int) -> bool:
+	return get_money(id) >= amount
 
 func get_money(id: int) -> int:
 	return money_controller.get_money(id)

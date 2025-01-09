@@ -22,9 +22,10 @@ func refresh_map(visible_tiles: Array, unit_atlas: Dictionary):
 	pass
 
 @rpc("any_peer", "call_remote", "unreliable")
-func request_refresh(tile: Vector2i, sender_id: int):
+func request_refresh(tile: Vector2i):
+	var sender_id = multiplayer.get_remote_sender_id()
 	if unit_data.has(tile):
-		refresh_unit.rpc_id(sender_id, tile, unit_data[tile].convert_to_client_array(sender_id))
+		refresh_unit.rpc_id(sender_id, unit_data[tile].convert_to_client_array(sender_id))
 
 func get_used_cells_dictionary() -> Dictionary:
 	var toReturn: Dictionary = {}
@@ -44,8 +45,11 @@ func is_player_id_match(coords: Vector2i, player_id: int) -> bool:
 #Creating Units
 @rpc("any_peer", "call_local", "unreliable")
 func check_before_create(coords: Vector2i, type: int, player_id: int):
-	#TODO: Some check to money or smth else
-	create_unit.rpc(coords, type, player_id)
+	var unit_class = get_unit_class(type)
+	var cost = unit_class.get_cost()
+	if !unit_data.has(coords) and map.player_has_enough_money(player_id, cost):
+		map.remove_money(player_id, cost)
+		create_unit.rpc(coords, type, player_id)
 
 @rpc("authority", "call_local", "unreliable")
 func create_unit(coords: Vector2i, type: int, player_id: int):
