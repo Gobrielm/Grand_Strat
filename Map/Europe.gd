@@ -41,7 +41,8 @@ func _ready():
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"
 		add_child(unit_map)
-		visible_tiles.append(Vector2i(0, 0))
+		for tile in get_used_cells():
+			visible_tiles.append(tile)
 
 func _input(event):
 	update_hover()
@@ -55,12 +56,12 @@ func _input(event):
 		elif state_machine.is_building_many_rails():
 			record_start_rail()
 		elif state_machine.is_building_units():
-			create_unit.rpc_id(1, get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
+			create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
-			show_unit_info_window(unit_map.get_selected_unit())
+			show_unit_info_window(unit_map.get_unit_client_array(get_cell_position()))
 		else:
 			unit_map.select_unit(get_cell_position(), unique_id)
-			update_info_window(unit_map.get_selected_unit())
+			#show_unit_info_window(unit_map.get_unit_client_array(get_cell_position()))
 	elif event.is_action_released("click"):
 		if state_machine.is_controlling_camera() and !tile_window.visible:
 			tile_window.show_tile_info(get_cell_position())
@@ -69,8 +70,8 @@ func _input(event):
 		start = null
 	elif event.is_action_pressed("deselect"):
 		if state_machine.is_selecting_unit():
-			unit_map.set_selected_unit_route(get_cell_position())
-			update_info_window(unit_map.get_selected_unit())
+			unit_map.set_selected_unit_route.rpc_id(1, unit_map.get_selected_coords(), get_cell_position())
+			update_info_window(unit_map.get_unit_client_array(unit_map.get_selected_coords()))
 		else:
 			rail_placer.clear_all_temps()
 			camera.unpress_all_buttons()
@@ -97,15 +98,14 @@ func is_tile_traversable(tile_to_check: Vector2i) -> bool:
 	var atlas_coords = get_cell_atlas_coords(tile_to_check)
 	return !untraversable_tiles.has(atlas_coords)
 
-func show_unit_info_window(unit: base_unit):
-	$unit_info_window.show_unit(unit)
+func show_unit_info_window(unit_info_array: Array):
+	$unit_info_window.show_unit(unit_info_array)
 
-func update_info_window(unit: base_unit):
-	$unit_info_window.update_unit(unit)
+func update_info_window(unit_info_array: Array):
+	$unit_info_window.update_unit(unit_info_array)
 
-@rpc("any_peer", "call_local", "unreliable")
 func create_unit(coords: Vector2i, type: int, id: int):
-	unit_map.create_unit(coords, type, id)
+	unit_map.check_before_create.rpc_id(1, coords, type, id)
 
 @rpc("authority", "call_remote", "unreliable")
 func refresh_unit_map(unit_tiles: Dictionary):

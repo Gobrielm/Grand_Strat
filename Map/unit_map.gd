@@ -4,7 +4,7 @@ var map: TileMapLayer
 var unit_creator
 var unit_data: Dictionary = {}
 var battle_script
-var unit_selected_coords: Vector2i
+var selected_coords: Vector2i
 
 var units_to_kill = []
 var units_to_retreat = []
@@ -26,12 +26,6 @@ func request_refresh(tile: Vector2i, sender_id: int):
 	if unit_data.has(tile):
 		refresh_unit.rpc_id(sender_id, tile, unit_data[tile].convert_to_client_array(sender_id))
 
-@rpc("any_peer", "call_remote", "unreliable")
-func refresh_unit(tile: Vector2i, morale: int):
-	var unit_node = get_node(str(tile))
-	var morale_bar = unit_node.get_node(str("ProgressBar"))
-	morale_bar.value = morale
-
 func get_used_cells_dictionary() -> Dictionary:
 	var toReturn: Dictionary = {}
 	for tile in get_used_cells():
@@ -48,6 +42,12 @@ func is_player_id_match(coords: Vector2i, player_id: int) -> bool:
 	return unit_data.has(coords) and unit_data[coords].get_player_id() == player_id
 
 #Creating Units
+@rpc("any_peer", "call_local", "unreliable")
+func check_before_create(coords: Vector2i, type: int, player_id: int):
+	#TODO: Some check to money or smth else
+	create_unit.rpc(coords, type, player_id)
+
+@rpc("authority", "call_local", "unreliable")
 func create_unit(coords: Vector2i, type: int, player_id: int):
 	set_cell(coords, 0, Vector2i(0, type))
 	var unit_class = get_unit_class(type)
@@ -86,11 +86,14 @@ func create_progress_bar(size: Vector2) -> ProgressBar:
 	return progress_bar
 
 #Moving Units
-func set_selected_unit_route(move_to: Vector2i):
-	if unit_data.has(unit_selected_coords):
-		var soldier_data: base_unit = unit_data[unit_selected_coords]
+@rpc("any_peer", "call_local", "unreliable")
+func set_selected_unit_route(coords: Vector2i, move_to: Vector2i):
+	if unit_data.has(coords):
+		var soldier_data: base_unit = unit_data[coords]
 		set_unit_route(soldier_data, move_to)
 		
+func get_selected_coords() -> Vector2i:
+	return selected_coords
 
 func set_unit_route(unit_to_move: base_unit, move_to: Vector2i):
 	unit_to_move.set_route(dfs_to_destination(unit_to_move.get_location(), move_to))
@@ -100,11 +103,12 @@ func check_move(coords: Vector2i):
 	var unit: base_unit = unit_data[coords]
 	var move_to = unit.pop_next_location()
 	if next_location_is_available(move_to):
-		move_unit(coords, move_to)
+		move_unit.rpc(coords, move_to)
 	elif !unit.is_route_empty():
 		var end = unit.get_destination()
-		set_selected_unit_route(end)
+		set_selected_unit_route(selected_coords, end)
 
+@rpc("authority", "call_local", "unreliable")
 func move_unit(coords: Vector2i, move_to: Vector2i):
 	var soldier_atlas = get_cell_atlas_coords(coords)
 	var soldier_data: base_unit = unit_data[coords]
@@ -113,7 +117,8 @@ func move_unit(coords: Vector2i, move_to: Vector2i):
 	set_cell(move_to, 0, soldier_atlas)
 	unit_data.erase(coords)
 	unit_data[move_to] = soldier_data
-	unit_selected_coords = move_to
+	if coords == selected_coords:
+		selected_coords = move_to
 	move_label(coords, move_to)
 
 func move_label(coords: Vector2i, move_to: Vector2i):
@@ -192,35 +197,35 @@ func unit_battle(attacker: base_unit, defender: base_unit):
 	elif result == 3:
 		units_to_retreat.append(attacker)
 
-func kill_unit(unit: base_unit):
-	unit_data.erase(unit.get_location())
-	var coords = unit.get_location()
+@rpc("authority", "call_local", "unreliable")
+func kill_unit(coords: Vector2i):
 	var node: Control = get_node(str(coords))
 	for child in node.get_children():
 		child.queue_free()
 	node.queue_free()
-	unit.queue_free()
+	unit_data[coords].queue_free()
+	unit_data.erase(coords)
 	erase_cell(coords)
 
 #Selecting Units
 
 func get_selected_unit() -> base_unit:
-	if unit_data.has(unit_selected_coords):
-		return unit_data[unit_selected_coords]
+	if unit_data.has(selected_coords):
+		return unit_data[selected_coords]
 	return null
 
 @rpc("any_peer", "call_local", "unreliable")
 func select_unit(coords: Vector2i, player_id: int):
 	if is_player_id_match(coords, player_id):
 		var soldier_atlas = get_cell_atlas_coords(coords)
-		unit_selected_coords = coords
+		selected_coords = coords
 		if soldier_atlas != Vector2i(-1, -1):
 			map.click_unit()
 	else:
-		unit_selected_coords = coords
+		selected_coords = coords
 
 func is_unit_double_clicked(coords: Vector2i, player_id: int) -> bool:
-	return is_player_id_match(coords, player_id) and unit_selected_coords == coords
+	return is_player_id_match(coords, player_id) and selected_coords == coords
 
 func _process(delta):
 	for location: Vector2i in unit_data:
@@ -236,23 +241,32 @@ func _process(delta):
 			if unit.ready_to_move(100.0 / unit.get_speed() / unit.get_speed_mult(terrain)):
 				if location_is_attack(next_location, unit):
 					unit_battle(unit, unit_data[next_location])
-					update_unit(unit_data[next_location])
+					prepare_refresh_unit(unit_data[next_location])
 				else:
 					check_move(location)
-				update_unit(unit)
+				prepare_refresh_unit(unit)
 	retreat_units()
 	clean_up_killed_units()
-	send_data_to_clients()
 
-func update_unit(unit: base_unit):
-	map.update_info_window(unit)
-	var coords = unit.get_location()
+func prepare_refresh_unit(unit: base_unit):
+	var info_array = unit.convert_to_client_array()
+	refresh_unit.rpc(info_array)
+
+func get_unit_client_array(coords: Vector2i) -> Array:
+	if unit_data.has(coords):
+		return unit_data[coords].convert_to_client_array()
+	return []
+
+@rpc("authority", "call_local", "unreliable")
+func refresh_unit(info_array: Array):
+	map.update_info_window(info_array)
+	var coords = info_array[1]
 	var progress_bar: ProgressBar = get_node(str(coords)).get_node("ProgressBar")
-	progress_bar.value = unit.get_morale()
+	progress_bar.value = info_array[4]
 
 func clean_up_killed_units():
 	for unit in units_to_kill:
-		kill_unit(unit)
+		kill_unit.rpc(unit.get_location())
 	units_to_kill.clear()
 
 func retreat_units():

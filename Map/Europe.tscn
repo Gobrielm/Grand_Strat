@@ -1,8 +1,7 @@
-[gd_scene load_steps=13 format=4 uid="uid://dy24s42glgktx"]
+[gd_scene load_steps=11 format=4 uid="uid://dy24s42glgktx"]
 
 [ext_resource type="Texture2D" uid="uid://bq1dap6gjpxr7" path="res://Map_Icons/7SEYHd.png" id="1_jgce8"]
 [ext_resource type="PackedScene" uid="uid://c6spn0m6m85vs" path="res://Player/player_camera.tscn" id="2_if10o"]
-[ext_resource type="Texture2D" uid="uid://dd7pttur0tvh4" path="res://Map_Icons/train_set.png" id="2_pp1l7"]
 [ext_resource type="Script" path="res://Map/Europe.gd" id="3_oilk6"]
 [ext_resource type="PackedScene" uid="uid://ow347jchu8vi" path="res://Gui/tile_window.tscn" id="4_xt2tf"]
 [ext_resource type="PackedScene" uid="uid://denddx5f87r3r" path="res://Map/Rails/rail_placer.tscn" id="6_4lcrx"]
@@ -56,30 +55,6 @@ texture_region_size = Vector2i(128, 128)
 4:3/0 = 0
 5:3/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_rvwug"]
-texture = ExtResource("2_pp1l7")
-margins = Vector2i(0, 64)
-separation = Vector2i(0, 64)
-texture_region_size = Vector2i(128, 128)
-0:0/0 = 0
-0:0/0/terrain_set = 0
-1:0/0 = 0
-1:0/0/terrain_set = 0
-2:0/0 = 0
-2:0/0/terrain_set = 0
-3:0/0 = 0
-4:0/0 = 0
-5:0/0 = 0
-0:1/0 = 0
-1:1/0 = 0
-2:1/0 = 0
-3:1/0 = 0
-4:1/0 = 0
-5:1/0 = 0
-0:2/0 = 0
-1:2/0 = 0
-2:2/0 = 0
-
 [sub_resource type="TileSet" id="TileSet_hlajd"]
 tile_shape = 3
 tile_offset_axis = 1
@@ -90,7 +65,6 @@ terrain_set_0/terrain_0/color = Color(0.31802, 0.31802, 0.31802, 1)
 terrain_set_0/terrain_1/name = "Hilly"
 terrain_set_0/terrain_1/color = Color(0.5, 0.4375, 0.25, 1)
 sources/1 = SubResource("TileSetAtlasSource_tywjw")
-sources/2 = SubResource("TileSetAtlasSource_rvwug")
 
 [node name="Europe" type="TileMapLayer"]
 use_parent_material = true

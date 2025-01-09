@@ -7,8 +7,8 @@ func _init(new_location: Vector2i, new_player_id: int):
 	location = new_location
 	player_id = new_player_id
 
-func convert_to_client_array(other_player_id: int) -> Array:
-	return [player_id == other_player_id, manpower, morale, experience]
+func convert_to_client_array() -> Array:
+	return [player_id, location, get_destination(), manpower, morale, experience]
 
 func get_speed_mult(terrain_num: int):
 	if terrain_num == -1:

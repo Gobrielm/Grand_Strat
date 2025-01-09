@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://cu6gtw4s5yi8j" path="res://Map_Icons/unit_models.png" id="1_sa2cv"]
 [ext_resource type="Script" path="res://Map/unit_map.gd" id="2_cuon8"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lb7mm"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hwa8g"]
 texture = ExtResource("1_sa2cv")
 margins = Vector2i(0, 64)
 separation = Vector2i(0, 64)
@@ -18,7 +18,7 @@ texture_region_size = Vector2i(128, 128)
 tile_shape = 3
 tile_offset_axis = 1
 tile_size = Vector2i(128, 115)
-sources/0 = SubResource("TileSetAtlasSource_lb7mm")
+sources/0 = SubResource("TileSetAtlasSource_hwa8g")
 
 [node name="unit_map" type="TileMapLayer"]
 tile_set = SubResource("TileSet_ojujq")
