@@ -12,6 +12,12 @@ func _init(new_location: Vector2i, new_map):
 func get_trains():
 	return trains
 
+func get_trains_simplified() -> Array:
+	var toReturn = []
+	for train in trains:
+		toReturn.append(train.player_owner)
+	return toReturn
+
 func get_train(index: int):
 	return trains[index]
 

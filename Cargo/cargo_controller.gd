@@ -5,8 +5,8 @@ var cargo_map_terminals = {} #Maps coords -> sink/source/hold
 var cargo_types = []
 
 
-@onready var map: TileMapLayer = get_parent()
-@onready var tile_info = map.find_child("tile_window").find_child("tile_info")
+@onready var map: TileMapLayer
+@onready var tile_info
 
 func _process(delta):
 	for obj: terminal in cargo_map_terminals.values():
@@ -14,19 +14,20 @@ func _process(delta):
 			obj.process(delta)
 
 func _ready():
-	if multiplayer.get_unique_id() == 1:
-		create_cargo_types()
-		create_cargo_sources()
+	map = get_parent()
+	tile_info = map.get_tile_data()
+	create_cargo_types()
+	create_cargo_sources()
 
 func create_cargo_sources():
-	for coords in tile_info.tile_metadata:
-		create_terminal(coords, town.new(coords, tile_info.tile_metadata[coords][2]))
+	var cities = tile_info.get_cities()
+	for coords in cities:
+		create_terminal(coords, town.new(coords, cities[coords][1]))
 
 func create_station(coords: Vector2i, new_owner: int):
 	var new_station = station.new(coords, new_owner)
 	create_terminal(coords, new_station)
 	
-
 func create_terminal(coords: Vector2i, new_terminal: terminal):
 	cargo_map_terminals[coords] = new_terminal
 	add_connected_terminals(coords, new_terminal)
@@ -70,6 +71,9 @@ func create_cargo_types():
 
 func get_cargo_name(index: int) -> String:
 	return cargo_types[index]
+
+func get_cargo_array_at_location(coords: Vector2i) -> Array:
+	return get_terminal(coords).get_current_hold()
 
 func get_cargo_array():
 	return cargo_types

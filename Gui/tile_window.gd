@@ -5,7 +5,7 @@ var current_location
 var update_timer = 0
 @onready var tile_info = $tile_info
 @onready var map = get_parent()
-@onready var cargo_controler = map.get_node("cargo_controller")
+var cargo_controler
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	hide()

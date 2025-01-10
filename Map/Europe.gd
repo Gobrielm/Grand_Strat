@@ -7,17 +7,19 @@ var unique_id
 @onready var station_button = $player_camera/CanvasLayer/station_button
 @onready var depot_button = $player_camera/CanvasLayer/depot_button
 @onready var single_track_button = $player_camera/CanvasLayer/single_track_button
-@onready var tile_window = $tile_window
 @onready var unit_creator_window = $unit_creator_window
-@onready var tile_info = $tile_window/tile_info
 @onready var game = get_parent().get_parent()
 @onready var rail_placer = $Rail_Placer
+@onready var hold_window: Window = $hold_window
+@onready var depot_window: Window = $depot_window
+var tile_info
 var cargo_controller
 var unit_map
 var money_controller
 var state_machine
 var untraversable_tiles = {}
 var visible_tiles = []
+var cargo_index_to_name = []
 
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
@@ -37,8 +39,11 @@ func _ready():
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
 		testing = preload("res://Test/testing.gd").new(self)
+		tile_info = load("res://tile_info.gd").new(self)
+		create_client_tile_info.rpc(tile_info.get_cities())
 		cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
 		add_child(cargo_controller)
+		create_cargo_index_to_name.rpc(cargo_controller.cargo_types)
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"
@@ -61,8 +66,10 @@ func _input(event):
 		else:
 			unit_map.select_unit(get_cell_position(), unique_id)
 	elif event.is_action_released("click"):
-		if state_machine.is_controlling_camera() and !tile_window.visible:
-			tile_window.show_tile_info(get_cell_position())
+		if state_machine.is_controlling_camera() and tile_info.is_owned_hold(get_cell_position(), unique_id):
+			hold_window.open_window(get_cell_position())
+		elif state_machine.is_controlling_camera() and tile_info.is_owned_depot(get_cell_position(), unique_id):
+			depot_window.open_window(get_cell_position())
 		elif state_machine.is_building_many_rails():
 			place_to_end_rail(start, get_cell_position())
 		start = null
@@ -77,6 +84,19 @@ func _input(event):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
 		unit_creator_window.popup()
+		print(ENetPacketPeer.PEER_PACKET_LOSS)
+
+#Constants
+@rpc("authority", "call_local", "reliable")
+func create_cargo_index_to_name(array: Array):
+	cargo_index_to_name = array
+
+func get_cargo_index_to_name() -> Array:
+	return cargo_index_to_name
+
+@rpc("authority", "call_remote", "reliable")
+func create_client_tile_info(cities: Dictionary):
+	tile_info = load("res://Client_Objects/client_tile_info.gd").new(self, cities)
 
 #State_Machine
 func click_unit():
@@ -138,7 +158,7 @@ func get_cargo_array() -> Array:
 	return cargo_controller.get_cargo_array()
 
 func is_location_depot(coords: Vector2i) -> bool:
-	return tile_info.is_location_depot(coords)
+	return tile_info.is_depot(coords)
 
 func is_location_hold(coords: Vector2i) -> bool:
 	return cargo_controller.is_location_hold(coords)
@@ -146,10 +166,16 @@ func is_location_hold(coords: Vector2i) -> bool:
 func is_location_valid_stop(coords: Vector2i) -> bool:
 	return get_depot_or_terminal(coords) is terminal
 
+@rpc("any_peer", "call_remote", "unreliable")
+func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
+	if cargo_controller.is_location_hold(coords):
+		return cargo_controller.get_terminal(coords).get_current_hold()
+	return {}
+
 func get_depot_or_terminal(coords: Vector2i) -> terminal:
-	var depot_to_return = tile_info.get_tile_metadata(coords)
-	if depot_to_return != null and depot_to_return[0] == 1:
-		return depot_to_return[2]
+	var depot = tile_info.get_depot(coords)
+	if depot != null:
+		return depot
 	return cargo_controller.get_terminal(coords)
 
 #Trains
@@ -175,6 +201,13 @@ func get_number_of_trains() -> int:
 			count += 1
 	return count
 
+@rpc("any_peer", "unreliable", "call_local")
+func get_trains_in_depot(coords: Vector2i):
+	var array = []
+	if tile_info.is_depot(coords):
+		array = tile_info.get_depot(coords).get_trains_simplified()
+	depot_window.update_current_trains.rpc_id(multiplayer.get_remote_sender_id(), array)
+
 #Rail Builder
 func record_start_rail():
 	start = get_cell_position()
@@ -193,9 +226,9 @@ func place_to_end_rail(new_start, new_end):
 		current = queue.pop_front()
 		if prev != null:
 			var orientation = get_orientation(current, prev)
-			if tile_info.can_place_here(get_cell_atlas_coords(current)):
+			if is_tile_traversable(current):
 				place_rail_general(current, orientation, 0)
-			if tile_info.can_place_here(get_cell_atlas_coords(prev)):
+			if is_tile_traversable(prev):
 				place_rail_general(prev, (orientation + 3) % 6, 0)
 		if current == end:
 			break
@@ -294,6 +327,9 @@ func update_money_label(amount: int):
 	camera.update_cash_label(amount)
 
 #Tile Data
+func get_tile_data():
+	return tile_info
+
 func get_tile_connections(coords: Vector2i):
 	return rail_placer.get_track_connections(coords)
 
@@ -303,29 +339,43 @@ func request_tile_data(coordinates: Vector2i) -> TileData:
 func do_tiles_connect(coord1: Vector2i, coord2: Vector2i) -> bool:
 	return rail_placer.are_tiles_connected_by_rail(coord1, coord2)
 #Rail General
-@rpc("authority", "call_local", "reliable")
-func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, new_owner: int):
+
+@rpc("authority", "call_local", "unreliable")
+func place_tile(coords: Vector2i, orientation: int, type: int, _new_owner: int):
 	rail_placer.place_tile(coords, orientation, type)
+
+func set_cell_rail_placer_request(coords: Vector2i, orientation: int, type: int, new_owner: int):
+	#TODO: Some check
+	set_cell_rail_placer_server.rpc_id(1, coords, orientation, type, unique_id)
+
+@rpc("any_peer", "call_remote", "unreliable")
+func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, new_owner: int):
+	place_tile.rpc(coords, orientation, type, new_owner)
 	if type == 1:
-		encode_depot(coords)
+		encode_depot.rpc(coords, new_owner)
 	elif type == 2:
-		encode_station(coords, new_owner)
+		encode_station.rpc(coords, new_owner)
+		cargo_controller.create_station(coords, new_owner)
 
-func encode_depot(coords: Vector2i):
-	tile_info.update_tile_metadata(coords, [1, "Depot", depot.new(coords, self)])
-
+@rpc("authority", "call_local", "unreliable")
+func encode_depot(coords: Vector2i, new_owner: int):
+	tile_info.add_depot(coords, depot.new(coords, self), new_owner)
+@rpc("authority", "call_local", "unreliable")
 func encode_station(coords: Vector2i, new_owner: int):
-	tile_info.update_tile_metadata(coords, [2, "Station"])
-	cargo_controller.create_station(coords, new_owner)
+	tile_info.add_hold(coords, "Station", new_owner)
 
 @rpc("any_peer", "call_local", "unreliable")
-func set_cell_rail_placer_request(coords: Vector2i, orientation: int, type: int):
-	rail_placer.place_tile(coords, orientation, type)
+func set_cell_rail_placer_client(coords: Vector2i, orientation: int, type: int, new_owner: int):
+	if type == 1:
+		encode_depot(coords, new_owner)
+	elif type == 2:
+		encode_station(coords, new_owner)
 
 #Rails, Depot, Station
 func place_rail_general(coords: Vector2i, orientation: int, type: int):
 	if unique_id == 1:
-		set_cell_rail_placer_server.rpc(coords, orientation, type, unique_id)
+		#TODO: Some check
+		set_cell_rail_placer_server(coords, orientation, type, unique_id)
 	else:
-		set_cell_rail_placer_request.rpc(coords, orientation, type)
+		set_cell_rail_placer_request(coords, orientation, type, unique_id)
 	

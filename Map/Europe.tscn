@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=4 uid="uid://dy24s42glgktx"]
+[gd_scene load_steps=11 format=4 uid="uid://dy24s42glgktx"]
 
 [ext_resource type="Texture2D" uid="uid://bq1dap6gjpxr7" path="res://Map_Icons/7SEYHd.png" id="1_jgce8"]
 [ext_resource type="PackedScene" uid="uid://c6spn0m6m85vs" path="res://Player/player_camera.tscn" id="2_if10o"]
 [ext_resource type="Script" path="res://Map/Europe.gd" id="3_oilk6"]
-[ext_resource type="PackedScene" uid="uid://ow347jchu8vi" path="res://Gui/tile_window.tscn" id="4_xt2tf"]
 [ext_resource type="PackedScene" uid="uid://denddx5f87r3r" path="res://Map/Rails/rail_placer.tscn" id="6_4lcrx"]
+[ext_resource type="PackedScene" uid="uid://6neu625dq5i" path="res://Gui/hold_window.tscn" id="7_ixktq"]
+[ext_resource type="PackedScene" uid="uid://bsap4yl65x1wd" path="res://Gui/depot_window.tscn" id="8_mxbp3"]
 [ext_resource type="PackedScene" uid="uid://d2x16vqu0dy7j" path="res://Units/unit_managers/unit_creator_window.tscn" id="9_k4rfp"]
 [ext_resource type="PackedScene" uid="uid://dqvn8y35ax23b" path="res://Units/unit_info_window.tscn" id="10_75rfn"]
 
@@ -75,13 +76,14 @@ script = ExtResource("3_oilk6")
 
 [node name="player_camera" parent="." instance=ExtResource("2_if10o")]
 
-[node name="tile_window" parent="." instance=ExtResource("4_xt2tf")]
-auto_translate_mode = 1
-
 [node name="Rail_Placer" parent="." instance=ExtResource("6_4lcrx")]
 
 [node name="unit_creator_window" parent="." instance=ExtResource("9_k4rfp")]
-position = Vector2i(200, 102)
+position = Vector2i(200, 64)
 
 [node name="unit_info_window" parent="." instance=ExtResource("10_75rfn")]
-position = Vector2i(200, 102)
+position = Vector2i(200, 64)
+
+[node name="hold_window" parent="." instance=ExtResource("7_ixktq")]
+
+[node name="depot_window" parent="." instance=ExtResource("8_mxbp3")]

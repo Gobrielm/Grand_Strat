@@ -29,15 +29,17 @@ func distribute_specific_type(type: int):
 	while amount_left > size and size != 0:
 		var for_each_for_now = floor(amount_left / size)
 		var wanted = 0
+		var recieving_holds_to_remove = []
 		for i in size:
 			var connected_hold = recieving_holds[i]
 			var amount_wanted = connected_hold.add_cargo(type, for_each_for_now)
 			wanted += amount_wanted
 			if amount_wanted == 0:
-				recieving_holds.remove_at(i)
-				i -= 1
-				size = recieving_holds.size()
+				recieving_holds_to_remove.append(recieving_holds[i])
 		amount_left -= wanted
+		for recieving_hold in recieving_holds_to_remove:
+			recieving_holds.erase(recieving_hold)
+		size = recieving_holds.size()
 
 
 func process(delta):
