@@ -6,7 +6,7 @@ var map: TileMapLayer
 func _init(peers: Array, new_map: TileMapLayer):
 	peers.append(1)
 	for peer in peers:
-		money[peer] = 1000
+		money[peer] = 100000
 	map = new_map
 
 func add_money_to_player(id: int, amount: int):

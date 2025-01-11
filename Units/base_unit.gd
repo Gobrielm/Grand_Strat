@@ -113,19 +113,21 @@ func ready_to_move(progress_needed: float) -> bool:
 
 #TODO: Add more variables
 func get_shock_damage() -> int:
-	return round(shock * (1 + (float(experience) / 1000)))
+	var expierence_mult = (float(experience) / 1000) + 1
+	return round((shock / 200 * expierence_mult) * (manpower + 100))
 #TODO: Add more variables
 func get_fire_damage() -> int:
-	return round(firepower * (1 + (float(experience) / 1000)))
+	var expierence_mult = (float(experience) / 1000) + 1
+	return round((firepower / 200 * expierence_mult) * (manpower + 100))
 
 #The amount of supplies the unit has
 var organization
 
 #The morale damage a unit does
-var shock: int
+var shock: float
 
 #The general damage
-var firepower: int
+var firepower: float
 
 #Morale defense, defense in general
 var cohesion: int

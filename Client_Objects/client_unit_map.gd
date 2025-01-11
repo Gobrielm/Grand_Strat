@@ -11,7 +11,7 @@ func _ready():
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
 	map = get_parent()
 
-@rpc("authority", "call_remote", "unreliable")
+@rpc("authority", "call_remote", "reliable")
 func refresh_map(visible_tiles: Array, unit_atlas: Dictionary):
 	for coords in visible_tiles:
 		if !unit_atlas.has(coords):
@@ -29,9 +29,6 @@ func request_refresh(tile: Vector2i):
 @rpc("authority", "call_local", "unreliable")
 func refresh_unit(unit_info: Array):
 	var coords: Vector2i = unit_info[1]
-	if !unit_data.has(coords):
-		request_refresh(coords)
-		return
 	var unit_node = get_node(str(coords))
 	unit_data[coords].update_stats(unit_info)
 	var morale_bar = unit_node.get_node(str("MoraleBar"))
@@ -48,12 +45,13 @@ func get_unit_client_array(coords: Vector2i) -> Array:
 func check_before_create(coords: Vector2i, type: int, player_id: int):
 	pass
 
-@rpc("authority", "call_local", "unreliable")
+@rpc("authority", "call_remote", "unreliable")
 func create_unit(coords: Vector2i, type: int, player_id: int):
 	set_cell(coords, 0, Vector2i(0, type))
 	unit_data[coords] = client_unit.new(coords, player_id)
 	var unit_class = unit_creator.get_unit_class(type)
 	create_label(coords, str(unit_class.toString()))
+	request_refresh.rpc_id(1, coords)
 
 func create_label(coords: Vector2i, text: String):
 	var label: Label = Label.new()
@@ -103,6 +101,7 @@ func move_unit(coords: Vector2i, move_to: Vector2i):
 	erase_cell(coords)
 	set_cell(move_to, 0, soldier_atlas)
 	move_label(coords, move_to)
+	selected_coords = move_to
 
 @rpc("any_peer", "call_local", "unreliable")
 func select_unit(coords: Vector2i, player_id: int):
@@ -112,12 +111,6 @@ func select_unit(coords: Vector2i, player_id: int):
 
 func selected_unit_exists_and_owned(unique_id: int) -> bool:
 	return unit_data.has(selected_coords) and unit_data[selected_coords].get_player_id() == unique_id
-
-#func get_selected_unit() -> base_unit:
-	#if selected_unit_exists_and_owned():
-		#map.click_unit()
-		#return unit_data[selected_coords]
-	#return null
 
 @rpc("any_peer", "call_local", "unreliable")
 func set_selected_unit_route(_coords: Vector2i, _move_to: Vector2i):

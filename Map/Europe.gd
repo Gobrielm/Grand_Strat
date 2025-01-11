@@ -26,18 +26,37 @@ const train_scene_client = preload('res://Client_Objects/client_train.tscn')
 const depot = preload("res://Cargo/depot.gd")
 
 var testing
-# Called when the node enters the scene tree for the first time.
-func _process(delta):
-	var peer: ENetMultiplayerPeer = multiplayer.multiplayer_peer
-	var loss: int = peer.get_packet_error()
-	if loss != 0:
-		print("PACKET LOSS")
+
+var heart_beat = {}
+
+func _on_timer_timeout():
+	if unique_id == 1:
+		for peer in multiplayer.get_peers():
+			if !heart_beat[peer]:
+				print("PACKET LOSS")
+				camera.update_desync_label()
+			heart_beat[peer] = false
+		server_heart_beat()
+
+
+func server_heart_beat():
+	send_heart_beat.rpc()
+
+@rpc("authority", "call_remote", "unreliable")
+func send_heart_beat():
+	recognize_heart_beat.rpc_id(1)
+
+@rpc("any_peer", "call_remote", "unreliable")
+func recognize_heart_beat():
+	heart_beat[multiplayer.get_remote_sender_id()] = true
 
 func _ready():
 	unique_id = multiplayer.get_unique_id()
 	state_machine = preload("res://Game/state_machine.gd").new()
 	camera.assign_state_machine(state_machine)
 	if unique_id == 1:
+		for peer in multiplayer.get_peers():
+			heart_beat[peer] = true
 		create_untraversable_tiles()
 		money_controller = load("res://Player/money_controller.gd").new(multiplayer.get_peers(), self)
 		unit_map = load("res://Map/unit_map.tscn").instantiate()

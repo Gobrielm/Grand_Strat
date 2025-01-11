@@ -25,7 +25,7 @@ func refresh_map(_visible_tiles: Array, _unit_atlas: Dictionary):
 func request_refresh(tile: Vector2i):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if unit_data.has(tile):
-		refresh_unit.rpc_id(sender_id, unit_data[tile].convert_to_client_array(sender_id))
+		refresh_unit.rpc_id(sender_id, unit_data[tile].convert_to_client_array())
 
 func get_used_cells_dictionary() -> Dictionary:
 	var toReturn: Dictionary = {}
@@ -57,6 +57,8 @@ func create_unit(coords: Vector2i, type: int, player_id: int):
 	var unit_class = get_unit_class(type)
 	unit_data[coords] = unit_class.new(coords, player_id)
 	create_label(coords, str(unit_data[coords]))
+	prepare_refresh_unit(unit_data[coords])
+	
 
 func get_unit_class(type):
 	return unit_creator.get_unit_class(type)

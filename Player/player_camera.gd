@@ -54,7 +54,8 @@ func update_coord_label(coords: Vector2i):
 @rpc("authority", "unreliable")
 func update_cash_label(new_cash: int):
 	$CanvasLayer/Cash_Label.text = str(new_cash)
-
+func update_desync_label():
+	$CanvasLayer/Desync_Label.text = int($CanvasLayer/Desync_Label.text) + 1
 
 func _on_station_button_pressed():
 	state_machine.station_button_toggled()
