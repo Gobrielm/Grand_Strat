@@ -28,7 +28,8 @@ const depot = preload("res://Cargo/depot.gd")
 var testing
 # Called when the node enters the scene tree for the first time.
 func _process(delta):
-	var loss = ENetPacketPeer.PEER_PACKET_LOSS
+	var peer: ENetMultiplayerPeer = multiplayer.multiplayer_peer
+	var loss: int = peer.get_packet_error()
 	if loss != 0:
 		print("PACKET LOSS")
 
