@@ -31,10 +31,13 @@ func refresh_unit(unit_info: Array):
 	var coords: Vector2i = unit_info[1]
 	if !unit_data.has(coords):
 		request_refresh(coords)
+		return
 	var unit_node = get_node(str(coords))
 	unit_data[coords].update_stats(unit_info)
-	var morale_bar = unit_node.get_node(str("ProgressBar"))
+	var morale_bar = unit_node.get_node(str("MoraleBar"))
 	morale_bar.value = unit_info[4]
+	var manpower_label: RichTextLabel = get_node(str(coords)).get_node("Manpower_Label")
+	manpower_label.text = "[center]" + str(unit_info[3]) + "[/center]"
 
 func get_unit_client_array(coords: Vector2i) -> Array:
 	if unit_data.has(coords):
@@ -62,23 +65,34 @@ func create_label(coords: Vector2i, text: String):
 	label.text = text
 	move_label(coords, coords)
 	label.position = Vector2(-label.size.x / 2, label.size.y)
-	var progress_bar = create_progress_bar(label.size)
-	node.add_child(progress_bar)
+	var morale_bar = create_morale_bar(label.size)
+	node.add_child(morale_bar)
+	var manpower_label = create_manpower_label(label.size)
+	node.add_child(manpower_label)
 
-func create_progress_bar(size: Vector2) -> ProgressBar:
-	var progress_bar: ProgressBar = ProgressBar.new()
-	progress_bar.name = "ProgressBar"
-	progress_bar.show_percentage = false
-	progress_bar.value = 100
-	progress_bar.size = size
-	progress_bar.position = Vector2(-size.x / 2, size.y * 2)
+func create_morale_bar(size: Vector2) -> ProgressBar:
+	var morale_bar: ProgressBar = ProgressBar.new()
+	morale_bar.name = "MoraleBar"
+	morale_bar.show_percentage = false
+	morale_bar.value = 100
+	morale_bar.size = size
+	morale_bar.position = Vector2(-size.x / 2, size.y * 2)
 	var background_color = StyleBoxFlat.new()
 	background_color.bg_color = Color(1, 1, 1, 0)
 	var fill_color = StyleBoxFlat.new()
 	fill_color.bg_color = Color(0.5, 1, 0.5, 1)
-	progress_bar.add_theme_stylebox_override("background", background_color)
-	progress_bar.add_theme_stylebox_override("fill", fill_color)
-	return progress_bar
+	morale_bar.add_theme_stylebox_override("background", background_color)
+	morale_bar.add_theme_stylebox_override("fill", fill_color)
+	return morale_bar
+
+func create_manpower_label(size: Vector2) -> RichTextLabel:
+	var manpower_label: RichTextLabel = RichTextLabel.new()
+	manpower_label.name = "Manpower_Label"
+	manpower_label.size = size
+	manpower_label.bbcode_enabled = true
+	manpower_label.text = "[center]" + str(0) + "[/center]"
+	manpower_label.position = Vector2(-size.x / 2, size.y * 2)
+	return manpower_label
 
 @rpc("authority", "call_local", "unreliable")
 func move_unit(coords: Vector2i, move_to: Vector2i):
