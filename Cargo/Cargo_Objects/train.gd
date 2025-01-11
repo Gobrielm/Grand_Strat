@@ -87,7 +87,6 @@ func checkpoint_reached():
 func drive_train_to_route():
 	var direction = Vector2(map.map_to_local(route[0]) - map.map_to_local(location)).normalized()
 	acceleration_direction = direction
-	train_car.update_desination(position)
 
 func check_near_next_stop():
 	var next_stop_local_pos = map.map_to_local(stops[stop_number])
@@ -105,13 +104,21 @@ func decide_stop_action() -> bool:
 	#A Depot
 	if stop_information[location] == 1:
 		terminal_or_depot.add_train(self)
-		visible = false
+		go_into_depot.rpc()
 		return true
 	#Some sort of hold
 	elif stop_information[location] == 2:
 		unloading = true
 		return true
 	return false
+
+@rpc("authority", "unreliable", "call_local")
+func go_into_depot():
+	visible = false
+
+@rpc("authority", "unreliable", "call_local")
+func go_out_of_depot():
+	visible = true
 
 func get_speed() -> float:
 	return velocity.length()
@@ -127,12 +134,21 @@ func deaccelerate_train(delta):
 	velocity = acceleration_direction * speed
 
 func _input(event):
-	if event.is_action_pressed("click") and $Window/Routes/Add_Stop.button_pressed:
+	if event.is_action_pressed("click") and is_selecting_route():
 		do_add_stop(map.get_cell_position())
 	elif event.is_action_pressed("click") and visible:
 		open_menu(map.get_mouse_local_to_map())
 	elif event.is_action_pressed("deselect"):
 		window.deselect_add_stop()
+
+func start_selecting_route():
+	map.state_machine.start_selecting_route()
+
+func stop_selecting_route():
+	map.state_machine.stop_selecting_route()
+
+func is_selecting_route() -> bool:
+	return map.state_machine.is_selecting_route()
 
 @rpc("authority", "unreliable", "call_local")
 func create(new_location: Vector2i, new_cargo_controller, new_owner: int):
@@ -141,11 +157,6 @@ func create(new_location: Vector2i, new_cargo_controller, new_owner: int):
 	cargo_controller = new_cargo_controller
 	player_owner = new_owner
 	prep_update_cargo_gui()
-	
-	train_car = train_car_scene.instantiate()
-	map.add_child(train_car)
-	train_car.update_train(self)
-	train_car.position = position
 
 func check_ticker():
 	if ticker > 1:
@@ -396,11 +407,6 @@ func intialize_tile_to_prev(tile_to_prev: Dictionary, coords: Vector2i, directio
 	if !tile_to_prev.has(coords):
 		tile_to_prev[coords] = [null, null, null, null, null, null]
 	tile_to_prev[coords][direction] = prev
-
-func intialize_tile_out(tile_out: Dictionary, coords: Vector2i, direction: int, next: Vector2i):
-	if !tile_out.has(coords):
-		tile_out[coords] = [null, null, null, null, null, null]
-	tile_out[coords][direction] = next
 
 func intialize_order(order: Dictionary, coords: Vector2i, direction: int):
 	if !order.has(coords):

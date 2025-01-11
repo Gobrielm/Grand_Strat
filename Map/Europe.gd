@@ -27,6 +27,11 @@ const depot = preload("res://Cargo/depot.gd")
 
 var testing
 # Called when the node enters the scene tree for the first time.
+func _process(delta):
+	var loss = ENetPacketPeer.PEER_PACKET_LOSS
+	if loss != 0:
+		print("PACKET LOSS")
+
 func _ready():
 	unique_id = multiplayer.get_unique_id()
 	state_machine = preload("res://Game/state_machine.gd").new()
@@ -84,7 +89,6 @@ func _input(event):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print"):
 		unit_creator_window.popup()
-		print(ENetPacketPeer.PEER_PACKET_LOSS)
 
 #Constants
 @rpc("authority", "call_local", "reliable")
@@ -164,7 +168,7 @@ func is_location_hold(coords: Vector2i) -> bool:
 	return cargo_controller.is_location_hold(coords)
 
 func is_location_valid_stop(coords: Vector2i) -> bool:
-	return get_depot_or_terminal(coords) is terminal
+	return tile_info.is_hold(coords) or tile_info.is_depot(coords)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
@@ -201,12 +205,10 @@ func get_number_of_trains() -> int:
 			count += 1
 	return count
 
-@rpc("any_peer", "unreliable", "call_local")
-func get_trains_in_depot(coords: Vector2i):
-	var array = []
+func get_trains_in_depot(coords: Vector2i) -> Array:
 	if tile_info.is_depot(coords):
-		array = tile_info.get_depot(coords).get_trains_simplified()
-	depot_window.update_current_trains.rpc_id(multiplayer.get_remote_sender_id(), array)
+		return tile_info.get_depot(coords).get_trains_simplified()
+	return []
 
 #Rail Builder
 func record_start_rail():
@@ -226,10 +228,8 @@ func place_to_end_rail(new_start, new_end):
 		current = queue.pop_front()
 		if prev != null:
 			var orientation = get_orientation(current, prev)
-			if is_tile_traversable(current):
-				place_rail_general(current, orientation, 0)
-			if is_tile_traversable(prev):
-				place_rail_general(prev, (orientation + 3) % 6, 0)
+			place_rail_general(current, orientation, 0)
+			place_rail_general(prev, (orientation + 3) % 6, 0)
 		if current == end:
 			break
 		queue.push_back(find_tile_with_min_distance(get_surrounding_cells(current), end))
@@ -345,14 +345,16 @@ func place_tile(coords: Vector2i, orientation: int, type: int, _new_owner: int):
 	rail_placer.place_tile(coords, orientation, type)
 
 func set_cell_rail_placer_request(coords: Vector2i, orientation: int, type: int, new_owner: int):
-	#TODO: Some check
-	set_cell_rail_placer_server.rpc_id(1, coords, orientation, type, unique_id)
+	if rail_check(coords):
+		set_cell_rail_placer_server.rpc_id(1, coords, orientation, type, unique_id)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, new_owner: int):
 	place_tile.rpc(coords, orientation, type, new_owner)
 	if type == 1:
-		encode_depot.rpc(coords, new_owner)
+		encode_depot(coords, new_owner)
+		var depot_name = tile_info.get_depot_name(coords)
+		encode_depot_client.rpc(coords, depot_name, new_owner)
 	elif type == 2:
 		encode_station.rpc(coords, new_owner)
 		cargo_controller.create_station(coords, new_owner)
@@ -360,6 +362,9 @@ func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, 
 @rpc("authority", "call_local", "unreliable")
 func encode_depot(coords: Vector2i, new_owner: int):
 	tile_info.add_depot(coords, depot.new(coords, self), new_owner)
+@rpc("authority", "call_remote", "unreliable")
+func encode_depot_client(coords: Vector2i, depot_name: String, new_owner: int):
+	tile_info.add_depot(coords, depot_name, new_owner)
 @rpc("authority", "call_local", "unreliable")
 func encode_station(coords: Vector2i, new_owner: int):
 	tile_info.add_hold(coords, "Station", new_owner)
@@ -374,8 +379,12 @@ func set_cell_rail_placer_client(coords: Vector2i, orientation: int, type: int, 
 #Rails, Depot, Station
 func place_rail_general(coords: Vector2i, orientation: int, type: int):
 	if unique_id == 1:
-		#TODO: Some check
-		set_cell_rail_placer_server(coords, orientation, type, unique_id)
+		if rail_check(coords):
+			set_cell_rail_placer_server(coords, orientation, type, unique_id)
 	else:
 		set_cell_rail_placer_request(coords, orientation, type, unique_id)
 	
+func rail_check(coords: Vector2i) -> bool:
+	var atlas_coords = get_cell_atlas_coords(coords)
+	return !untraversable_tiles.has(atlas_coords)
+		

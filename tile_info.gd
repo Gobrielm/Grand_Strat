@@ -31,7 +31,7 @@ func get_depot(coords: Vector2i) -> terminal:
 func get_depot_name(coords: Vector2i) -> String:
 	#TODO: Add name to terminal
 	if is_depot(coords):
-		return depots[coords]
+		return depots[coords][0].get_depot_name()
 	return ""
 
 func is_depot(coords: Vector2i) -> bool:

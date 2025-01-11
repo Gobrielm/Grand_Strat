@@ -6,6 +6,7 @@ var hovering_over_gui = false
 var controlling_camera = false
 var unit_selected = false
 var building_units = false
+var selecting_route = false
 
 func default():
 	all_off()
@@ -18,6 +19,7 @@ func all_off():
 	controlling_camera = false
 	unit_selected = false
 	building_units = false
+	selecting_route = false
 
 func gui_button_pressed():
 	all_off()
@@ -94,3 +96,14 @@ func stop_building_units():
 
 func is_building_units() -> bool:
 	return building_units
+
+func start_selecting_route():
+	all_off()
+	selecting_route = true
+
+func stop_selecting_route():
+	all_off()
+	default()
+
+func is_selecting_route() -> bool:
+	return selecting_route

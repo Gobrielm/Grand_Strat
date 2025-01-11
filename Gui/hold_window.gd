@@ -27,6 +27,7 @@ func open_window(new_location: Vector2i):
 	popup()
 
 func refresh_window():
+	progress = 0
 	if location != null:
 		request_current_cargo.rpc_id(1, location)
 		request_current_name.rpc_id(1, location)

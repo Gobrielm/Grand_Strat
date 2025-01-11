@@ -9,13 +9,16 @@ func _init(new_location: Vector2i, new_map):
 	location = new_location
 	map = new_map
 
+func get_depot_name() -> String:
+	return "Depot"
+
 func get_trains():
 	return trains
 
 func get_trains_simplified() -> Array:
 	var toReturn = []
 	for train in trains:
-		toReturn.append(train.player_owner)
+		toReturn.append(train.name)
 	return toReturn
 
 func get_train(index: int):
@@ -30,6 +33,10 @@ func add_new_train():
 	train.create(location)
 	trains.append(train)
 	train.visible = false
+
+func leave_depot(index: int):
+	var train = trains.pop_at(index)
+	train.go_out_of_depot.rpc()
 
 func remove_train(index: int):
 	trains.remove_at(index)

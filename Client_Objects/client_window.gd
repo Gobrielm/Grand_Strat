@@ -14,3 +14,7 @@ func _input(event):
 
 func deselect_add_stop():
 	$Routes/Add_Stop.button_pressed = false
+	train.stop_selecting_route()
+
+func _on_add_stop_pressed():
+	train.start_selecting_route()
