@@ -3,7 +3,8 @@ var last_mouse_position
 var state_machine
 @onready var coords_label = $CanvasLayer/Coordinate_Label
 # Called when the node enters the scene tree for the first time.
-
+func _ready():
+	$CanvasLayer/Desync_Label.visible = false
 
 func _process(_delta):
 	if Input.is_action_pressed("pan_left"):

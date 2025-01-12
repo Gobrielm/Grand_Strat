@@ -99,6 +99,8 @@ func create_manpower_label(size: Vector2) -> RichTextLabel:
 @rpc("authority", "call_local", "unreliable")
 func move_unit(coords: Vector2i, move_to: Vector2i):
 	var soldier_atlas = get_cell_atlas_coords(coords)
+	if !unit_data.has(coords):
+		return
 	if coords != move_to:
 		unit_data[move_to] = unit_data[coords]
 		unit_data.erase(coords)
@@ -120,7 +122,7 @@ func select_unit(coords: Vector2i, player_id: int):
 		highlight_name()
 
 func highlight_name():
-	if has_node(str(selected_coords)):
+	if has_node(str(selected_coords)) and unit_is_owned(selected_coords):
 		var node = get_node(str(selected_coords))
 		var unit_name: Label = node.get_node("Label")
 		unit_name.add_theme_color_override("font_color", Color(1, 0, 0, 1))
@@ -133,7 +135,7 @@ func unhightlight_name():
 
 func highlight_dest(destination):
 	if unit_data.has(selected_coords):
-		if destination != null:
+		if destination != null and unit_is_owned(selected_coords):
 			map.highlight_cell(destination)
 		else:
 			map.clear_highlights()
@@ -143,12 +145,15 @@ func highlight_dest(destination):
 func highlight_selected_dest():
 	if unit_data.has(selected_coords):
 		var unit = unit_data[selected_coords]
-		if unit.get_destination() != null:
+		if unit.get_destination() != null and unit_is_owned(selected_coords):
 			map.highlight_cell(unit.get_destination())
 		else:
 			map.clear_highlights()
 	else:
 		map.clear_highlights()
+
+func unit_is_owned(coords: Vector2i) -> bool:
+	return unit_data.has(coords) and unit_data[coords].get_player_id() == multiplayer.get_unique_id()
 
 func selected_unit_exists_and_owned(unique_id: int) -> bool:
 	return unit_data.has(selected_coords) and unit_data[selected_coords].get_player_id() == unique_id

@@ -3,6 +3,7 @@ extends TileMapLayer
 var map: TileMapLayer
 var unit_creator
 var unit_data: Dictionary = {}
+var temp_unit_data: Dictionary = {}
 var battle_script
 var selected_coords: Vector2i
 
@@ -10,7 +11,7 @@ var units_to_kill = []
 var units_to_retreat = []
 
 func _ready():
-	battle_script = load("res://Units/unit_managers/battle_script.gd").new()
+	battle_script = load("res://Units/unit_managers/battle_script.gd").new(self)
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
 	map = get_parent()
 
@@ -105,7 +106,7 @@ func create_manpower_label(size: Vector2) -> RichTextLabel:
 #Moving Units
 @rpc("any_peer", "call_local", "unreliable")
 func set_selected_unit_route(coords: Vector2i, move_to: Vector2i):
-	if unit_data.has(coords):
+	if unit_data.has(coords) and unit_data[coords].get_player_id() == multiplayer.get_remote_sender_id():
 		var soldier_data: base_unit = unit_data[coords]
 		set_unit_route(soldier_data, move_to)
 		refresh_unit.rpc_id(multiplayer.get_remote_sender_id(), soldier_data.convert_to_client_array())
@@ -150,18 +151,6 @@ func move_label(coords: Vector2i, move_to: Vector2i):
 
 func location_is_attack(coords_of_defender: Vector2i, attacker: base_unit) -> bool:
 	return unit_data.has(coords_of_defender) and unit_data[coords_of_defender].get_player_id() != attacker.get_player_id()
-
-func check_range_to_unit(coords_of_defender: Vector2i, attacker: base_unit) -> int:
-	var coords_of_attacker = attacker.get_location()
-	var local_def = map.map_to_local(coords_of_defender)
-	var local_att = map.map_to_local(coords_of_attacker)
-	var dist = local_att.distance_to(local_def)
-	if dist > 231:
-		return -1
-	elif dist > 190:
-		return 2
-	else:
-		return 1
 
 func next_location_is_available(coords: Vector2i) -> bool:
 	return !unit_data.has(coords)
@@ -236,6 +225,9 @@ func get_selected_unit() -> base_unit:
 		return unit_data[selected_coords]
 	return null
 
+func unit_is_owned(coords: Vector2i) -> bool:
+	return unit_data.has(coords) and unit_data[coords].get_player_id() == multiplayer.get_unique_id()
+
 func select_unit(coords: Vector2i, player_id: int):
 	unhightlight_name()
 	selected_coords = coords
@@ -246,9 +238,11 @@ func select_unit(coords: Vector2i, player_id: int):
 		if soldier_atlas != Vector2i(-1, -1):
 			$select_unit_sound.play(0.5)
 			map.click_unit()
+	else:
+		map.close_unit_box()
 
 func highlight_name():
-	if has_node(str(selected_coords)):
+	if has_node(str(selected_coords)) and unit_is_owned(selected_coords):
 		var node = get_node(str(selected_coords))
 		var unit_name: Label = node.get_node("Label")
 		unit_name.add_theme_color_override("font_color", Color(1, 0, 0, 1))
@@ -262,7 +256,7 @@ func unhightlight_name():
 func highlight_dest():
 	if unit_data.has(selected_coords):
 		var unit = unit_data[selected_coords]
-		if unit.get_destination() != null:
+		if unit.get_destination() != null and unit_is_owned(selected_coords):
 			map.highlight_cell(unit.get_destination())
 		else:
 			map.clear_highlights()
@@ -284,7 +278,11 @@ func _process(delta):
 			#TODO: Terrain check
 			var terrain = map.get_cell_tile_data(next_location).terrain
 			if unit.ready_to_move(100.0 / unit.get_speed() / unit.get_speed_mult(terrain)):
-				if location_is_attack(next_location, unit):
+				var next_next_location = unit.get_next_location(1)
+				if location_is_attack(next_next_location, unit) and unit.get_unit_range() >= 2:
+					unit_battle(unit, unit_data[next_next_location])
+					prepare_refresh_unit(unit_data[next_next_location])
+				elif location_is_attack(next_location, unit):
 					unit_battle(unit, unit_data[next_location])
 					prepare_refresh_unit(unit_data[next_location])
 				else:
@@ -331,8 +329,18 @@ func find_surrounding_open_tile(coords: Vector2i) -> Vector2i:
 
 func _on_regen_timer_timeout():
 	for unit: base_unit in unit_data.values():
-		var amount = unit.get_max_manpower()
-		var manpower_used = unit.add_manpower(round(amount / 80 + 12))
-		unit.add_morale(10)
+		var player_id = unit.get_player_id()
+		var amount = round(unit.get_max_manpower() / 80 + 12)
+		var max_cost = round(amount * 0.3)
+		unit.add_experience()
+		if map.player_has_enough_money(player_id, max_cost):
+			var manpower_used = unit.add_manpower(amount)
+			var cost = round(manpower_used * 0.3)
+			map.remove_money(player_id, cost)
+			unit.add_morale(10)
+		else:
+			unit.remove_morale(10)
 		refresh_unit.rpc(unit.convert_to_client_array())
+		
+		
 	

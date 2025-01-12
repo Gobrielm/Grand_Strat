@@ -55,7 +55,7 @@ offset_left = 88.0
 offset_top = -560.0
 offset_right = 135.0
 offset_bottom = -537.0
-text = "100"
+text = "0"
 
 [node name="Desync_Label" type="Label" parent="CanvasLayer"]
 anchors_preset = -1

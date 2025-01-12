@@ -11,7 +11,8 @@ script = ExtResource("1_g6u0w")
 offset_right = 40.0
 offset_bottom = 23.0
 text = "Manpower: 0
-Morale: 0"
+Morale: 0
+Exp: 0"
 
 [node name="destination_label" type="Label" parent="."]
 anchors_preset = 1

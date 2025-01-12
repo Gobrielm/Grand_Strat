@@ -54,10 +54,13 @@ func _ready():
 	state_machine = preload("res://Game/state_machine.gd").new()
 	camera.assign_state_machine(state_machine)
 	if unique_id == 1:
-		for peer in multiplayer.get_peers():
-			heart_beat[peer] = 0
+		
 		create_untraversable_tiles()
 		money_controller = load("res://Player/money_controller.gd").new(multiplayer.get_peers(), self)
+		for peer in multiplayer.get_peers():
+			heart_beat[peer] = 0
+			update_money_label.rpc_id(peer, get_money(peer))
+		update_money_label.rpc_id(1, get_money(1))
 		unit_map = load("res://Map/unit_map.tscn").instantiate()
 		add_child(unit_map)
 		for cell in get_used_cells():
@@ -68,6 +71,7 @@ func _ready():
 		cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
 		add_child(cargo_controller)
 		create_cargo_index_to_name.rpc(cargo_controller.cargo_types)
+		$player_camera/CanvasLayer/Desync_Label.visible = true
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"
@@ -152,6 +156,9 @@ func create_unit(coords: Vector2i, type: int, id: int):
 @rpc("authority", "call_remote", "unreliable")
 func refresh_unit_map(unit_tiles: Dictionary):
 	unit_map.refresh_map(visible_tiles, unit_tiles)
+
+func close_unit_box():
+	$unit_info_window.hide()
 
 #Tracks
 func update_hover():

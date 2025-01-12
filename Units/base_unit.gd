@@ -1,7 +1,7 @@
 class_name base_unit extends Node
 
-const speed_mult_hilly = 0.75
-const speed_mult_other_unit = 0.5
+const speed_mult_hilly = 0.65
+const speed_mult_other_unit = 0.45
 
 func _init(new_location: Vector2i, new_player_id: int):
 	location = new_location
@@ -50,9 +50,10 @@ func add_manpower(amount: int) -> int:
 	manpower += amount_added
 	return amount_added
 
-func remove_manpower(amount: int) -> bool:
+func remove_manpower(amount: int):
 	manpower -= amount
-	return manpower <= 0
+	if manpower < 0:
+		manpower = 0
 
 const max_morale = 100
 #The desire for the unit to fight
@@ -66,11 +67,10 @@ func add_morale(amount: int):
 	if morale > 100:
 		morale = 100
 
-func remove_morale(amount: int) -> bool:
+func remove_morale(amount: int):
 	morale -= round(amount / float(cohesion) * 20)
 	if morale < 0:
 		morale = 0
-	return morale <= 0
 
 #How fast a unit can move
 var speed: int
@@ -80,16 +80,19 @@ func get_speed() -> int:
 
 var unit_range: int
 
+func get_unit_range() -> int:
+	return unit_range
+
 #The route the unit takes if travelling
 var route: Array
 
 func set_route(new_route: Array):
 	route = new_route
 
-func get_next_location() -> Vector2i:
-	if route.is_empty():
+func get_next_location(index = 0) -> Vector2i:
+	if route.is_empty() or index >= route.size():
 		return location
-	return route.front()
+	return route[index]
 
 func pop_next_location() -> Vector2i:
 	return route.pop_front()
@@ -139,6 +142,27 @@ var firepower: float
 var cohesion: int
 #The disipline and skill of the unit
 var experience: int
+
+func add_experience():
+	experience += experience_gain
+
+func add_battle_experience():
+	experience += round(experience_gain * battle_multiple)
+
+func get_level() -> int:
+	if experience > 5000:
+		return 5
+	elif experience > 2000:
+		return 4
+	elif experience > 1000:
+		return 3
+	elif experience > 500:
+		return 2
+	elif experience > 200:
+		return 1
+	else:
+		return 0
+
 #The rate at which a unit gains experience
 #level 0 - inexperienced, 0 - 200
 #level 1 - trained,       200 - 500
