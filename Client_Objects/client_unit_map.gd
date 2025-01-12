@@ -107,6 +107,8 @@ func move_unit(coords: Vector2i, move_to: Vector2i):
 	move_label(coords, move_to)
 	if selected_coords == coords:
 		selected_coords = move_to
+	if unit_data[move_to].get_destination() == null or unit_data[move_to].get_destination() == move_to:
+		map.clear_highlights()
 
 func select_unit(coords: Vector2i, player_id: int):
 	unhightlight_name()

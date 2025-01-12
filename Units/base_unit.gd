@@ -35,6 +35,10 @@ func get_player_id() -> int:
 
 #Max manpower the unit has
 var max_manpower: int
+
+func get_max_manpower() -> int:
+	return max_manpower
+
 #How much manpower the unit has
 var manpower: int
 
@@ -59,6 +63,8 @@ func get_morale() -> int:
 
 func add_morale(amount: int):
 	morale += amount
+	if morale > 100:
+		morale = 100
 
 func remove_morale(amount: int) -> bool:
 	morale -= round(amount / float(cohesion) * 20)

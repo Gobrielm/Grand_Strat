@@ -5,7 +5,7 @@ static func get_cost() -> int:
 
 func _init(new_location: Vector2i, new_player_id: int):
 	super._init(new_location, new_player_id)
-	
+	max_manpower = 1000
 	manpower = 1000
 	morale = 100
 	

@@ -108,6 +108,7 @@ func set_selected_unit_route(coords: Vector2i, move_to: Vector2i):
 	if unit_data.has(coords):
 		var soldier_data: base_unit = unit_data[coords]
 		set_unit_route(soldier_data, move_to)
+		refresh_unit.rpc_id(multiplayer.get_remote_sender_id(), soldier_data.convert_to_client_array())
 		
 func get_selected_coords() -> Vector2i:
 	return selected_coords
@@ -139,6 +140,8 @@ func move_unit(coords: Vector2i, move_to: Vector2i):
 	if coords == selected_coords:
 		selected_coords = move_to
 	move_label(coords, move_to)
+	if soldier_data.get_destination() == null:
+		map.clear_highlights()
 
 func move_label(coords: Vector2i, move_to: Vector2i):
 	var node = get_node(str(coords))
@@ -324,3 +327,12 @@ func find_surrounding_open_tile(coords: Vector2i) -> Vector2i:
 			return cell
 	units_to_kill.append(unit_data[coords])
 	return coords
+
+
+func _on_regen_timer_timeout():
+	for unit: base_unit in unit_data.values():
+		var amount = unit.get_max_manpower()
+		var manpower_used = unit.add_manpower(round(amount / 80 + 12))
+		unit.add_morale(10)
+		refresh_unit.rpc(unit.convert_to_client_array())
+	
