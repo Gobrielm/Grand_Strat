@@ -1,7 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://b7tfaoaesuw3p"]
+[gd_scene load_steps=7 format=3 uid="uid://b7tfaoaesuw3p"]
 
 [ext_resource type="Texture2D" uid="uid://cu6gtw4s5yi8j" path="res://Map_Icons/unit_models.png" id="1_bodqu"]
 [ext_resource type="Script" path="res://Client_Objects/client_unit_map.gd" id="2_j5hs4"]
+[ext_resource type="AudioStream" uid="uid://bmoxstbk6x7w" path="res://pick-92276.mp3" id="3_ycd8n"]
+[ext_resource type="AudioStream" uid="uid://closnylfsplm2" path="res://interface-124464.mp3" id="4_dgh7s"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_o3i8j"]
 resource_name = "unit_models"
@@ -24,3 +26,12 @@ sources/0 = SubResource("TileSetAtlasSource_o3i8j")
 [node name="client_unit_map" type="TileMapLayer"]
 tile_set = SubResource("TileSet_x2d0v")
 script = ExtResource("2_j5hs4")
+
+[node name="select_unit_sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_ycd8n")
+volume_db = -21.667
+
+[node name="dest_sound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_dgh7s")
+volume_db = -21.667
+pitch_scale = 0.5

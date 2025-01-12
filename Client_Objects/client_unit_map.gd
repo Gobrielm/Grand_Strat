@@ -28,7 +28,11 @@ func request_refresh(tile: Vector2i):
 
 @rpc("authority", "call_local", "unreliable")
 func refresh_unit(unit_info: Array):
+	
 	var coords: Vector2i = unit_info[1]
+	if !unit_data.has(coords):
+		#TODO: Unit exists server-side, desync
+		return
 	var unit_node = get_node(str(coords))
 	unit_data[coords].update_stats(unit_info)
 	var morale_bar = unit_node.get_node(str("MoraleBar"))
@@ -101,20 +105,56 @@ func move_unit(coords: Vector2i, move_to: Vector2i):
 	erase_cell(coords)
 	set_cell(move_to, 0, soldier_atlas)
 	move_label(coords, move_to)
-	selected_coords = move_to
+	if selected_coords == coords:
+		selected_coords = move_to
 
-@rpc("any_peer", "call_local", "unreliable")
 func select_unit(coords: Vector2i, player_id: int):
+	unhightlight_name()
 	selected_coords = coords
+	highlight_selected_dest()
 	if selected_unit_exists_and_owned(player_id):
 		map.click_unit()
+		$select_unit_sound.play(0.5)
+		highlight_name()
+
+func highlight_name():
+	if has_node(str(selected_coords)):
+		var node = get_node(str(selected_coords))
+		var unit_name: Label = node.get_node("Label")
+		unit_name.add_theme_color_override("font_color", Color(1, 0, 0, 1))
+
+func unhightlight_name():
+	if has_node(str(selected_coords)):
+		var node = get_node(str(selected_coords))
+		var unit_name: Label = node.get_node("Label")
+		unit_name.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+
+func highlight_dest(destination):
+	if unit_data.has(selected_coords):
+		if destination != null:
+			map.highlight_cell(destination)
+		else:
+			map.clear_highlights()
+	else:
+		map.clear_highlights()
+
+func highlight_selected_dest():
+	if unit_data.has(selected_coords):
+		var unit = unit_data[selected_coords]
+		if unit.get_destination() != null:
+			map.highlight_cell(unit.get_destination())
+		else:
+			map.clear_highlights()
+	else:
+		map.clear_highlights()
 
 func selected_unit_exists_and_owned(unique_id: int) -> bool:
 	return unit_data.has(selected_coords) and unit_data[selected_coords].get_player_id() == unique_id
 
 @rpc("any_peer", "call_local", "unreliable")
-func set_selected_unit_route(_coords: Vector2i, _move_to: Vector2i):
-	pass
+func set_selected_unit_route(_coords: Vector2i, move_to: Vector2i):
+	$dest_sound.play(0.3)
+	highlight_dest(move_to)
 
 func get_selected_coords() -> Vector2i:
 	return selected_coords

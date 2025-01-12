@@ -114,6 +114,9 @@ func get_selected_coords() -> Vector2i:
 
 func set_unit_route(unit_to_move: base_unit, move_to: Vector2i):
 	unit_to_move.set_route(dfs_to_destination(unit_to_move.get_location(), move_to))
+	if unit_to_move.get_player_id() == multiplayer.get_unique_id():
+		$dest_sound.play(0.3)
+		highlight_dest()
 
 func check_move(coords: Vector2i):
 	var unit: base_unit = unit_data[coords]
@@ -230,15 +233,38 @@ func get_selected_unit() -> base_unit:
 		return unit_data[selected_coords]
 	return null
 
-@rpc("any_peer", "call_local", "unreliable")
 func select_unit(coords: Vector2i, player_id: int):
+	unhightlight_name()
+	selected_coords = coords
+	highlight_dest()
+	highlight_name()
 	if is_player_id_match(coords, player_id):
 		var soldier_atlas = get_cell_atlas_coords(coords)
-		selected_coords = coords
 		if soldier_atlas != Vector2i(-1, -1):
+			$select_unit_sound.play(0.5)
 			map.click_unit()
+
+func highlight_name():
+	if has_node(str(selected_coords)):
+		var node = get_node(str(selected_coords))
+		var unit_name: Label = node.get_node("Label")
+		unit_name.add_theme_color_override("font_color", Color(1, 0, 0, 1))
+
+func unhightlight_name():
+	if has_node(str(selected_coords)):
+		var node = get_node(str(selected_coords))
+		var unit_name: Label = node.get_node("Label")
+		unit_name.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+
+func highlight_dest():
+	if unit_data.has(selected_coords):
+		var unit = unit_data[selected_coords]
+		if unit.get_destination() != null:
+			map.highlight_cell(unit.get_destination())
+		else:
+			map.clear_highlights()
 	else:
-		selected_coords = coords
+		map.clear_highlights()
 
 func is_unit_double_clicked(coords: Vector2i, player_id: int) -> bool:
 	return is_player_id_match(coords, player_id) and selected_coords == coords

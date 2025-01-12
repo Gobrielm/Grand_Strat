@@ -29,15 +29,14 @@ var testing
 
 var heart_beat = {}
 
+
 func _on_timer_timeout():
 	if unique_id == 1:
 		for peer in multiplayer.get_peers():
-			if !heart_beat[peer]:
-				print("PACKET LOSS")
-				camera.update_desync_label()
-			heart_beat[peer] = false
+			if heart_beat[peer] != 0:
+				camera.update_desync_label(heart_beat[peer])
+			heart_beat[peer] += 1
 		server_heart_beat()
-
 
 func server_heart_beat():
 	send_heart_beat.rpc()
@@ -48,7 +47,7 @@ func send_heart_beat():
 
 @rpc("any_peer", "call_remote", "unreliable")
 func recognize_heart_beat():
-	heart_beat[multiplayer.get_remote_sender_id()] = true
+	heart_beat[multiplayer.get_remote_sender_id()] -= 1
 
 func _ready():
 	unique_id = multiplayer.get_unique_id()
@@ -56,7 +55,7 @@ func _ready():
 	camera.assign_state_machine(state_machine)
 	if unique_id == 1:
 		for peer in multiplayer.get_peers():
-			heart_beat[peer] = true
+			heart_beat[peer] = 0
 		create_untraversable_tiles()
 		money_controller = load("res://Player/money_controller.gd").new(multiplayer.get_peers(), self)
 		unit_map = load("res://Map/unit_map.tscn").instantiate()
@@ -100,6 +99,7 @@ func _input(event):
 		start = null
 	elif event.is_action_pressed("deselect"):
 		if state_machine.is_selecting_unit():
+			unit_map.set_selected_unit_route(unit_map.get_selected_coords(), get_cell_position())
 			unit_map.set_selected_unit_route.rpc_id(1, unit_map.get_selected_coords(), get_cell_position())
 			update_info_window(unit_map.get_unit_client_array(unit_map.get_selected_coords()))
 		else:
@@ -321,10 +321,18 @@ func get_mouse_local_to_camera():
 
 #Tile Effects
 func highlight_cell(coords: Vector2i):
+	clear_highlights()
 	var highlight: Sprite2D = Sprite2D.new()
 	highlight.texture = load("res://Map_Icons/selected.png")
 	add_child(highlight)
+	highlight.name = "highlight"
 	highlight.position = map_to_local(coords)
+
+func clear_highlights():
+	if has_node("highlight"):
+		var node: Sprite2D = get_node("highlight")
+		remove_child(node)
+		node.queue_free()
 
 #Money Stuff
 func add_money_to_player(id: int, amount: int):

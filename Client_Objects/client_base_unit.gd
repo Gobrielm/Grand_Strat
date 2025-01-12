@@ -2,6 +2,9 @@ extends base_unit
 
 var destination
 
+func get_destination():
+	return destination
+
 func _init(new_location: Vector2i, new_player_id: int):
 	location = new_location
 	player_id = new_player_id
