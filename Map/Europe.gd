@@ -184,6 +184,9 @@ func record_hover_click():
 		rail_placer.place_hover()
 		place_rail_general(coords, orientation, 2)
 
+func get_depot_direction(coords: Vector2i) -> int:
+	return rail_placer.get_depot_direction(coords)
+
 #Cargo
 func get_cargo_array() -> Array:
 	return cargo_controller.get_cargo_array()

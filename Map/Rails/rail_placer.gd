@@ -22,6 +22,13 @@ func _ready():
 		if item.name.begins_with("Rail_Temp_Layer"):
 			temp_layer_array.append(item)
 
+func get_rail_layers() -> Array:
+	var toReturn = []
+	for item in get_children():
+		if item.name.begins_with("Rail_Layer"):
+			toReturn.append(item)
+	return toReturn
+
 func hover_tile(coordinates: Vector2i, coords_middle: Vector2, coords_mouse: Vector2):
 	delete_hover_rail()
 	old_coordinates = coordinates
@@ -121,6 +128,13 @@ func get_track_connections(coords: Vector2i) -> Array:
 		return track_connection[coords]
 	else:
 		return [false, false, false, false, false, false]
+func get_depot_direction(coords: Vector2i) -> int:
+	for rail_layer: TileMapLayer in get_rail_layers():
+		var atlas = rail_layer.get_cell_atlas_coords(coords)
+		if atlas.y == 1:
+			return atlas.x
+	return -1
+
 
 func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i) -> bool:
 	var track_connections1 = get_track_connections(coord1)

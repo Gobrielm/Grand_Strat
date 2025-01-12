@@ -18,6 +18,10 @@ func _ready():
 func send_data_to_clients():
 	map.refresh_unit_map.rpc(get_used_cells_dictionary())
 
+@rpc("any_peer", "call_remote", "unreliable")
+func request_refresh_map():
+	map.refresh_unit_map.rpc_id(multiplayer.get_remote_sender_id(), get_used_cells_dictionary())
+
 @rpc("authority", "call_remote", "unreliable")
 func refresh_map(_visible_tiles: Array, _unit_atlas: Dictionary):
 	pass

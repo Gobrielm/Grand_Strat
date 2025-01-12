@@ -11,6 +11,10 @@ func _ready():
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
 	map = get_parent()
 
+@rpc("any_peer", "call_remote", "unreliable")
+func request_refresh_map():
+	pass
+
 @rpc("authority", "call_remote", "reliable")
 func refresh_map(visible_tiles: Array, unit_atlas: Dictionary):
 	for coords in visible_tiles:
@@ -31,7 +35,8 @@ func refresh_unit(unit_info: Array):
 	
 	var coords: Vector2i = unit_info[1]
 	if !unit_data.has(coords):
-		#TODO: Unit exists server-side, desync
+		#Desync
+		request_refresh_map()
 		return
 	var unit_node = get_node(str(coords))
 	unit_data[coords].update_stats(unit_info)
@@ -100,6 +105,8 @@ func create_manpower_label(size: Vector2) -> RichTextLabel:
 func move_unit(coords: Vector2i, move_to: Vector2i):
 	var soldier_atlas = get_cell_atlas_coords(coords)
 	if !unit_data.has(coords):
+		#Desync
+		request_refresh_map()
 		return
 	if coords != move_to:
 		unit_data[move_to] = unit_data[coords]

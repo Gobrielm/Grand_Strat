@@ -35,8 +35,9 @@ func add_new_train():
 	train.visible = false
 
 func leave_depot(index: int):
+	var dir = map.get_depot_direction(location)
 	var train = trains.pop_at(index)
-	train.go_out_of_depot.rpc()
+	train.go_out_of_depot.rpc(dir)
 
 func remove_train(index: int):
 	trains.remove_at(index)

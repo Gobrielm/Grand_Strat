@@ -117,8 +117,10 @@ func go_into_depot():
 	visible = false
 
 @rpc("authority", "unreliable", "call_local")
-func go_out_of_depot():
+func go_out_of_depot(new_dir: int):
 	visible = true
+	rotation = new_dir * 60
+	start_train()
 
 func get_speed() -> float:
 	return velocity.length()
@@ -294,7 +296,6 @@ func unload_train():
 		prep_update_cargo_gui()
 		if cargo_hold.is_empty():
 			done_unloading()
-		
 
 func done_unloading():
 	unloading = false
@@ -422,6 +423,7 @@ func get_direction() -> int:
 	var dir: int = round(rad_to_deg(rotation))
 	if dir < 0:
 		dir = dir * -1 + 180
+	dir += 180
 	return find_closest_acceptable_angle(dir)
 
 func find_closest_acceptable_angle(input_angle: int) -> int:

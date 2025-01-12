@@ -87,5 +87,6 @@ func go_into_depot():
 	visible = false
 
 @rpc("authority", "unreliable", "call_local")
-func go_out_of_depot():
+func go_out_of_depot(new_dir: int):
 	visible = true
+	rotation = new_dir * 60
