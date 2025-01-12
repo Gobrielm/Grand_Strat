@@ -143,11 +143,11 @@ var cohesion: int
 #The disipline and skill of the unit
 var experience: int
 
-func add_experience():
-	experience += experience_gain
+func add_experience(multiple = 1.0):
+	experience += round(float(experience_gain) * multiple)
 
-func add_battle_experience():
-	experience += round(experience_gain * battle_multiple)
+func add_battle_experience(multiple = 1.0):
+	experience += round(float(experience_gain) * float(battle_multiple) * multiple)
 
 func get_level() -> int:
 	if experience > 5000:

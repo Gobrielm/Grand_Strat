@@ -16,7 +16,7 @@ func _init(new_location: Vector2i, new_player_id: int):
 	shock = 100
 	firepower = 25
 	cohesion = 40
-	experience_gain = 7
+	experience_gain = 3
 	battle_multiple = 10
 	
 	experience = 0

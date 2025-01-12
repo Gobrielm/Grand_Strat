@@ -302,8 +302,9 @@ func get_unit_client_array(coords: Vector2i) -> Array:
 
 @rpc("authority", "call_local", "unreliable")
 func refresh_unit(info_array: Array):
-	map.update_info_window(info_array)
 	var coords = info_array[1]
+	if coords == selected_coords:
+		map.update_info_window(info_array)
 	var morale_bar: ProgressBar = get_node(str(coords)).get_node("MoraleBar")
 	morale_bar.value = info_array[4]
 	var manpower_label: RichTextLabel = get_node(str(coords)).get_node("Manpower_Label")
@@ -326,13 +327,26 @@ func find_surrounding_open_tile(coords: Vector2i) -> Vector2i:
 	units_to_kill.append(unit_data[coords])
 	return coords
 
+func get_additional_aura_boost() -> Dictionary:
+	var adjacent_officer = {}
+	for cell: Vector2i in get_used_cells():
+		if unit_data.has(cell) and unit_data[cell] is officer:
+			for adj_cell in get_surrounding_cells(cell):
+				if adjacent_officer.has(adj_cell) and adjacent_officer[adj_cell] > unit_data[cell].get_aura_boost():
+					continue
+				adjacent_officer[adj_cell] = unit_data[cell].get_aura_boost()
+	return adjacent_officer
 
 func _on_regen_timer_timeout():
+	var boosts: Dictionary = get_additional_aura_boost()
 	for unit: base_unit in unit_data.values():
 		var player_id = unit.get_player_id()
 		var amount = round(unit.get_max_manpower() / 80 + 12)
 		var max_cost = round(amount * 0.3)
-		unit.add_experience()
+		var multiple = 1
+		if boosts.has(unit.get_location()):
+			multiple = boosts[unit.get_location()]
+		unit.add_experience(multiple)
 		if map.player_has_enough_money(player_id, max_cost):
 			var manpower_used = unit.add_manpower(amount)
 			var cost = round(manpower_used * 0.3)
