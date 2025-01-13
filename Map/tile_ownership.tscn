@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://dbdsinyte2gu1"]
+
+[ext_resource type="Texture2D" uid="uid://c8np01jiqqnap" path="res://Map_Icons/country_tags.png" id="1_gly6g"]
+[ext_resource type="Script" path="res://Map/tile_ownership.gd" id="2_u7g4r"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tabeg"]
+texture = ExtResource("1_gly6g")
+margins = Vector2i(0, 64)
+separation = Vector2i(0, 64)
+texture_region_size = Vector2i(128, 128)
+1:0/0 = 0
+0:0/0 = 0
+2:0/0 = 0
+4:0/0 = 0
+3:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_yxa6a"]
+tile_shape = 3
+tile_offset_axis = 1
+tile_size = Vector2i(128, 115)
+sources/0 = SubResource("TileSetAtlasSource_tabeg")
+
+[node name="tile_ownership" type="TileMapLayer"]
+tile_set = SubResource("TileSet_yxa6a")
+script = ExtResource("2_u7g4r")

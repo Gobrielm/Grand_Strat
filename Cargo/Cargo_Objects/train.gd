@@ -170,7 +170,7 @@ func did_mouse_click(mouse_pos: Vector2):
 	return match_x and match_y
 
 func open_menu(mouse_pos: Vector2):
-	if did_mouse_click(mouse_pos):
+	if did_mouse_click(mouse_pos) and map.is_controlling_camera():
 		window.popup()
 
 func _on_window_close_requested():

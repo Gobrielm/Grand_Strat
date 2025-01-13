@@ -1,9 +1,11 @@
 extends Camera2D
 var last_mouse_position
 var state_machine
+var map
 @onready var coords_label = $CanvasLayer/Coordinate_Label
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	map = get_parent()
 	$CanvasLayer/Desync_Label.visible = false
 
 func _process(_delta):
@@ -40,7 +42,7 @@ func assign_state_machine(new_state_machine):
 func unpress_all_buttons():
 	state_machine.unpress_gui()
 	for element in $CanvasLayer.get_children():
-		if element is Button:
+		if element is Button and element.has_method("unpress"):
 			element.unpress()
 
 func are_all_buttons_unpressed():
@@ -69,3 +71,6 @@ func _on_depot_button_pressed():
 
 func _on_single_track_button_pressed():
 	state_machine.track_button_toggled()
+
+func _on_toggle_ownership_pressed():
+	map.toggle_ownership_view()

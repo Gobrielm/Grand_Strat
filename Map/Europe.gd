@@ -20,6 +20,7 @@ var state_machine
 var untraversable_tiles = {}
 var visible_tiles = []
 var cargo_index_to_name = []
+var tile_ownership: TileMapLayer
 
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
@@ -72,12 +73,20 @@ func _ready():
 		add_child(cargo_controller)
 		create_cargo_index_to_name.rpc(cargo_controller.cargo_types)
 		$player_camera/CanvasLayer/Desync_Label.visible = true
+		tile_ownership = $tile_ownership
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"
 		add_child(unit_map)
 		for tile in get_used_cells():
 			visible_tiles.append(tile)
+		var node = get_node("tile_ownership")
+		remove_child(node)
+		node.queue_free()
+		tile_ownership = load("res://Client_Objects/client_tile_ownership.tscn").instantiate()
+		add_child(tile_ownership)
+		tile_ownership.name = "tile_ownership"
+	tile_ownership.prepare_refresh_tile_ownership.rpc_id(1)
 
 func _input(event):
 	update_hover()
@@ -132,6 +141,16 @@ func click_unit():
 
 func start_building_units():
 	state_machine.start_building_units()
+
+func is_controlling_camera() -> bool:
+	return state_machine.is_controlling_camera()
+
+#Tile_Ownership
+func toggle_ownership_view():
+	tile_ownership.visible = !tile_ownership.visible
+
+func is_owned(player_id: int, coords: Vector2i) -> bool:
+	return tile_ownership.is_owned(player_id, coords)
 
 #Units
 func create_untraversable_tiles():
@@ -383,19 +402,21 @@ func place_tile(coords: Vector2i, orientation: int, type: int, _new_owner: int):
 	rail_placer.place_tile(coords, orientation, type)
 
 func set_cell_rail_placer_request(coords: Vector2i, orientation: int, type: int, new_owner: int):
-	if rail_check(coords):
-		set_cell_rail_placer_server.rpc_id(1, coords, orientation, type, unique_id)
+	set_cell_rail_placer_server.rpc_id(1, coords, orientation, type, unique_id)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, new_owner: int):
-	place_tile.rpc(coords, orientation, type, new_owner)
-	if type == 1:
-		encode_depot(coords, new_owner)
-		var depot_name = tile_info.get_depot_name(coords)
-		encode_depot_client.rpc(coords, depot_name, new_owner)
-	elif type == 2:
-		encode_station.rpc(coords, new_owner)
-		cargo_controller.create_station(coords, new_owner)
+	if rail_check(coords) and is_owned(new_owner, coords):
+		place_tile.rpc(coords, orientation, type, new_owner)
+		if type == 1:
+			encode_depot(coords, new_owner)
+			var depot_name = tile_info.get_depot_name(coords)
+			encode_depot_client.rpc(coords, depot_name, new_owner)
+		elif type == 2:
+			encode_station.rpc(coords, new_owner)
+			cargo_controller.create_station(coords, new_owner)
+	else:
+		rail_placer.clear_all_temps()
 
 @rpc("authority", "call_local", "unreliable")
 func encode_depot(coords: Vector2i, new_owner: int):
@@ -417,12 +438,10 @@ func set_cell_rail_placer_client(coords: Vector2i, orientation: int, type: int, 
 #Rails, Depot, Station
 func place_rail_general(coords: Vector2i, orientation: int, type: int):
 	if unique_id == 1:
-		if rail_check(coords):
-			set_cell_rail_placer_server(coords, orientation, type, unique_id)
+		set_cell_rail_placer_server(coords, orientation, type, unique_id)
 	else:
 		set_cell_rail_placer_request(coords, orientation, type, unique_id)
 	
 func rail_check(coords: Vector2i) -> bool:
 	var atlas_coords = get_cell_atlas_coords(coords)
 	return !untraversable_tiles.has(atlas_coords)
-		

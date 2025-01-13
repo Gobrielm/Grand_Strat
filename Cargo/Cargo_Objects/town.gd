@@ -6,7 +6,7 @@ var town_source: base_factory
 func _init(new_location: Vector2i, population):
 	location = new_location
 	town_sink = apex_factory.new(new_location, create_accepts_array(true, false))
-	town_source = base_factory.new(new_location, create_accepts_array(floor(population / 100), 0), 1)
+	town_source = base_factory.new(new_location, create_accepts_array(floor(population / 100), 0))
 
 func create_accepts_array(start_with, toAppend) -> Array:
 	var toReturn = []
