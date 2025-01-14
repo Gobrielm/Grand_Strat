@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://c6spn0m6m85vs"]
+[gd_scene load_steps=6 format=3 uid="uid://c6spn0m6m85vs"]
 
 [ext_resource type="Script" path="res://Player/player_camera.gd" id="1_7vtmc"]
 [ext_resource type="PackedScene" uid="uid://pbahdxufv0k5" path="res://Gui/track_button.tscn" id="2_f342f"]
 [ext_resource type="PackedScene" uid="uid://dv4710kbsjsqm" path="res://Gui/station_button.tscn" id="3_qhawj"]
 [ext_resource type="Texture2D" uid="uid://b02j10d0auchi" path="res://Gui/Icons/go_back.png" id="4_t2r7r"]
+[ext_resource type="Script" path="res://Player/start_game.gd" id="5_mycj5"]
 
 [node name="player_camera" type="Camera2D"]
 script = ExtResource("1_7vtmc")
@@ -82,8 +83,20 @@ focus_mode = 0
 icon = ExtResource("4_t2r7r")
 flat = true
 
+[node name="start_game" type="Button" parent="CanvasLayer"]
+anchors_preset = -1
+anchor_left = 0.071
+anchor_right = 0.071
+offset_left = 0.208
+offset_top = -1.0
+offset_right = 46.208
+offset_bottom = 30.0
+text = "Start"
+script = ExtResource("5_mycj5")
+
 [connection signal="pressed" from="CanvasLayer/station_button" to="." method="_on_station_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/track_button" to="." method="_on_track_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/depot_button" to="." method="_on_depot_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/single_track_button" to="." method="_on_single_track_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/toggle_ownership" to="." method="_on_toggle_ownership_pressed"]
+[connection signal="pressed" from="CanvasLayer/start_game" to="." method="_on_start_game_pressed"]

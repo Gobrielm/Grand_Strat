@@ -2,6 +2,7 @@ extends Camera2D
 var last_mouse_position
 var state_machine
 var map
+var nation_picker_button
 @onready var coords_label = $CanvasLayer/Coordinate_Label
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -59,6 +60,16 @@ func update_cash_label(new_cash: int):
 	$CanvasLayer/Cash_Label.text = str(new_cash)
 func update_desync_label(amount: int):
 	$CanvasLayer/Desync_Label.text = str(amount)
+
+func enter_nation_picker():
+	$CanvasLayer/start_game.visible = true
+
+func _on_start_game_pressed():
+	readied_up.rpc_id(1, map.get_unique_id())
+
+@rpc("any_peer", "call_remote", "reliable")
+func readied_up(player_id):
+	pass
 
 func _on_station_button_pressed():
 	state_machine.station_button_toggled()

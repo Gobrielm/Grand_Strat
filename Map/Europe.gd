@@ -157,6 +157,7 @@ func is_owned(player_id: int, coords: Vector2i) -> bool:
 
 #Nation_Picker
 func enable_nation_picker():
+	camera.enter_nation_picker()
 	camera.get_node("CanvasLayer").visible = false
 	state_machine.start_picking_nation()
 
