@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://c6spn0m6m85vs"]
+[gd_scene load_steps=6 format=3 uid="uid://c6spn0m6m85vs"]
 
 [ext_resource type="Script" path="res://Player/player_camera.gd" id="1_7vtmc"]
 [ext_resource type="PackedScene" uid="uid://pbahdxufv0k5" path="res://Gui/track_button.tscn" id="2_f342f"]
 [ext_resource type="PackedScene" uid="uid://dv4710kbsjsqm" path="res://Gui/station_button.tscn" id="3_qhawj"]
 [ext_resource type="Texture2D" uid="uid://b02j10d0auchi" path="res://Gui/Icons/go_back.png" id="4_t2r7r"]
+[ext_resource type="Script" path="res://Player/start_or_ready.gd" id="5_c6rps"]
 
 [node name="player_camera" type="Camera2D"]
 script = ExtResource("1_7vtmc")
@@ -82,8 +83,24 @@ focus_mode = 0
 icon = ExtResource("4_t2r7r")
 flat = true
 
+[node name="nation_picker" type="CanvasLayer" parent="."]
+
+[node name="start_or_ready" type="Button" parent="nation_picker"]
+anchors_preset = -1
+anchor_left = 0.952
+anchor_top = 0.394
+anchor_right = 0.952
+anchor_bottom = 0.394
+offset_left = -2.70398
+offset_top = -2.31201
+offset_right = 5.29602
+offset_bottom = 5.68799
+focus_mode = 0
+script = ExtResource("5_c6rps")
+
 [connection signal="pressed" from="CanvasLayer/station_button" to="." method="_on_station_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/track_button" to="." method="_on_track_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/depot_button" to="." method="_on_depot_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/single_track_button" to="." method="_on_single_track_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/toggle_ownership" to="." method="_on_toggle_ownership_pressed"]
+[connection signal="pressed" from="nation_picker/start_or_ready" to="." method="_on_start_or_ready_pressed"]

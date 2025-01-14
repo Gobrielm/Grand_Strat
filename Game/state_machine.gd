@@ -119,4 +119,13 @@ func stop_picking_nation():
 	default()
 
 func is_picking_nation() -> bool:
-	return picking_nation
+	return picking_nation and !hovering_over_gui
+
+func hovering_over_gui_active():
+	hovering_over_gui = true
+
+func hovering_over_gui_inactive():
+	hovering_over_gui = false
+
+func is_hovering_over_gui() -> bool:
+	return hovering_over_gui

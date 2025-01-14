@@ -20,17 +20,22 @@ func add_player_to_color(player_id: int, coords: Vector2i):
 	if color == Vector2i(-1, -1):
 		return
 	if !colors_owned.has(color):
+		var past_color = Vector2i(-1, -1)
 		if id_to_atlas.has(player_id):
-			var past_color = id_to_atlas[player_id]
+			past_color = id_to_atlas[player_id]
 			colors_owned.erase(past_color)
-			for cell in get_used_cells_by_id(1, past_color):
-				set_cell(cell, 0, past_color)
-		$click_noise.play()
+		select_nation.rpc_id(player_id, color, past_color)
 		id_to_atlas[player_id] = color
 		colors_owned[color] = true
-		for cell in get_used_cells_by_id(0, color):
-			set_cell(cell, 1, color)
-		
+
+@rpc("any_peer", "call_local", "reliable")
+func select_nation(color: Vector2i, past_color: Vector2i):
+	if past_color != Vector2i(-1, -1):
+		for cell in get_used_cells_by_id(1, past_color):
+			set_cell(cell, 0, past_color)
+	$click_noise.play()
+	for cell in get_used_cells_by_id(0, color):
+		set_cell(cell, 1, color)
 
 func is_owned(player_id: int, coords: Vector2i) -> bool:
 	var color = get_cell_atlas_coords(coords)

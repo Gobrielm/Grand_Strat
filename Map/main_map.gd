@@ -84,8 +84,8 @@ func _ready():
 		remove_child(node)
 		node.queue_free()
 		tile_ownership = load("res://Client_Objects/client_tile_ownership.tscn").instantiate()
-		add_child(tile_ownership)
 		tile_ownership.name = "tile_ownership"
+		add_child(tile_ownership)
 	tile_ownership.prepare_refresh_tile_ownership.rpc_id(1)
 	enable_nation_picker()
 
@@ -157,8 +157,10 @@ func is_owned(player_id: int, coords: Vector2i) -> bool:
 
 #Nation_Picker
 func enable_nation_picker():
+	print("A")
 	camera.get_node("CanvasLayer").visible = false
 	state_machine.start_picking_nation()
+	print(state_machine.is_picking_nation())
 
 func disable_nation_picker():
 	camera.get_node("CanvasLayer").visible = true

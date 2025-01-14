@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" path="res://Game/game.gd" id="1_wn886"]
 [ext_resource type="PackedScene" uid="uid://uqruu0curug2" path="res://Multiplayer/lobby.tscn" id="2_4iov0"]
-[ext_resource type="PackedScene" uid="uid://dy24s42glgktx" path="res://Map/Europe.tscn" id="2_ejjy4"]
+[ext_resource type="PackedScene" uid="uid://dy24s42glgktx" path="res://Map/main_map.tscn" id="2_ejjy4"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_wn886")
 
 [node name="Lobby" parent="." instance=ExtResource("2_4iov0")]
 
-[node name="Europe" parent="Lobby" instance=ExtResource("2_ejjy4")]
+[node name="main_map" parent="Lobby" instance=ExtResource("2_ejjy4")]
