@@ -7,6 +7,7 @@ var controlling_camera = false
 var unit_selected = false
 var building_units = false
 var selecting_route = false
+var picking_nation = false
 
 func default():
 	all_off()
@@ -20,6 +21,7 @@ func all_off():
 	unit_selected = false
 	building_units = false
 	selecting_route = false
+	picking_nation = false
 
 func gui_button_pressed():
 	all_off()
@@ -107,3 +109,14 @@ func stop_selecting_route():
 
 func is_selecting_route() -> bool:
 	return selecting_route
+
+func start_picking_nation():
+	all_off()
+	picking_nation = true
+
+func stop_picking_nation():
+	all_off()
+	default()
+
+func is_picking_nation() -> bool:
+	return picking_nation

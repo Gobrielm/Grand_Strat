@@ -87,6 +87,7 @@ func _ready():
 		add_child(tile_ownership)
 		tile_ownership.name = "tile_ownership"
 	tile_ownership.prepare_refresh_tile_ownership.rpc_id(1)
+	enable_nation_picker()
 
 func _input(event):
 	update_hover()
@@ -100,6 +101,8 @@ func _input(event):
 			create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
 			show_unit_info_window(unit_map.get_unit_client_array(get_cell_position()))
+		elif state_machine.is_picking_nation():
+			pick_nation()
 		else:
 			unit_map.select_unit(get_cell_position(), unique_id)
 	elif event.is_action_released("click"):
@@ -118,9 +121,9 @@ func _input(event):
 		else:
 			rail_placer.clear_all_temps()
 			camera.unpress_all_buttons()
-	elif event.is_action_pressed("debug_place_train"):
+	elif event.is_action_pressed("debug_place_train") and state_machine.is_controlling_camera():
 		create_train.rpc(get_cell_position())
-	elif event.is_action_pressed("debug_print"):
+	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
 		unit_creator_window.popup()
 
 #Constants
@@ -151,6 +154,19 @@ func toggle_ownership_view():
 
 func is_owned(player_id: int, coords: Vector2i) -> bool:
 	return tile_ownership.is_owned(player_id, coords)
+
+#Nation_Picker
+func enable_nation_picker():
+	camera.get_node("CanvasLayer").visible = false
+	state_machine.start_picking_nation()
+
+func disable_nation_picker():
+	camera.get_node("CanvasLayer").visible = true
+	state_machine.stop_picking_nation()
+
+func pick_nation():
+	var coords = get_cell_position()
+	tile_ownership.add_player_to_color.rpc_id(1, unique_id, coords)
 
 #Units
 func create_untraversable_tiles():

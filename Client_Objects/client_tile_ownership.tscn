@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dumdtqrw72kmn"]
+[gd_scene load_steps=6 format=3 uid="uid://dumdtqrw72kmn"]
 
 [ext_resource type="Texture2D" uid="uid://c8np01jiqqnap" path="res://Map_Icons/country_tags.png" id="1_3vshf"]
 [ext_resource type="Script" path="res://Client_Objects/client_tile_ownership.gd" id="2_7gu2f"]
+[ext_resource type="AudioStream" uid="uid://hjwuqfregp64" path="res://Sounds/mixkit-negative-tone-interface-tap-2569.wav" id="3_jifi0"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1b4vx"]
 texture = ExtResource("1_3vshf")
@@ -26,3 +27,7 @@ sources/0 = SubResource("TileSetAtlasSource_1b4vx")
 [node name="client_tile_ownership" type="TileMapLayer"]
 tile_set = SubResource("TileSet_bmynm")
 script = ExtResource("2_7gu2f")
+
+[node name="click_noise" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_jifi0")
+volume_db = -20.0

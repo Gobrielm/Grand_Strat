@@ -9,3 +9,7 @@ func refresh_tile_ownership(resource: Dictionary):
 @rpc("any_peer", "call_local", "unreliable")
 func prepare_refresh_tile_ownership():
 	pass
+
+@rpc("any_peer", "call_local", "unreliable")
+func add_player_to_color(player_id: int, coords: Vector2i):
+	$click_noise.play()
