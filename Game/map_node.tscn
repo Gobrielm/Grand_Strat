@@ -1,7 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://dlmwgwie45non"]
+[gd_scene load_steps=3 format=3 uid="uid://dlmwgwie45non"]
 
+[ext_resource type="Script" path="res://Game/map_node.gd" id="1_4blso"]
 [ext_resource type="PackedScene" uid="uid://dy24s42glgktx" path="res://Map/main_map.tscn" id="1_7javc"]
 
 [node name="map_node" type="Node"]
+script = ExtResource("1_4blso")
 
 [node name="main_map" parent="." instance=ExtResource("1_7javc")]

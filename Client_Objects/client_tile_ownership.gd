@@ -3,13 +3,13 @@ extends TileMapLayer
 func _ready():
 	prepare_refresh_tile_ownership.rpc_id(1)
 
-@rpc("authority", "call_remote", "unreliable")
+@rpc("authority", "call_remote", "reliable")
 func refresh_tile_ownership(resource: Dictionary):
 	clear()
 	for tile: Vector2i in resource:
 		set_cell(tile, 0, resource[tile])
 
-@rpc("any_peer", "call_local", "unreliable")
+@rpc("any_peer", "call_local", "reliable")
 func prepare_refresh_tile_ownership():
 	pass
 

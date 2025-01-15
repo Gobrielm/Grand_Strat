@@ -3,11 +3,11 @@ extends TileMapLayer
 var id_to_atlas: Dictionary = {}
 var colors_owned: Dictionary = {}
 
-@rpc("authority", "call_local", "unreliable")
+@rpc("authority", "call_local", "reliable")
 func refresh_tile_ownership(resource: Dictionary):
 	pass
 
-@rpc("any_peer", "call_local", "unreliable")
+@rpc("any_peer", "call_local", "reliable")
 func prepare_refresh_tile_ownership():
 	var dict: Dictionary = {}
 	for cell in get_used_cells():
