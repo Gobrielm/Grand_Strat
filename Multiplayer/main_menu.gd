@@ -12,7 +12,7 @@ var c = 0
 
 func _on_create_game_pressed():
 	if c == 1:
-		lobby.load_game.rpc("res://Game/game.tscn")
+		lobby.start_game.rpc()
 	else:
 		lobby.create_game()
 		c += 1

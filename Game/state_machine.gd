@@ -9,6 +9,17 @@ var building_units = false
 var selecting_route = false
 var picking_nation = false
 
+func print_all():
+	print(building)
+	print(building_many_rails)
+	print(hovering_over_gui)
+	print(controlling_camera)
+	print(unit_selected)
+	print(building_units)
+	print(selecting_route)
+	print(picking_nation)
+	print("-----------")
+
 func default():
 	all_off()
 	controlling_camera = true
@@ -81,12 +92,12 @@ func is_selecting_unit() -> bool:
 	return unit_selected and !hovering_over_gui
 
 func click_unit():
-	unit_selected = !unit_selected
-	if click_unit:
-		all_off()
-		unit_selected = true
-	else:
-		default()
+	all_off()
+	unit_selected = true
+
+func unclick_unit():
+	all_off()
+	default()
 
 func start_building_units():
 	all_off()

@@ -1,19 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://dlmwgwie45non"]
+[gd_scene load_steps=2 format=3 uid="uid://dlmwgwie45non"]
 
 [ext_resource type="PackedScene" uid="uid://dy24s42glgktx" path="res://Map/main_map.tscn" id="1_7javc"]
-[ext_resource type="Script" path="res://Game/map_node.gd" id="1_574aw"]
-[ext_resource type="PackedScene" uid="uid://du4xxwp8ky6v6" path="res://Map/unit_map.tscn" id="3_8tdk0"]
-[ext_resource type="PackedScene" uid="uid://denddx5f87r3r" path="res://Map/Rails/rail_placer.tscn" id="4_4uxe0"]
-[ext_resource type="PackedScene" uid="uid://dbdsinyte2gu1" path="res://Map/tile_ownership.tscn" id="5_1y6m2"]
 
 [node name="map_node" type="Node"]
-script = ExtResource("1_574aw")
 
 [node name="main_map" parent="." instance=ExtResource("1_7javc")]
-script = null
-
-[node name="unit_map" parent="." instance=ExtResource("3_8tdk0")]
-
-[node name="rail_placer" parent="." instance=ExtResource("4_4uxe0")]
-
-[node name="tile_ownership" parent="." instance=ExtResource("5_1y6m2")]

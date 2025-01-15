@@ -63,8 +63,9 @@ func unpress_all_buttons():
 
 func are_all_buttons_unpressed():
 	var toReturn = true
+	var button_to_ignore = $CanvasLayer/toggle_ownership
 	for element in $CanvasLayer.get_children():
-		if element is Button:
+		if element is Button and element != button_to_ignore:
 			toReturn = toReturn && !element.active
 	return toReturn
 

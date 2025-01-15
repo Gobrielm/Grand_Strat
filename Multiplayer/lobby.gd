@@ -61,8 +61,11 @@ func remove_multiplayer_peer():
 # When the server decides to start the game from a UI scene,
 # do Lobby.load_game.rpc(filepath)
 @rpc("call_local", "reliable")
-func load_game(game_scene_path):
-	get_tree().change_scene_to_file(game_scene_path)
+func start_game():
+	$Main_Menu.visible = false
+	var map_node = load("res://Game/map_node.tscn").instantiate()
+	add_child(map_node)
+	
 
 
 # Every peer will call this when they have loaded the game scene.

@@ -104,6 +104,7 @@ func _input(event):
 		elif state_machine.is_picking_nation():
 			pick_nation()
 		else:
+			state_machine.unclick_unit()
 			unit_map.select_unit(get_cell_position(), unique_id)
 	elif event.is_action_released("click"):
 		if state_machine.is_controlling_camera() and tile_info.is_owned_hold(get_cell_position(), unique_id):
@@ -118,13 +119,16 @@ func _input(event):
 			unit_map.set_selected_unit_route(unit_map.get_selected_coords(), get_cell_position())
 			unit_map.set_selected_unit_route.rpc_id(1, unit_map.get_selected_coords(), get_cell_position())
 			update_info_window(unit_map.get_unit_client_array(unit_map.get_selected_coords()))
-		else:
+		elif !state_machine.is_picking_nation():
 			rail_placer.clear_all_temps()
 			camera.unpress_all_buttons()
+			state_machine.default()
 	elif event.is_action_pressed("debug_place_train") and state_machine.is_controlling_camera():
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
 		unit_creator_window.popup()
+	#else:
+		#state_machine.print_all()
 
 #Constants
 @rpc("authority", "call_local", "reliable")
