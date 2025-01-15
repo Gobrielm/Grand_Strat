@@ -12,6 +12,7 @@ var unique_id
 @onready var rail_placer = $Rail_Placer
 @onready var hold_window: Window = $hold_window
 @onready var depot_window: Window = $depot_window
+@onready var map_node = get_parent()
 var tile_info
 var cargo_controller
 var unit_map
@@ -20,7 +21,6 @@ var state_machine
 var untraversable_tiles = {}
 var visible_tiles = []
 var cargo_index_to_name = []
-var tile_ownership: TileMapLayer
 
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
@@ -54,6 +54,7 @@ func _ready():
 	unique_id = multiplayer.get_unique_id()
 	state_machine = preload("res://Game/state_machine.gd").new()
 	camera.assign_state_machine(state_machine)
+	map_node.state_machine = state_machine
 	if unique_id == 1:
 		
 		create_untraversable_tiles()
@@ -73,7 +74,6 @@ func _ready():
 		add_child(cargo_controller)
 		create_cargo_index_to_name.rpc(cargo_controller.cargo_types)
 		$player_camera/CanvasLayer/Desync_Label.visible = true
-		tile_ownership = $tile_ownership
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"
@@ -83,11 +83,7 @@ func _ready():
 		var node = get_node("tile_ownership")
 		remove_child(node)
 		node.queue_free()
-		tile_ownership = load("res://Client_Objects/client_tile_ownership.tscn").instantiate()
-		tile_ownership.name = "tile_ownership"
-		add_child(tile_ownership)
-	tile_ownership.prepare_refresh_tile_ownership.rpc_id(1)
-	enable_nation_picker()
+		
 
 func _input(event):
 	update_hover()
@@ -101,8 +97,6 @@ func _input(event):
 			create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
 			show_unit_info_window(unit_map.get_unit_client_array(get_cell_position()))
-		elif state_machine.is_picking_nation():
-			pick_nation()
 		else:
 			state_machine.unclick_unit()
 			unit_map.select_unit(get_cell_position(), unique_id)
@@ -127,8 +121,6 @@ func _input(event):
 		create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
 		unit_creator_window.popup()
-	#else:
-		#state_machine.print_all()
 
 #Constants
 @rpc("authority", "call_local", "reliable")
@@ -142,6 +134,9 @@ func get_cargo_index_to_name() -> Array:
 func create_client_tile_info(cities: Dictionary):
 	tile_info = load("res://Client_Objects/client_tile_info.gd").new(self, cities)
 
+func is_owned(player_id: int, coords: Vector2i) -> bool:
+	return map_node.is_owned(player_id, coords)
+
 #State_Machine
 func click_unit():
 	state_machine.click_unit()
@@ -152,25 +147,6 @@ func start_building_units():
 func is_controlling_camera() -> bool:
 	return state_machine.is_controlling_camera()
 
-#Tile_Ownership
-func toggle_ownership_view():
-	tile_ownership.visible = !tile_ownership.visible
-
-func is_owned(player_id: int, coords: Vector2i) -> bool:
-	return tile_ownership.is_owned(player_id, coords)
-
-#Nation_Picker
-func enable_nation_picker():
-	camera.get_node("CanvasLayer").visible = false
-	state_machine.start_picking_nation()
-
-func disable_nation_picker():
-	camera.get_node("CanvasLayer").visible = true
-	state_machine.stop_picking_nation()
-
-func pick_nation():
-	var coords = get_cell_position()
-	tile_ownership.add_player_to_color.rpc_id(1, unique_id, coords)
 
 #Units
 func create_untraversable_tiles():
