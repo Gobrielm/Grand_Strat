@@ -192,9 +192,9 @@ func add_stop(new_location: Vector2i):
 	
 
 func get_stop_info(location_to_check: Vector2i) -> int:
-	if map.is_location_depot(location_to_check):
+	if map.is_depot(location_to_check):
 		return 1
-	elif map.is_location_hold(location_to_check):
+	elif map.is_hold(location_to_check):
 		return 2
 	return 3
 

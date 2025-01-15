@@ -10,10 +10,22 @@ var selected_coords: Vector2i
 var units_to_kill = []
 var units_to_retreat = []
 
+var state_machine
+
 func _ready():
 	battle_script = load("res://Units/unit_managers/battle_script.gd").new(self)
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
 	map = get_parent()
+
+func _input(event):
+	if event.is_action_pressed("deselect"):
+		if state_machine.is_selecting_unit():
+			set_selected_unit_route(get_selected_coords(), map.get_cell_position())
+			set_selected_unit_route.rpc_id(1, get_selected_coords(), map.get_cell_position())
+			map.update_info_window(get_unit_client_array(get_selected_coords()))
+
+func assign_state_machine(new_state_machine):
+	state_machine = new_state_machine
 
 func send_data_to_clients():
 	map.refresh_unit_map.rpc(get_used_cells_dictionary())

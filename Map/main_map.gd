@@ -52,11 +52,7 @@ func recognize_heart_beat():
 
 func _ready():
 	unique_id = multiplayer.get_unique_id()
-	state_machine = preload("res://Game/state_machine.gd").new()
-	camera.assign_state_machine(state_machine)
-	map_node.state_machine = state_machine
 	if unique_id == 1:
-		
 		create_untraversable_tiles()
 		money_controller = load("res://Player/money_controller.gd").new(multiplayer.get_peers(), self)
 		for peer in multiplayer.get_peers():
@@ -68,7 +64,7 @@ func _ready():
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
 		testing = preload("res://Test/testing.gd").new(self)
-		tile_info = load("res://tile_info.gd").new(self)
+		tile_info = load("res://Map/tile_info.gd").new(self)
 		create_client_tile_info.rpc(tile_info.get_cities())
 		cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
 		add_child(cargo_controller)
@@ -84,43 +80,6 @@ func _ready():
 		remove_child(node)
 		node.queue_free()
 		
-
-func _input(event):
-	update_hover()
-	camera.update_coord_label(get_cell_position())
-	if event.is_action_pressed("click"):
-		if state_machine.is_building():
-			record_hover_click()
-		elif state_machine.is_building_many_rails():
-			record_start_rail()
-		elif state_machine.is_building_units():
-			create_unit(get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
-		elif state_machine.is_selecting_unit() and unit_map.is_unit_double_clicked(get_cell_position(), unique_id):
-			show_unit_info_window(unit_map.get_unit_client_array(get_cell_position()))
-		else:
-			state_machine.unclick_unit()
-			unit_map.select_unit(get_cell_position(), unique_id)
-	elif event.is_action_released("click"):
-		if state_machine.is_controlling_camera() and tile_info.is_owned_hold(get_cell_position(), unique_id):
-			hold_window.open_window(get_cell_position())
-		elif state_machine.is_controlling_camera() and tile_info.is_owned_depot(get_cell_position(), unique_id):
-			depot_window.open_window(get_cell_position())
-		elif state_machine.is_building_many_rails():
-			place_to_end_rail(start, get_cell_position())
-		start = null
-	elif event.is_action_pressed("deselect"):
-		if state_machine.is_selecting_unit():
-			unit_map.set_selected_unit_route(unit_map.get_selected_coords(), get_cell_position())
-			unit_map.set_selected_unit_route.rpc_id(1, unit_map.get_selected_coords(), get_cell_position())
-			update_info_window(unit_map.get_unit_client_array(unit_map.get_selected_coords()))
-		elif !state_machine.is_picking_nation():
-			rail_placer.clear_all_temps()
-			camera.unpress_all_buttons()
-			state_machine.default()
-	elif event.is_action_pressed("debug_place_train") and state_machine.is_controlling_camera():
-		create_train.rpc(get_cell_position())
-	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
-		unit_creator_window.popup()
 
 #Constants
 @rpc("authority", "call_local", "reliable")
@@ -138,6 +97,12 @@ func is_owned(player_id: int, coords: Vector2i) -> bool:
 	return map_node.is_owned(player_id, coords)
 
 #State_Machine
+func assign_state_machine(new_state_machine):
+	state_machine = new_state_machine
+	camera.assign_state_machine(state_machine)
+	unit_map.assign_state_machine(state_machine)
+	rail_placer.assign_state_machine(state_machine)
+
 func click_unit():
 	state_machine.click_unit()
 
@@ -159,14 +124,15 @@ func is_tile_traversable(tile_to_check: Vector2i) -> bool:
 	var atlas_coords = get_cell_atlas_coords(tile_to_check)
 	return !untraversable_tiles.has(atlas_coords)
 
-func show_unit_info_window(unit_info_array: Array):
+func show_unit_info_window():
+	var unit_info_array = unit_map.get_unit_client_array(get_cell_position())
 	$unit_info_window.show_unit(unit_info_array)
 
 func update_info_window(unit_info_array: Array):
 	$unit_info_window.update_unit(unit_info_array)
 
-func create_unit(coords: Vector2i, type: int, id: int):
-	unit_map.check_before_create.rpc_id(1, coords, type, id)
+func create_unit():
+	unit_map.check_before_create.rpc_id(1, get_cell_position(), unit_creator_window.get_type_selected(), unique_id)
 
 @rpc("authority", "call_remote", "unreliable")
 func refresh_unit_map(unit_tiles: Dictionary):
@@ -175,14 +141,26 @@ func refresh_unit_map(unit_tiles: Dictionary):
 func close_unit_box():
 	$unit_info_window.hide()
 
+func is_unit_double_clicked():
+	unit_map.is_unit_double_clicked(get_cell_position(), unique_id)
+
 #Tracks
-func update_hover():
+func get_rail_type_selected() -> int:
 	if single_track_button.active:
-		rail_placer.hover(get_cell_position(), 0, map_to_local(get_cell_position()), get_mouse_local_to_map())
+		return 0
 	elif depot_button.active:
-		rail_placer.hover(get_cell_position(), 1, map_to_local(get_cell_position()), get_mouse_local_to_map())
+		return 1
 	elif station_button.active:
-		rail_placer.hover(get_cell_position(), 2, map_to_local(get_cell_position()), get_mouse_local_to_map())
+		return 2
+	return 3
+
+func clear_all_temps():
+	rail_placer.clear_all_temps()
+
+func update_hover():
+	var rail_type = get_rail_type_selected()
+	if get_rail_type_selected() < 3:
+		rail_placer.hover(get_cell_position(), rail_type, map_to_local(get_cell_position()), get_mouse_local_to_map())
 	elif start != null and track_button.active:
 		get_rail_to_hover()
 
@@ -206,18 +184,24 @@ func get_depot_direction(coords: Vector2i) -> int:
 func get_cargo_array() -> Array:
 	return cargo_controller.get_cargo_array()
 
-func is_location_depot(coords: Vector2i) -> bool:
+func is_depot(coords: Vector2i) -> bool:
 	return tile_info.is_depot(coords)
 
-func is_location_hold(coords: Vector2i) -> bool:
-	return cargo_controller.is_location_hold(coords)
+func is_owned_depot(coords: Vector2i) -> bool:
+	return tile_info.is_owned_depot(coords, unique_id)
+
+func is_hold(coords: Vector2i) -> bool:
+	return cargo_controller.is_hold(coords)
+
+func is_owned_hold(coords: Vector2i) -> bool:
+	return tile_info.is_owned_hold(coords, unique_id)
 
 func is_location_valid_stop(coords: Vector2i) -> bool:
 	return tile_info.is_hold(coords) or tile_info.is_depot(coords)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
-	if cargo_controller.is_location_hold(coords):
+	if cargo_controller.is_hold(coords):
 		return cargo_controller.get_terminal(coords).get_current_hold()
 	return {}
 
@@ -258,6 +242,12 @@ func get_trains_in_depot(coords: Vector2i) -> Array:
 #Rail Builder
 func record_start_rail():
 	start = get_cell_position()
+
+func reset_start():
+	start = null
+
+func place_rail_to_start():
+	place_to_end_rail(start, get_cell_position())
 
 func place_to_end_rail(new_start, new_end):
 	start = new_start

@@ -90,8 +90,8 @@ func _on_single_track_button_pressed():
 	state_machine.track_button_toggled()
 
 func _on_toggle_ownership_pressed():
-	map.toggle_ownership_view()
+	map.get_parent().toggle_ownership_view()
 
 func _on_start_or_ready_pressed():
-	map.disable_nation_picker()
+	map.get_parent().disable_nation_picker()
 	$nation_picker/start_or_ready.visible = false

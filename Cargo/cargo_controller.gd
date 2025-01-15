@@ -41,7 +41,7 @@ func add_connected_terminals(coords: Vector2i, new_terminal: terminal):
 			if new_terminal.has_method("add_connected_terminal"):
 				new_terminal.add_connected_terminal(term)
 
-func is_location_hold(coords: Vector2i) -> bool:
+func is_hold(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is hold
 
 func get_terminal(coords: Vector2i):

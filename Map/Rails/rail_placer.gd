@@ -6,6 +6,8 @@ extends Node2D
 @onready var rail_layer_4: TileMapLayer = $Rail_Layer_4
 @onready var rail_layer_5: TileMapLayer = $Rail_Layer_5
 
+var state_machine
+
 var temp_layer_array = []
 var track_connection: Dictionary = {}
 var orientation_vectors = [Vector2(0, 1), Vector2(sqrt(3)/2, 0.5), Vector2(sqrt(3)/2, -0.5), Vector2(0, -1), Vector2(-sqrt(3)/2, -0.5), Vector2(-sqrt(3)/2, 0.5)]
@@ -14,11 +16,13 @@ var orientation = 0
 var type = -1
 var old_coordinates
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
 	for item in get_children():
 		if item.name.begins_with("Rail_Temp_Layer"):
 			temp_layer_array.append(item)
+
+func assign_state_machine(new_state_machine):
+	state_machine = new_state_machine
 
 func get_rail_layers() -> Array:
 	var toReturn = []
@@ -63,7 +67,7 @@ func clear_all_real():
 			layer.clear()
 
 func clear_all_temps():
-	for layer:TileMapLayer in temp_layer_array:
+	for layer: TileMapLayer in temp_layer_array:
 		layer.clear()
 
 func place_tile(coords: Vector2i, new_orientation: int, new_type: int):

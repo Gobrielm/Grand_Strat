@@ -96,8 +96,8 @@ func click_unit():
 	unit_selected = true
 
 func unclick_unit():
-	all_off()
-	default()
+	unit_selected = false
+	controlling_camera = true
 
 func start_building_units():
 	all_off()
