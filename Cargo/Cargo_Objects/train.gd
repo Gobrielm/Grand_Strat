@@ -75,7 +75,6 @@ func checkpoint_reached():
 		
 		#If route is still empty then stop reached
 		if route.is_empty():
-			print("Near stop")
 			increment_stop()
 			if decide_stop_action():
 				stop_train()

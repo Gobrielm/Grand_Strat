@@ -69,16 +69,16 @@ func station_button_toggled():
 		default()
 
 func is_building_many_rails() -> bool:
-	return building_many_rails
+	return building_many_rails and !hovering_over_gui
 
 func is_controlling_camera() -> bool:
 	return controlling_camera
 
 func is_building() -> bool:
-	return building
+	return building and !hovering_over_gui
 
 func is_selecting_unit() -> bool:
-	return unit_selected
+	return unit_selected and !hovering_over_gui
 
 func click_unit():
 	unit_selected = !unit_selected
@@ -97,7 +97,7 @@ func stop_building_units():
 	default()
 
 func is_building_units() -> bool:
-	return building_units
+	return building_units and !hovering_over_gui
 
 func start_selecting_route():
 	all_off()
@@ -108,7 +108,7 @@ func stop_selecting_route():
 	default()
 
 func is_selecting_route() -> bool:
-	return selecting_route
+	return selecting_route and !hovering_over_gui
 
 func start_picking_nation():
 	all_off()

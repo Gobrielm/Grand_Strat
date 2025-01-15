@@ -55,10 +55,11 @@ func assign_state_machine(new_state_machine):
 	state_machine = new_state_machine
 
 func unpress_all_buttons():
-	state_machine.unpress_gui()
 	for element in $CanvasLayer.get_children():
-		if element is Button and element.has_method("unpress"):
+		if element is Button and element.has_method("unpress") and element.active:
 			element.unpress()
+			state_machine.unpress_gui()
+		
 
 func are_all_buttons_unpressed():
 	var toReturn = true
