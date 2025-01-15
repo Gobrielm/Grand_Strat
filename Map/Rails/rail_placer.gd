@@ -14,8 +14,6 @@ var orientation = 0
 var type = -1
 var old_coordinates
 
-@onready var map: TileMapLayer = get_parent()
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	for item in get_children():
@@ -136,12 +134,11 @@ func get_depot_direction(coords: Vector2i) -> int:
 	return -1
 
 
-func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i) -> bool:
+func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i, bordering_to_coord1: Array) -> bool:
 	var track_connections1 = get_track_connections(coord1)
 	var track_connections2 = get_track_connections(coord2)
-	var bordering_cells = map.get_surrounding_cells(coord1)
-	for direction in bordering_cells.size():
+	for direction in bordering_to_coord1.size():
 		var real_direction = (direction + 2) % 6
-		if bordering_cells[direction] == coord2:
+		if bordering_to_coord1[direction] == coord2:
 			return track_connections1[real_direction] and track_connections2[(real_direction + 3) % 6]
 	return false

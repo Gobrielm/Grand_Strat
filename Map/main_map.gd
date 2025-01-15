@@ -412,7 +412,7 @@ func request_tile_data(coordinates: Vector2i) -> TileData:
 	return get_cell_tile_data(coordinates)
 
 func do_tiles_connect(coord1: Vector2i, coord2: Vector2i) -> bool:
-	return rail_placer.are_tiles_connected_by_rail(coord1, coord2)
+	return rail_placer.are_tiles_connected_by_rail(coord1, coord2, get_surrounding_cells(coord1))
 #Rail General
 
 @rpc("authority", "call_local", "unreliable")
