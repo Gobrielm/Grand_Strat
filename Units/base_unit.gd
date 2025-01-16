@@ -11,10 +11,10 @@ func convert_to_client_array() -> Array:
 	return [player_id, location, get_destination(), manpower, morale, experience]
 
 func get_speed_mult(terrain_num: int):
-	if terrain_num == -1:
-		return 1
-	elif terrain_num == 1:
+	if terrain_num == 0:
 		return speed_mult_hilly
+	else:
+		return 1
 
 static func get_cost() -> int:
 	return 0
