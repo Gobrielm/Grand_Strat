@@ -12,6 +12,8 @@ var unique_id
 func _ready():
 	unique_id = multiplayer.get_unique_id()
 	if unique_id != 1:
+		remove_child(tile_ownership)
+		tile_ownership.queue_free()
 		tile_ownership = load("res://Client_Objects/client_tile_ownership.tscn").instantiate()
 		tile_ownership.name = "tile_ownership"
 		add_child(tile_ownership)
@@ -38,16 +40,16 @@ func _input(event):
 			state_machine.unclick_unit()
 			main_map.unit_map.select_unit(get_cell_position(), unique_id)
 	elif event.is_action_released("click"):
-		if state_machine.is_controlling_camera() and main_map.is_hold(get_cell_position()):
+		if state_machine.is_controlling_camera() and main_map.is_owned_hold(get_cell_position()):
 			hold_window.open_window(get_cell_position())
-		elif state_machine.is_controlling_camera() and main_map.is_depot(get_cell_position()):
+		elif state_machine.is_controlling_camera() and main_map.is_owned_depot(get_cell_position()):
 			depot_window.open_window(get_cell_position())
 		elif state_machine.is_building_many_rails():
 			main_map.place_rail_to_start()
 		main_map.reset_start()
 	elif event.is_action_pressed("deselect"):
 		main_map.clear_all_temps()
-		if !state_machine.is_picking_nation():
+		if !state_machine.is_picking_nation() and !state_machine.is_selecting_unit():
 			camera.unpress_all_buttons()
 			state_machine.default()
 	elif event.is_action_pressed("debug_place_train") and state_machine.is_controlling_camera():

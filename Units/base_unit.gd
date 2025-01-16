@@ -105,6 +105,9 @@ func get_destination():
 		return null
 	return route.back()
 
+func stop():
+	route = []
+
 #The progress unit has to travel
 var progress: float
 

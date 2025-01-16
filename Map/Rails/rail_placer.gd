@@ -71,6 +71,7 @@ func clear_all_temps():
 		layer.clear()
 
 func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
+	clear_all_temps()
 	if is_already_built(coords, new_orientation):
 		return
 	var rail_layer: TileMapLayer = get_rail_layer(new_orientation)

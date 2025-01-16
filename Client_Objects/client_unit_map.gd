@@ -4,12 +4,24 @@ var unit_creator
 var selected_coords
 var map: TileMapLayer
 var unit_data: Dictionary = {}
+var state_machine
 
 const client_unit = preload("res://Client_Objects/client_base_unit.gd")
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
 	map = get_parent()
+
+func _input(event):
+	if event.is_action_pressed("deselect"):
+		if state_machine.is_selecting_unit():
+			set_selected_unit_route(get_selected_coords(), map.get_cell_position())
+			set_selected_unit_route.rpc_id(1, get_selected_coords(), map.get_cell_position())
+			map.update_info_window(get_unit_client_array(get_selected_coords()))
+
+func assign_state_machine(new_state_machine):
+	state_machine = new_state_machine
+	
 
 @rpc("any_peer", "call_remote", "unreliable")
 func request_refresh_map():

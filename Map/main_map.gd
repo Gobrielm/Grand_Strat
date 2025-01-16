@@ -76,9 +76,6 @@ func _ready():
 		add_child(unit_map)
 		for tile in get_used_cells():
 			visible_tiles.append(tile)
-		var node = get_node("tile_ownership")
-		remove_child(node)
-		node.queue_free()
 		
 
 #Constants
@@ -141,8 +138,8 @@ func refresh_unit_map(unit_tiles: Dictionary):
 func close_unit_box():
 	$unit_info_window.hide()
 
-func is_unit_double_clicked():
-	unit_map.is_unit_double_clicked(get_cell_position(), unique_id)
+func is_unit_double_clicked() -> bool:
+	return unit_map.is_unit_double_clicked(get_cell_position(), unique_id)
 
 #Tracks
 func get_rail_type_selected() -> int:
