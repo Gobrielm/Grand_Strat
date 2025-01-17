@@ -1,9 +1,10 @@
 extends TileMapLayer
 
 var unit_creator
-var selected_coords
+var selected_unit: base_unit
 var map: TileMapLayer
 var unit_data: Dictionary = {}
+var extra_unit_data: Dictionary = {}
 var state_machine
 
 const client_unit = preload("res://Client_Objects/client_base_unit.gd")
@@ -15,8 +16,7 @@ func _ready():
 func _input(event):
 	if event.is_action_pressed("deselect"):
 		if state_machine.is_selecting_unit():
-			set_selected_unit_route(get_selected_coords(), map.get_cell_position())
-			set_selected_unit_route.rpc_id(1, get_selected_coords(), map.get_cell_position())
+			set_up_set_unit_route(selected_unit, map.get_cell_position())
 			map.update_info_window(get_unit_client_array(get_selected_coords()))
 
 func assign_state_machine(new_state_machine):
@@ -31,31 +31,37 @@ func request_refresh_map():
 func refresh_map(visible_tiles: Array, unit_atlas: Dictionary):
 	for coords in visible_tiles:
 		if !unit_atlas.has(coords):
-			kill_unit(coords)
+			kill_normal_unit(coords)
 		elif get_cell_atlas_coords(coords) == unit_atlas[coords]:
-			request_refresh.rpc_id(1, coords, multiplayer.get_unique_id())
+			request_refresh.rpc_id(1, coords)
 		else:
 			create_unit(coords, unit_atlas[coords].y, 0)
-			request_refresh.rpc_id(1, coords, multiplayer.get_unique_id())
+			request_refresh.rpc_id(1, coords)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func request_refresh(tile: Vector2i):
 	pass
 
 @rpc("authority", "call_local", "unreliable")
-func refresh_unit(unit_info: Array):
-	
-	var coords: Vector2i = unit_info[1]
-	if !unit_data.has(coords):
-		#Desync
-		request_refresh_map()
-		return
-	var unit_node = get_node(str(coords))
-	unit_data[coords].update_stats(unit_info)
-	var morale_bar = unit_node.get_node(str("MoraleBar"))
-	morale_bar.value = unit_info[4]
-	var manpower_label: RichTextLabel = get_node(str(coords)).get_node("Manpower_Label")
-	manpower_label.text = "[center]" + str(unit_info[3]) + "[/center]"
+func refresh_normal_unit(info_array: Array):
+	var coords = info_array[1]
+	var node = get_node(str(coords))
+	refresh_unit(info_array, node)
+
+@rpc("authority", "call_local", "unreliable")
+func refresh_extra_unit(info_array: Array):
+	var coords = info_array[1]
+	var node = get_node(str(coords) + "extra")
+	refresh_unit(info_array, node)
+
+func refresh_unit(info_array: Array, node):
+	var coords = info_array[1]
+	if selected_unit != null and coords == selected_unit.get_location():
+		map.update_info_window(info_array)
+	var morale_bar: ProgressBar = node.get_node("MoraleBar")
+	morale_bar.value = info_array[4]
+	var manpower_label: RichTextLabel = node.get_node("Manpower_Label")
+	manpower_label.text = "[center]" + str(info_array[3]) + "[/center]"
 
 func get_unit_client_array(coords: Vector2i) -> Array:
 	if unit_data.has(coords):
@@ -82,7 +88,7 @@ func create_label(coords: Vector2i, text: String):
 	node.add_child(label)
 	node.name = str(coords)
 	label.text = text
-	move_label(coords, coords)
+	move_label_to_normal(coords, coords)
 	label.position = Vector2(-label.size.x / 2, label.size.y)
 	var morale_bar = create_morale_bar(label.size)
 	node.add_child(morale_bar)
@@ -114,58 +120,147 @@ func create_manpower_label(size: Vector2) -> RichTextLabel:
 	return manpower_label
 
 @rpc("authority", "call_local", "unreliable")
-func move_unit(coords: Vector2i, move_to: Vector2i):
-	var soldier_atlas = get_cell_atlas_coords(coords)
-	if !unit_data.has(coords):
-		#Desync
-		request_refresh_map()
-		return
-	if coords != move_to:
-		unit_data[move_to] = unit_data[coords]
-		unit_data.erase(coords)
-	erase_cell(coords)
-	set_cell(move_to, 0, soldier_atlas)
-	move_label(coords, move_to)
-	if selected_coords == coords:
-		selected_coords = move_to
-	if unit_data[move_to].get_destination() == null or unit_data[move_to].get_destination() == move_to:
+func move_unit_to_regular(coords: Vector2i, move_to: Vector2i):
+	var unit: base_unit = unit_data[coords]
+	normal_move(coords)
+	normal_arrival(unit, move_to)
+	move_label_to_normal(coords, move_to)
+	if unit.get_destination() == null:
 		map.clear_highlights()
+	check_extra(coords)
+
+@rpc("authority", "call_local", "unreliable")
+func move_unit_to_extra(coords: Vector2i, move_to: Vector2i):
+	var unit: base_unit = unit_data[coords]
+	normal_move(coords)
+	extra_arrival(unit, move_to)
+	move_label_to_extra(coords, move_to)
+	if unit.get_destination() == null:
+		map.clear_highlights()
+	check_extra(coords)
+
+@rpc("authority", "call_local", "unreliable")
+func move_extra_unit_to_regular(coords: Vector2i, move_to: Vector2i):
+	var unit: base_unit = extra_unit_data[coords]
+	extra_move(coords)
+	normal_arrival(unit, move_to)
+	move_extra_label_to_normal(coords, move_to)
+	if unit.get_destination() == null:
+		map.clear_highlights()
+
+@rpc("authority", "call_local", "unreliable")
+func move_extra_unit_to_extra(coords: Vector2i, move_to: Vector2i):
+	var unit: base_unit = extra_unit_data[coords]
+	extra_move(coords)
+	extra_arrival(unit, move_to)
+	move_extra_label_to_extra(coords, move_to)
+	if unit.get_destination() == null:
+		map.clear_highlights()
+
+func normal_move(coords: Vector2i):
+	erase_cell(coords)
+	unit_data.erase(coords)
+
+func extra_move(coords: Vector2i):
+	extra_unit_data.erase(coords)
+
+func normal_arrival(unit: base_unit, move_to: Vector2i):
+	var unit_atlas = unit.get_atlas_coord()
+	unit.set_location(move_to)
+	set_cell(move_to, 0, unit_atlas)
+	unit_data[move_to] = unit
+
+func extra_arrival(unit: base_unit, move_to: Vector2i):
+	unit.set_location(move_to)
+	extra_unit_data[move_to] = unit
+
+func check_extra(coords: Vector2i):
+	if !unit_data.has(coords) and extra_unit_data.has(coords):
+		var unit = extra_unit_data[coords]
+		extra_move(coords)
+		normal_arrival(unit, coords)
+		move_extra_label_to_normal(coords, coords)
+
+func move_label_to_normal(coords: Vector2i, move_to: Vector2i):
+	var node = get_node(str(coords))
+	node.name = str(move_to)
+	node.position = map_to_local(move_to)
+
+func move_label_to_extra(coords: Vector2i, move_to: Vector2i):
+	var node = get_node(str(coords))
+	node.name = str(move_to) + "extra"
+	node.position = map_to_local(move_to)
+	node.position.y += 50
+
+func move_extra_label_to_normal(coords: Vector2i, move_to: Vector2i):
+	var node = get_node(str(coords) + "extra")
+	node.name = str(move_to)
+	node.position = map_to_local(move_to)
+
+func move_extra_label_to_extra(coords: Vector2i, move_to: Vector2i):
+	var node = get_node(str(coords) + "extra")
+	node.name = str(move_to) + "extra"
+	node.position = map_to_local(move_to)
+	node.position.y += 50
 
 func select_unit(coords: Vector2i, player_id: int):
 	unhightlight_name()
-	selected_coords = coords
-	highlight_selected_dest()
-	if selected_unit_exists_and_owned(player_id):
-		state_machine.click_unit()
+	if selected_unit != null and selected_unit.get_location() == coords:
+		cycle_unit_selection(coords)
 		$select_unit_sound.play(0.5)
-		highlight_name()
+		state_machine.click_unit()
+	elif unit_is_owned(coords):
+		selected_unit = unit_data[coords]
+		var soldier_atlas = get_cell_atlas_coords(coords)
+		if soldier_atlas != Vector2i(-1, -1):
+			$select_unit_sound.play(0.5)
+			state_machine.click_unit()
+	else:
+		selected_unit = null
+		map.close_unit_box()
+	if selected_unit != null:
+		highlight_dest()
+	highlight_name()
+
+func cycle_unit_selection(coords: Vector2i):
+	if selected_unit != null and selected_unit.get_location() == coords:
+		if unit_is_bottom(selected_unit):
+			selected_unit = unit_data[coords]
+		else:
+			selected_unit = extra_unit_data[coords]
+
+func unit_is_bottom(unit: base_unit) -> bool:
+	if unit != null:
+		var coords = unit.get_location()
+		return extra_unit_data.has(coords) and extra_unit_data[coords] == unit
+	return false
 
 func highlight_name():
-	if has_node(str(selected_coords)) and unit_is_owned(selected_coords):
-		var node = get_node(str(selected_coords))
-		var unit_name: Label = node.get_node("Label")
-		unit_name.add_theme_color_override("font_color", Color(1, 0, 0, 1))
+	apply_color_to_selected_unit(Color(1, 0, 0, 1))
 
 func unhightlight_name():
-	if has_node(str(selected_coords)):
-		var node = get_node(str(selected_coords))
+	apply_color_to_selected_unit(Color(1, 1, 1, 1))
+
+func apply_color_to_selected_unit(color: Color):
+	if selected_unit == null:
+		return
+	var coords = selected_unit.get_location()
+	var node = get_node(str(coords))
+	if unit_is_bottom(selected_unit):
+		node = get_node(str(coords) + "extra")
+	if unit_is_owned(coords):
 		var unit_name: Label = node.get_node("Label")
-		unit_name.add_theme_color_override("font_color", Color(1, 1, 1, 1))
+		unit_name.add_theme_color_override("font_color", color)
 
-func highlight_dest(destination):
-	if unit_data.has(selected_coords):
-		if destination != null and unit_is_owned(selected_coords):
-			map.highlight_cell(destination)
-		else:
-			map.clear_highlights()
-	else:
-		map.clear_highlights()
+func highlight_cell(coords: Vector2i):
+	map.highlight_cell(coords)
 
-func highlight_selected_dest():
-	if unit_data.has(selected_coords):
-		var unit = unit_data[selected_coords]
-		if unit.get_destination() != null and unit_is_owned(selected_coords):
-			map.highlight_cell(unit.get_destination())
+
+func highlight_dest():
+	if selected_unit != null:
+		var coords = selected_unit.get_location()
+		if selected_unit.get_destination() != null and unit_is_owned(coords):
+			map.highlight_cell(selected_unit.get_destination())
 		else:
 			map.clear_highlights()
 	else:
@@ -175,32 +270,59 @@ func unit_is_owned(coords: Vector2i) -> bool:
 	return unit_data.has(coords) and unit_data[coords].get_player_id() == multiplayer.get_unique_id()
 
 func selected_unit_exists_and_owned(unique_id: int) -> bool:
-	return unit_data.has(selected_coords) and unit_data[selected_coords].get_player_id() == unique_id
+	return selected_unit != null and selected_unit.get_player_id() == unique_id
+
+#Moving Units
+func set_up_set_unit_route(unit: base_unit, move_to: Vector2i):
+	var coords = unit.get_location()
+	if unit == null:
+		return
+	elif unit_is_bottom(unit):
+		set_selected_unit_route.rpc_id(1, coords, true, move_to)
+		set_selected_unit_route(coords, true, move_to)
+	else:
+		set_selected_unit_route.rpc_id(1, coords, false, move_to)
+		set_selected_unit_route(coords, false, move_to)
 
 @rpc("any_peer", "call_local", "unreliable")
-func set_selected_unit_route(_coords: Vector2i, move_to: Vector2i):
+func set_selected_unit_route(_coords: Vector2i, _extra: bool, move_to: Vector2i):
 	$dest_sound.play(0.3)
-	highlight_dest(move_to)
-
-func get_selected_coords() -> Vector2i:
-	return selected_coords
-
-func is_unit_double_clicked(coords: Vector2i, unique_id: int):
-	return selected_coords == coords and selected_unit_exists_and_owned(unique_id)
-
-func move_label(coords: Vector2i, move_to: Vector2i):
-	var node = get_node(str(coords))
-	node.name = str(move_to)
-	node.position = map_to_local(move_to)
+	highlight_cell(move_to)
 
 @rpc("authority", "call_local", "unreliable")
-func kill_unit(coords: Vector2i):
-	if get_cell_atlas_coords(coords) == Vector2i(-1, -1):
-		return
-	erase_cell(coords)
+func set_normal_unit_route(coords: Vector2i, move_to: Vector2i):
+	if unit_data.has(coords) and unit_data[coords].get_player_id() == multiplayer.get_remote_sender_id():
+		var unit: base_unit = unit_data[coords]
+		request_refresh.rpc_id(1, coords)
+
+@rpc("authority", "call_local", "unreliable")
+func set_extra_unit_route(coords: Vector2i, move_to: Vector2i):
+	if extra_unit_data.has(coords) and extra_unit_data[coords].get_player_id() == multiplayer.get_remote_sender_id():
+		var unit: base_unit = extra_unit_data[coords]
+		request_refresh.rpc_id(1, coords)
+
+func get_selected_coords() -> Vector2i:
+	return selected_unit.get_location()
+
+func is_unit_double_clicked(coords: Vector2i, unique_id: int):
+	return get_selected_coords() == coords and selected_unit_exists_and_owned(unique_id)
+
+@rpc("authority", "call_local", "unreliable")
+func kill_normal_unit(coords: Vector2i):
+	var node: Control = get_node(str(coords))
 	unit_data[coords].queue_free()
 	unit_data.erase(coords)
-	var node = get_node(str(coords))
+	clean_up_node(node)
+	erase_cell(coords)
+
+@rpc("authority", "call_local", "unreliable")
+func kill_extra_unit(coords: Vector2i):
+	var node: Control = get_node(str(coords) + "extra")
+	extra_unit_data[coords].queue_free()
+	extra_unit_data.erase(coords)
+	clean_up_node(node)
+
+func clean_up_node(node):
 	for child in node.get_children():
 		child.queue_free()
 	node.queue_free()

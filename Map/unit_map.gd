@@ -21,7 +21,7 @@ func _ready():
 func _input(event):
 	if event.is_action_pressed("deselect"):
 		if state_machine.is_selecting_unit():
-			set_selected_unit_route(selected_unit, map.get_cell_position())
+			set_up_set_unit_route(selected_unit, map.get_cell_position())
 			map.update_info_window(get_unit_client_array(get_selected_coords()))
 
 func assign_state_machine(new_state_machine):
@@ -34,7 +34,7 @@ func send_data_to_clients():
 func request_refresh_map():
 	map.refresh_unit_map.rpc_id(multiplayer.get_remote_sender_id(), get_used_cells_dictionary())
 
-@rpc("authority", "call_remote", "unreliable")
+@rpc("authority", "call_remote", "reliable")
 func refresh_map(_visible_tiles: Array, _unit_atlas: Dictionary):
 	pass
 
@@ -42,7 +42,30 @@ func refresh_map(_visible_tiles: Array, _unit_atlas: Dictionary):
 func request_refresh(tile: Vector2i):
 	var sender_id = multiplayer.get_remote_sender_id()
 	if unit_data.has(tile):
-		refresh_unit.rpc_id(sender_id, unit_data[tile].convert_to_client_array())
+		refresh_normal_unit.rpc_id(sender_id, unit_data[tile].convert_to_client_array())
+	if extra_unit_data.has(tile):
+		refresh_extra_unit.rpc_id(sender_id, extra_unit_data[tile].convert_to_client_array())
+
+@rpc("authority", "call_local", "unreliable")
+func refresh_normal_unit(info_array: Array):
+	var coords = info_array[1]
+	var node = get_node(str(coords))
+	refresh_unit(info_array, node)
+
+@rpc("authority", "call_local", "unreliable")
+func refresh_extra_unit(info_array: Array):
+	var coords = info_array[1]
+	var node = get_node(str(coords) + "extra")
+	refresh_unit(info_array, node)
+
+func refresh_unit(info_array: Array, node):
+	var coords = info_array[1]
+	if selected_unit != null and coords == selected_unit.get_location():
+		map.update_info_window(info_array)
+	var morale_bar: ProgressBar = node.get_node("MoraleBar")
+	morale_bar.value = info_array[4]
+	var manpower_label: RichTextLabel = node.get_node("Manpower_Label")
+	manpower_label.text = "[center]" + str(info_array[3]) + "[/center]"
 
 func get_used_cells_dictionary() -> Dictionary:
 	var toReturn: Dictionary = {}
@@ -122,32 +145,48 @@ func create_manpower_label(size: Vector2) -> RichTextLabel:
 	return manpower_label
 
 #Moving Units
-func set_selected_unit_route(unit: base_unit, move_to: Vector2i):
-	if unit != null:
-		var coords = unit.get_location()
+func set_up_set_unit_route(unit: base_unit, move_to: Vector2i):
+	var coords = unit.get_location()
+	if unit == null:
+		return
+	elif unit_is_bottom(unit):
+		set_selected_unit_route(coords, true, move_to)
+	else:
+		set_selected_unit_route(coords, false, move_to)
+
+@rpc("any_peer", "call_local", "unreliable")
+func set_selected_unit_route(coords: Vector2i, extra: bool, move_to: Vector2i):
+	var id = multiplayer.get_remote_sender_id()
+	var unit: base_unit = null
+	if unit_data.has(coords):
+		unit = unit_data[coords]
+		if extra:
+			unit = extra_unit_data[coords]
+	if unit != null and unit.get_player_id() == id:
 		if !unit_is_bottom(unit):
 			set_normal_unit_route.rpc(coords, move_to)
 		elif extra_unit_data[coords] == unit:
 			set_extra_unit_route.rpc(coords, move_to)
 
-@rpc("any_peer", "call_local", "unreliable")
+@rpc("authority", "call_local", "unreliable")
 func set_normal_unit_route(coords: Vector2i, move_to: Vector2i):
-	if unit_data.has(coords) and unit_data[coords].get_player_id() == multiplayer.get_remote_sender_id():
+	if unit_data.has(coords):
 		var unit: base_unit = unit_data[coords]
 		set_unit_route(unit, move_to)
+		refresh_normal_unit.rpc(unit.convert_to_client_array())
 
-@rpc("any_peer", "call_local", "unreliable")
+@rpc("authority", "call_local", "unreliable")
 func set_extra_unit_route(coords: Vector2i, move_to: Vector2i):
-	if extra_unit_data.has(coords) and extra_unit_data[coords].get_player_id() == multiplayer.get_remote_sender_id():
+	if extra_unit_data.has(coords):
 		var unit: base_unit = extra_unit_data[coords]
 		set_unit_route(unit, move_to)
+		refresh_extra_unit.rpc(unit.convert_to_client_array())
 
 func set_unit_route(unit: base_unit, move_to: Vector2i):
 	unit.set_route(dfs_to_destination(unit.get_location(), move_to))
 	if unit.get_player_id() == multiplayer.get_unique_id():
 		$dest_sound.play(0.3)
 		highlight_dest()
-	refresh_extra_unit.rpc_id(multiplayer.get_remote_sender_id(), unit.convert_to_client_array())
 
 func get_selected_coords() -> Vector2i:
 	return selected_unit.get_location()
@@ -180,6 +219,7 @@ func move_unit_to_regular(coords: Vector2i, move_to: Vector2i):
 	move_label_to_normal(coords, move_to)
 	if unit.get_destination() == null:
 		map.clear_highlights()
+	check_extra(coords)
 
 @rpc("authority", "call_local", "unreliable")
 func move_unit_to_extra(coords: Vector2i, move_to: Vector2i):
@@ -189,7 +229,7 @@ func move_unit_to_extra(coords: Vector2i, move_to: Vector2i):
 	move_label_to_extra(coords, move_to)
 	if unit.get_destination() == null:
 		map.clear_highlights()
-	
+	check_extra(coords)
 
 @rpc("authority", "call_local", "unreliable")
 func move_extra_unit_to_regular(coords: Vector2i, move_to: Vector2i):
@@ -212,7 +252,6 @@ func move_extra_unit_to_extra(coords: Vector2i, move_to: Vector2i):
 func normal_move(coords: Vector2i):
 	erase_cell(coords)
 	unit_data.erase(coords)
-	check_extra(coords)
 
 func extra_move(coords: Vector2i):
 	extra_unit_data.erase(coords)
@@ -227,7 +266,6 @@ func extra_arrival(unit: base_unit, move_to: Vector2i):
 	unit.set_location(move_to)
 	extra_unit_data[move_to] = unit
 
-@rpc("authority", "call_local", "unreliable")
 func check_extra(coords: Vector2i):
 	if !unit_data.has(coords) and extra_unit_data.has(coords):
 		var unit = extra_unit_data[coords]
@@ -323,7 +361,6 @@ func unit_battle(attacker: base_unit, defender: base_unit):
 		units_to_retreat.append(attacker)
 
 #Selecting Units
-
 func get_selected_unit() -> base_unit:
 	return selected_unit
 
@@ -440,27 +477,6 @@ func get_unit_client_array(coords: Vector2i) -> Array:
 	if unit_data.has(coords):
 		return unit_data[coords].convert_to_client_array()
 	return []
-
-@rpc("authority", "call_local", "unreliable")
-func refresh_normal_unit(info_array: Array):
-	var coords = info_array[1]
-	var node = get_node(str(coords))
-	refresh_unit(info_array, node)
-
-@rpc("authority", "call_local", "unreliable")
-func refresh_extra_unit(info_array: Array):
-	var coords = info_array[1]
-	var node = get_node(str(coords) + "extra")
-	refresh_unit(info_array, node)
-
-func refresh_unit(info_array: Array, node):
-	var coords = info_array[1]
-	if selected_unit != null and coords == selected_unit.get_location():
-		map.update_info_window(info_array)
-	var morale_bar: ProgressBar = node.get_node("MoraleBar")
-	morale_bar.value = info_array[4]
-	var manpower_label: RichTextLabel = node.get_node("Manpower_Label")
-	manpower_label.text = "[center]" + str(info_array[3]) + "[/center]"
 
 func clean_up_killed_units():
 	for unit in units_to_kill:
