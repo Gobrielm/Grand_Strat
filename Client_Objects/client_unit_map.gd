@@ -136,7 +136,7 @@ func select_unit(coords: Vector2i, player_id: int):
 	selected_coords = coords
 	highlight_selected_dest()
 	if selected_unit_exists_and_owned(player_id):
-		map.click_unit()
+		state_machine.click_unit()
 		$select_unit_sound.play(0.5)
 		highlight_name()
 

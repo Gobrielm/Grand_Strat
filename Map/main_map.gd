@@ -100,9 +100,6 @@ func assign_state_machine(new_state_machine):
 	unit_map.assign_state_machine(state_machine)
 	rail_placer.assign_state_machine(state_machine)
 
-func click_unit():
-	state_machine.click_unit()
-
 func start_building_units():
 	state_machine.start_building_units()
 
