@@ -29,7 +29,7 @@ const LOAD_TICK_AMOUNT = 1
 const train_car_scene = preload("res://Cargo/Cargo_Objects/train_car.tscn")
 
 @onready var map: TileMapLayer = get_parent()
-@onready var window: Window = $Window
+@onready var window: Window = $Train_Window
 var cargo_controller
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -187,7 +187,7 @@ func add_stop(new_location: Vector2i):
 		stop_number = 0
 	stops.append(new_location)
 	stop_information[new_location] = get_stop_info(new_location)
-	var routes: ItemList = $Window/Routes
+	var routes: ItemList = $Train_Window/Routes
 	routes.add_item(str(new_location))
 	
 
@@ -202,7 +202,7 @@ func get_stop_info(location_to_check: Vector2i) -> int:
 func remove_stop(index: int):
 	stop_information.erase(stops[index])
 	stops.remove_at(index)
-	var routes: ItemList = $Window/Routes
+	var routes: ItemList = $Train_Window/Routes
 	routes.remove_item(index)
 	if stops.size() == 0:
 		stop_number = -1
@@ -323,9 +323,9 @@ func prep_update_cargo_gui():
 
 @rpc("authority", "unreliable", "call_local")
 func update_cargo_gui(names: Array, amounts: Array):
-	$Window/Goods.clear()
+	$Train_Window/Goods.clear()
 	for type in names.size():
-		$Window/Goods.add_item(names[type] + ", " + str(amounts[type]))
+		$Train_Window/Goods.add_item(names[type] + ", " + str(amounts[type]))
 
 func add_train_car():
 	cargo_hold.change_max_storage(0, TRAIN_CAR_SIZE)

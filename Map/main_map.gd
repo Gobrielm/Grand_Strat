@@ -70,6 +70,7 @@ func _ready():
 		add_child(cargo_controller)
 		create_cargo_index_to_name.rpc(cargo_controller.cargo_types)
 		$player_camera/CanvasLayer/Desync_Label.visible = true
+		map_node.assign_cargo_controller(cargo_controller)
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"

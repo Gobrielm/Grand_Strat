@@ -4,3 +4,8 @@
 
 [node name="cargo_controller" type="Node"]
 script = ExtResource("1_tcx2g")
+
+[node name="month_tick" type="Timer" parent="."]
+autostart = true
+
+[connection signal="timeout" from="month_tick" to="." method="_on_month_tick_timeout"]

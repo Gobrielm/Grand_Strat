@@ -1,13 +1,17 @@
 class_name factory extends fixed_hold
 
-var ticker: float = 0
-var inputs: Array[int]
-var outputs: Array[int]
+var inputs: Array
+var outputs: Array
+var max_batch_size: int
 
-func _init(new_location: Vector2i, new_inputs: Array[int], new_outputs: Array[int]):
+func _init(new_location: Vector2i, new_inputs: Array, new_outputs: Array):
 	super._init(new_location)
 	inputs = new_inputs
 	outputs = new_outputs
+	max_batch_size = 2
+	for index in inputs.size():
+		if index != 0:
+			add_accept(index)
 
 func deliver_cargo(type: int, amount: int) -> int:
 	add_cargo(type, amount)
@@ -31,8 +35,20 @@ func check_outputs() -> bool:
 	return true
 
 func create_recipe():
+	print(get_batch_size())
 	remove_inputs()
 	add_outputs()
+
+func get_batch_size() -> int:
+	var batch_size = max_batch_size
+	for index in inputs.size():
+		var amount = inputs[index]
+		batch_size = min(floor(amount % storage[index]), batch_size)
+	for index in outputs.size():
+		var amount = outputs[index]
+		batch_size = min(floor((max_amount - amount) % storage[index]), batch_size)
+	return batch_size
+	
 
 func remove_inputs():
 	for index in inputs.size():
@@ -47,9 +63,6 @@ func add_outputs():
 func get_price(_type: int, _amount: int) -> int:
 	return 0
 
-func process(delta):
-	ticker += delta
-	if ticker == 1:
-		if check_recipe():
-			create_recipe()
-		ticker = 0
+func month_tick():
+	if check_recipe():
+		create_recipe()

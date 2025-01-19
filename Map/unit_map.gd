@@ -150,9 +150,9 @@ func set_up_set_unit_route(unit: base_unit, move_to: Vector2i):
 	if unit == null:
 		return
 	elif unit_is_bottom(unit):
-		set_selected_unit_route(coords, true, move_to)
+		set_selected_unit_route.rpc_id(1, coords, true, move_to)
 	else:
-		set_selected_unit_route(coords, false, move_to)
+		set_selected_unit_route.rpc_id(1, coords, false, move_to)
 
 @rpc("any_peer", "call_local", "unreliable")
 func set_selected_unit_route(coords: Vector2i, extra: bool, move_to: Vector2i):
@@ -184,7 +184,7 @@ func set_extra_unit_route(coords: Vector2i, move_to: Vector2i):
 
 func set_unit_route(unit: base_unit, move_to: Vector2i):
 	unit.set_route(dfs_to_destination(unit.get_location(), move_to))
-	if unit.get_player_id() == multiplayer.get_unique_id():
+	if unit == selected_unit and unit.get_player_id() == multiplayer.get_unique_id():
 		$dest_sound.play(0.3)
 		highlight_dest()
 
@@ -509,16 +509,17 @@ func clean_up_node(node):
 func retreat_units():
 	for unit: base_unit in units_to_retreat:
 		var location = unit.get_location()
-		var destination = find_surrounding_open_tile(location)
+		var player_id = unit.get_player_id()
+		var destination = find_surrounding_open_tile(location, player_id)
 		if destination != location:
-			set_unit_route(unit, find_surrounding_open_tile(location))
+			set_unit_route(unit, destination)
 		else:
 			units_to_kill.append(unit)
 	units_to_retreat.clear()
 
-func find_surrounding_open_tile(coords: Vector2i) -> Vector2i:
+func find_surrounding_open_tile(coords: Vector2i, player_id) -> Vector2i:
 	for cell in map.get_surrounding_cells(coords):
-		if map.is_tile_traversable(cell) and (tile_has_no_unit(cell) or tile_has_no_extra_unit(cell)):
+		if map.is_tile_traversable(cell) and (tile_has_no_unit(cell) or tile_has_no_extra_unit(cell)) and !tile_has_enemy_unit(cell, player_id):
 			return cell
 	return coords
 

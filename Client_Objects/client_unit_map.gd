@@ -46,18 +46,21 @@ func request_refresh(tile: Vector2i):
 func refresh_normal_unit(info_array: Array):
 	var coords = info_array[1]
 	var node = get_node(str(coords))
-	refresh_unit(info_array, node)
+	var unit = unit_data[coords]
+	refresh_unit(info_array, unit, node)
 
 @rpc("authority", "call_local", "unreliable")
 func refresh_extra_unit(info_array: Array):
 	var coords = info_array[1]
 	var node = get_node(str(coords) + "extra")
-	refresh_unit(info_array, node)
+	var unit = extra_unit_data[coords]
+	refresh_unit(info_array, unit, node)
 
-func refresh_unit(info_array: Array, node):
+func refresh_unit(info_array: Array, unit: base_unit, node):
 	var coords = info_array[1]
 	if selected_unit != null and coords == selected_unit.get_location():
 		map.update_info_window(info_array)
+	unit.update_stats(info_array)
 	var morale_bar: ProgressBar = node.get_node("MoraleBar")
 	morale_bar.value = info_array[4]
 	var manpower_label: RichTextLabel = node.get_node("Manpower_Label")
@@ -75,7 +78,7 @@ func check_before_create(coords: Vector2i, type: int, player_id: int):
 @rpc("authority", "call_remote", "unreliable")
 func create_unit(coords: Vector2i, type: int, player_id: int):
 	set_cell(coords, 0, Vector2i(0, type))
-	unit_data[coords] = client_unit.new(coords, player_id)
+	unit_data[coords] = client_unit.new(coords, player_id, Vector2i(0, type))
 	var unit_class = unit_creator.get_unit_class(type)
 	create_label(coords, str(unit_class.toString()))
 	request_refresh.rpc_id(1, coords)
@@ -218,16 +221,14 @@ func select_unit(coords: Vector2i, player_id: int):
 	else:
 		selected_unit = null
 		map.close_unit_box()
-	if selected_unit != null:
-		highlight_dest()
+	highlight_dest()
 	highlight_name()
 
 func cycle_unit_selection(coords: Vector2i):
-	if selected_unit != null and selected_unit.get_location() == coords:
-		if unit_is_bottom(selected_unit):
-			selected_unit = unit_data[coords]
-		else:
-			selected_unit = extra_unit_data[coords]
+	if unit_is_bottom(selected_unit):
+		selected_unit = unit_data[coords]
+	else:
+		selected_unit = extra_unit_data[coords]
 
 func unit_is_bottom(unit: base_unit) -> bool:
 	if unit != null:
@@ -291,21 +292,22 @@ func set_selected_unit_route(_coords: Vector2i, _extra: bool, move_to: Vector2i)
 
 @rpc("authority", "call_local", "unreliable")
 func set_normal_unit_route(coords: Vector2i, move_to: Vector2i):
-	if unit_data.has(coords) and unit_data[coords].get_player_id() == multiplayer.get_remote_sender_id():
-		var unit: base_unit = unit_data[coords]
-		request_refresh.rpc_id(1, coords)
+	request_refresh.rpc_id(1, coords)
 
 @rpc("authority", "call_local", "unreliable")
 func set_extra_unit_route(coords: Vector2i, move_to: Vector2i):
-	if extra_unit_data.has(coords) and extra_unit_data[coords].get_player_id() == multiplayer.get_remote_sender_id():
-		var unit: base_unit = extra_unit_data[coords]
-		request_refresh.rpc_id(1, coords)
+	request_refresh.rpc_id(1, coords)
 
 func get_selected_coords() -> Vector2i:
 	return selected_unit.get_location()
 
 func is_unit_double_clicked(coords: Vector2i, unique_id: int):
-	return get_selected_coords() == coords and selected_unit_exists_and_owned(unique_id)
+	var toReturn = get_selected_coords() == coords and selected_unit_exists_and_owned(unique_id)
+	if toReturn:
+		request_refresh.rpc_id(1, coords)
+	if extra_unit_data.has(coords):
+		return false
+	return toReturn
 
 @rpc("authority", "call_local", "unreliable")
 func kill_normal_unit(coords: Vector2i):

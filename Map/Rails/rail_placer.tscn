@@ -30,44 +30,56 @@ texture_region_size = Vector2i(128, 128)
 [sub_resource type="TileSet" id="TileSet_68oqx"]
 tile_shape = 3
 tile_offset_axis = 1
-tile_size = Vector2i(128, 115)
+tile_size = Vector2i(127, 110)
 sources/0 = SubResource("TileSetAtlasSource_vcvju")
 
 [node name="Rail_Placer" type="Node2D"]
 script = ExtResource("1_ccjj1")
 
 [node name="Rail_Layer_0" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Layer_1" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Layer_2" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Layer_3" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Layer_4" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Layer_5" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Temp_Layer0" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Temp_Layer1" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Temp_Layer2" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Temp_Layer3" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Temp_Layer4" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")
 
 [node name="Rail_Temp_Layer5" type="TileMapLayer" parent="."]
+z_index = 1
 tile_set = SubResource("TileSet_68oqx")

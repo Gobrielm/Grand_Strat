@@ -13,22 +13,29 @@ func _process(delta):
 		if obj.has_method("process"):
 			obj.process(delta)
 
+func _on_month_tick_timeout():
+	for obj: terminal in cargo_map_terminals.values():
+		if obj.has_method("month_tick"):
+			obj.month_tick()
+
+
 func _ready():
 	map = get_parent()
 	tile_info = map.get_tile_data()
 	create_cargo_types()
-	create_cargo_sources()
+	#create_cargo_sources()
 
 func create_cargo_sources():
 	var cities = tile_info.get_cities()
 	for coords in cities:
-		create_terminal(coords, town.new(coords, cities[coords][1]))
+		create_terminal(town.new(coords, cities[coords][1]))
 
 func create_station(coords: Vector2i, new_owner: int):
 	var new_station = station.new(coords, new_owner)
-	create_terminal(coords, new_station)
+	create_terminal(new_station)
 	
-func create_terminal(coords: Vector2i, new_terminal: terminal):
+func create_terminal(new_terminal: terminal):
+	var coords = new_terminal.get_location()
 	cargo_map_terminals[coords] = new_terminal
 	add_connected_terminals(coords, new_terminal)
 
@@ -51,7 +58,7 @@ func get_terminal(coords: Vector2i):
 
 @rpc("authority", "call_local", "reliable")
 func create_cargo_types():
-	cargo_types.insert(0, "passengers")
+	cargo_types.insert(0, "wood")
 	cargo_types.insert(1, "lumber")
 	cargo_types.insert(2, "iron")
 	cargo_types.insert(3, "steel")
@@ -68,6 +75,11 @@ func create_cargo_types():
 	cargo_types.insert(14, "spices")
 	cargo_types.insert(15, "porcelain")
 	cargo_types.insert(16, "salt")
+	cargo_types.insert(17, "sulfur")
+	cargo_types.insert(18, "lead")
+	cargo_types.insert(19, "leather")
+	cargo_types.insert(20, "meat")
+	terminal.set_number_of_goods(cargo_types.size())
 
 func get_cargo_name(index: int) -> String:
 	return cargo_types[index]

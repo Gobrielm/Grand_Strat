@@ -1,6 +1,9 @@
 class_name terminal extends Node
 
-const NUMBER_OF_GOODS = 17
+static var NUMBER_OF_GOODS = 0
+
+static func set_number_of_goods(new_number):
+	NUMBER_OF_GOODS = new_number
 
 var location: Vector2i
 var player_owner: int

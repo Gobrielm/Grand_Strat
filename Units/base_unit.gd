@@ -183,5 +183,9 @@ var combat_arm: int
 #The actual type line infantry, mechanized infantry, ect. the x atlas
 var specific_type: int
 
+func set_atlas_coord(atlas_coords: Vector2i):
+	specific_type = atlas_coords.x
+	combat_arm = atlas_coords.y
+
 func get_atlas_coord() -> Vector2i:
 	return Vector2i(specific_type, combat_arm)

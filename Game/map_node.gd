@@ -6,12 +6,23 @@ extends Node
 @onready var hold_window = $main_map/hold_window
 @onready var depot_window = $main_map/depot_window
 @onready var unit_creator_window = $main_map/unit_creator_window
+@onready var cargo_map = $cargo_map
+
+var cargo_controller
 var state_machine
 var unique_id
 
+
 func _ready():
 	unique_id = multiplayer.get_unique_id()
-	if unique_id != 1:
+	if unique_id == 1:
+		if cargo_controller != null:
+			cargo_map.assign_cargo_controller(cargo_controller)
+	else:
+		remove_child(cargo_map)
+		cargo_map.queue_free()
+		cargo_map = load("res://Client_Objects/client_cargo_map.tscn").instantiate() 
+		add_child(cargo_map)
 		remove_child(tile_ownership)
 		tile_ownership.queue_free()
 		tile_ownership = load("res://Client_Objects/client_tile_ownership.tscn").instantiate()
@@ -56,6 +67,11 @@ func _input(event):
 		main_map.create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
 		unit_creator_window.popup()
+
+func assign_cargo_controller(new_cargo_controller):
+	cargo_controller = new_cargo_controller
+	if cargo_map != null:
+		cargo_map.assign_cargo_controller(cargo_controller)
 
 #Tile_Ownership
 func toggle_ownership_view():
