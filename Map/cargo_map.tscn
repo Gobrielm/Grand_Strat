@@ -5,9 +5,8 @@
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c5pk0"]
 texture = ExtResource("1_innrs")
-margins = Vector2i(0, 64)
-separation = Vector2i(0, 64)
-texture_region_size = Vector2i(128, 128)
+margins = Vector2i(0, 34)
+texture_region_size = Vector2i(128, 192)
 0:0/0 = 0
 1:0/0 = 0
 
@@ -18,5 +17,7 @@ tile_size = Vector2i(127, 110)
 sources/0 = SubResource("TileSetAtlasSource_c5pk0")
 
 [node name="cargo_map" type="TileMapLayer"]
+z_as_relative = false
+y_sort_enabled = true
 tile_set = SubResource("TileSet_toufl")
 script = ExtResource("2_nrxwi")

@@ -17,15 +17,5 @@ func update_location(new_location: Vector2i):
 func get_player_owner() -> int:
 	return player_owner
 
-func calculate_reward(cargo_array: Array) -> int:
-	var type = cargo_array[0]
-	var amount = cargo_array[1]
-	var dist = cargo_array[2]
-	var time = cargo_array[3]
-	#Piecewise
-	if time < 5:
-		return round(sqrt(5) * amount * sqrt(dist))
-	elif time < 30:
-		return round(5 * amount * sqrt(dist) / sqrt(time))
-	else:
-		return round(5 * amount * sqrt(dist) / sqrt(30))
+func calculate_reward(type: int, amount: int) -> int:
+	return 0

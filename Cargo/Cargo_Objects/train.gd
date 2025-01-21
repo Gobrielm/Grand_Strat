@@ -10,7 +10,7 @@ var train_car
 var near_stop: bool = false
 var acceleration_direction: Vector2
 var velocity: Vector2
-var cargo_hold: train_hold = train_hold.new(location)
+var cargo_hold: hold = hold.new(location)
 var loading: bool = false
 var unloading: bool = false
 var ticker: float = 0
@@ -257,7 +257,7 @@ func interact_stations():
 	load_train()
 
 func load_train():
-	if loading and map.is_location_hold(location) and ticker > 1:
+	if loading and map.is_hold(location) and ticker > 1:
 		load_tick()
 		prep_update_cargo_gui()
 		if cargo_hold.is_full():
@@ -286,7 +286,6 @@ func hold_is_empty(toCheck: Dictionary):
 func done_loading():
 	loading = false
 	start_train()
-	cargo_hold.finalize_cargo_collections()
 
 func unload_train():
 	var obj: terminal = map.get_depot_or_terminal(location)
@@ -307,24 +306,22 @@ func unload_tick(obj: station):
 		if accepts[type]:
 			var amount_desired = obj.get_desired_cargo(type)
 			var amount_to_transfer = min(amount_desired, LOAD_TICK_AMOUNT - amount_unloaded)
-			var cargo_array = cargo_hold.transfer_cargo(type, amount_to_transfer)
-			var cash = obj.deliver_cargo(cargo_array)
-			map.add_money_to_player(player_owner, cash)
-			amount_unloaded += cargo_array[1]
+			var amount = cargo_hold.transfer_cargo(type, amount_to_transfer)
+			amount_unloaded += amount
 		if amount_unloaded == LOAD_TICK_AMOUNT:
 			return
 	if amount_unloaded < LOAD_TICK_AMOUNT:
 		done_unloading()
 
 func prep_update_cargo_gui():
-	var cargo_array: Array[int] = cargo_hold.get_cargo_total_for_each_type()
-	var cargo_names: Array = cargo_controller.get_cargo_array()
+	var cargo_names: Dictionary = cargo_controller.get_cargo_dict()
+	var cargo_array: Dictionary = cargo_hold.get_current_hold()
 	update_cargo_gui.rpc(cargo_names, cargo_array)
 
 @rpc("authority", "unreliable", "call_local")
-func update_cargo_gui(names: Array, amounts: Array):
+func update_cargo_gui(names: Dictionary, amounts: Dictionary):
 	$Train_Window/Goods.clear()
-	for type in names.size():
+	for type in amounts:
 		$Train_Window/Goods.add_item(names[type] + ", " + str(amounts[type]))
 
 func add_train_car():

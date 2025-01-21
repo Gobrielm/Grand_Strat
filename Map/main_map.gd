@@ -16,11 +16,11 @@ var unique_id
 var tile_info
 var cargo_controller
 var unit_map
-var money_controller
+var money_interface
 var state_machine
 var untraversable_tiles = {}
 var visible_tiles = []
-var cargo_index_to_name = []
+var cargo_index_to_name = {}
 
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
@@ -54,7 +54,7 @@ func _ready():
 	unique_id = multiplayer.get_unique_id()
 	if unique_id == 1:
 		create_untraversable_tiles()
-		money_controller = load("res://Player/money_controller.gd").new(multiplayer.get_peers(), self)
+		money_interface = money_controller.new(multiplayer.get_peers(), self)
 		for peer in multiplayer.get_peers():
 			heart_beat[peer] = 0
 			update_money_label.rpc_id(peer, get_money(peer))
@@ -81,10 +81,10 @@ func _ready():
 
 #Constants
 @rpc("authority", "call_local", "reliable")
-func create_cargo_index_to_name(array: Array):
-	cargo_index_to_name = array
+func create_cargo_index_to_name(dict: Dictionary):
+	cargo_index_to_name = dict
 
-func get_cargo_index_to_name() -> Array:
+func get_cargo_index_to_name() -> Dictionary:
 	return cargo_index_to_name
 
 @rpc("authority", "call_remote", "reliable")
@@ -176,8 +176,8 @@ func get_depot_direction(coords: Vector2i) -> int:
 	return rail_placer.get_depot_direction(coords)
 
 #Cargo
-func get_cargo_array() -> Array:
-	return cargo_controller.get_cargo_array()
+func get_cargo_array() -> Dictionary:
+	return cargo_controller.get_cargo_dict()
 
 func is_depot(coords: Vector2i) -> bool:
 	return tile_info.is_depot(coords)
@@ -346,19 +346,19 @@ func clear_highlights():
 
 #Money Stuff
 func add_money_to_player(id: int, amount: int):
-	money_controller.add_money_to_player(id, amount)
+	money_interface.add_money_to_player(id, amount)
 
 func remove_money(id: int, amount: int):
-	money_controller.add_money_to_player(id, -amount)
+	money_interface.add_money_to_player(id, -amount)
 
 func player_has_enough_money(id: int, amount: int) -> bool:
 	return get_money(id) >= amount
 
 func get_money(id: int) -> int:
-	return money_controller.get_money(id)
+	return money_interface.get_money(id)
 
 func get_money_of_all_players() -> Dictionary:
-	return money_controller.get_money_dictionary()
+	return money_interface.get_money_dictionary()
 
 @rpc("authority", "unreliable", "call_local")
 func update_money_label(amount: int):

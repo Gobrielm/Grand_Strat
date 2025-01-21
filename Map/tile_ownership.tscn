@@ -7,9 +7,8 @@
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tabeg"]
 texture = ExtResource("1_gly6g")
-margins = Vector2i(0, 70)
-separation = Vector2i(0, 64)
-texture_region_size = Vector2i(128, 128)
+margins = Vector2i(0, 38)
+texture_region_size = Vector2i(128, 192)
 1:0/0 = 0
 0:0/next_alternative_id = 4
 0:0/0 = 0

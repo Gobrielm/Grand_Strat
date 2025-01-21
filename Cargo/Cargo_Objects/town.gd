@@ -24,11 +24,12 @@ func does_accept(type: int) -> bool:
 func get_accepts() -> Array:
 	return town_sink.get_accepts()
 
-func deliver_cargo(cargo_array: Array):
-	var type = cargo_array[0]
-	var amount = cargo_array[1]
+func deliver_cargo(type: int, amount: int) -> int:
 	town_sink.deliver_cargo(type, amount)
-	return calculate_reward(cargo_array)
+	return calculate_reward(type, amount)
+
+func calculate_reward(type: int, amount: int) -> int:
+	return amount
 
 func add_terminal(coords: Vector2i, new_terminal):
 	town_source.add_terminal(coords, new_terminal)

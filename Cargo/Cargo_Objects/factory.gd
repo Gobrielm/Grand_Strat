@@ -15,6 +15,9 @@ func _init(new_location: Vector2i, new_inputs: Array, new_outputs: Array):
 
 func deliver_cargo(type: int, amount: int) -> int:
 	add_cargo(type, amount)
+	return calculate_reward(type, amount)
+
+func calculate_reward(type: int, amount: int) -> int:
 	return amount
 
 func check_recipe() -> bool:

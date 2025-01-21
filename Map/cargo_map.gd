@@ -18,7 +18,6 @@ func instance_building_from_coords(coords: Vector2i) -> terminal:
 	var building_name = cargo_buildings[atlas]
 	var loaded_script = load("res://Cargo/Cargo_Objects/Specific/" + building_name + ".gd")
 	if loaded_script == null:
-		print(building_name)
 		return null
 	return loaded_script.new(coords)
 

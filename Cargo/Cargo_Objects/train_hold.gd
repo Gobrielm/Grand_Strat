@@ -24,30 +24,20 @@ func add_cargo(type: int, amount: int) -> int:
 	collection.change_amount(amount_to_add)
 	return amount_to_add
 
-func transfer_cargo(type: int, amount: int) -> Array:
+func transfer_cargo(type: int, amount: int) -> int:
 	var collection_array: Array = storage[type]
 	var curr_amount = 0
-	var n = 0
-	var ave_dist = 0
-	var ave_time = 0
 	var index = 0
 	while !collection_array.is_empty() and curr_amount != amount and index < collection_array.size():
 		var collection: cargo_collection = collection_array[index]
 		if collection.get_origination() == location:
 			index += 1
 			continue
-		n += 1
-		ave_dist += collection.get_distance(location)
-		ave_time += collection.get_time()
 		var a = collection.transfer_amount(amount - curr_amount)
 		
 		clean_up_collection(type, index)
 		curr_amount += a
-	if n == 0:
-		return [type, 0, 0, 0]
-	ave_dist /= n
-	ave_time /= n
-	return [type, curr_amount, ave_dist, ave_time]
+	return curr_amount
 
 func transfer_all_cargo(type: int) -> int:
 	var collection_array: Array = storage[type]

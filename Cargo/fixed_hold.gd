@@ -16,6 +16,11 @@ func add_cargo(type: int, amount: int) -> int:
 		return amount_to_add
 	return 0
 
+func transfer_cargo(type: int, amount: int) -> int:
+	var new_amount = min(storage[type], amount)
+	storage[type] -= new_amount
+	return new_amount
+
 func get_desired_cargo(type: int) -> int:
 	if accepts[type]:
 		return max_amount - storage[type]

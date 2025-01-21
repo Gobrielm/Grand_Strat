@@ -12,25 +12,31 @@ func add_cargo(type: int, amount: int) -> int:
 	storage[type] += amount_to_add
 	return amount_to_add
 
-func get_desired_cargo(type: int) -> int:
-	for term in connected_terminals.values():
-		if can_take_type(type, term):
-			return term.get_desired_cargo(type)
-	return 0
-
 func can_take_type(type: int, term: terminal) -> bool:
 	if term is factory or term is apex_factory or term is town:
 		return term.does_accept(type)
 	return false
 
-func deliver_cargo(cargo_array: Array):
-	
+func deliver_cargo(type: int, amount: int):
+	add_cargo(type, amount)
+
+func distribute_cargo():
 	var cash = 0
-	for term in connected_terminals.values():
-		if (term is apex_factory or term is factory or term is town) and term.does_accept(cargo_array[0]):
-			cash += term.deliver_cargo(cargo_array)
+	for connected_terminal in connected_terminals:
+		cash += find_transfer_good(connected_terminal)
+	print(money_controller.get_money_dictionary())
+	money_controller.add_money_to_player(player_owner, cash)
+	#TODO: Cash calculation
+	#map.add_money_to_player(player_owner, cash)
+
+func find_transfer_good(connected_terminal: fixed_hold) -> int:
+	var cash = 0
+	for cargo in storage.size():
+		if storage[cargo] > 0 and connected_terminal.does_accept(cargo):
+			var amount = transfer_cargo(cargo, 1)
+			cash += connected_terminal.deliver_cargo(cargo, amount)
+			return cash
 	return cash
-			
 
 func add_connected_terminal(new_terminal: terminal):
 	connected_terminals[new_terminal.get_location()] = new_terminal

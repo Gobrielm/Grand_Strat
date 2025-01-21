@@ -40,8 +40,8 @@ func request_current_name(coords: Vector2i):
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_cargo(coords: Vector2i):
-	var array = map.get_cargo_array_at_location(coords)
-	update_current_cargo.rpc_id(multiplayer.get_remote_sender_id(), array)
+	var dict = map.get_cargo_array_at_location(coords)
+	update_current_cargo.rpc_id(multiplayer.get_remote_sender_id(), dict)
 
 @rpc("authority", "call_local", "unreliable")
 func update_current_cargo(new_current_cargo: Dictionary):

@@ -9,7 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://b02j10d0auchi" path="res://Gui/Icons/go_back.png" id="6_807ss"]
 
 [node name="Train" type="Sprite2D"]
-z_index = 1
+z_index = 2
 scale = Vector2(0.75, 0.75)
 texture = ExtResource("1_vh0y7")
 script = ExtResource("2_qvldk")

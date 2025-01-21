@@ -2,7 +2,7 @@ extends Node
 
 var serviced = {}
 var cargo_map_terminals = {} #Maps coords -> sink/source/hold
-var cargo_types = []
+var cargo_types = {}
 
 
 @onready var map: TileMapLayer
@@ -58,27 +58,27 @@ func get_terminal(coords: Vector2i):
 
 @rpc("authority", "call_local", "reliable")
 func create_cargo_types():
-	cargo_types.insert(0, "wood")
-	cargo_types.insert(1, "lumber")
-	cargo_types.insert(2, "iron")
-	cargo_types.insert(3, "steel")
-	cargo_types.insert(4, "stone")
-	cargo_types.insert(5, "grain")
-	cargo_types.insert(6, "livestock")
-	cargo_types.insert(7, "wine")
-	cargo_types.insert(8, "iron")
-	cargo_types.insert(9, "gold")
-	cargo_types.insert(10, "silver")
-	cargo_types.insert(11, "copper")
-	cargo_types.insert(12, "wool")
-	cargo_types.insert(13, "silk")
-	cargo_types.insert(14, "spices")
-	cargo_types.insert(15, "porcelain")
-	cargo_types.insert(16, "salt")
-	cargo_types.insert(17, "sulfur")
-	cargo_types.insert(18, "lead")
-	cargo_types.insert(19, "leather")
-	cargo_types.insert(20, "meat")
+	cargo_types[0] = "wood"
+	cargo_types[1] = "lumber"
+	cargo_types[2] = "iron"
+	cargo_types[3] = "steel"
+	cargo_types[4] = "stone"
+	cargo_types[5] = "grain"
+	cargo_types[6] = "livestock"
+	cargo_types[7] = "wine"
+	cargo_types[8] = "iron"
+	cargo_types[9] = "gold"
+	cargo_types[10] = "silver"
+	cargo_types[11] = "copper"
+	cargo_types[12] = "wool"
+	cargo_types[13] = "silk"
+	cargo_types[14] = "spices"
+	cargo_types[15] = "porcelain"
+	cargo_types[16] = "salt"
+	cargo_types[17] = "sulfur"
+	cargo_types[18] = "lead"
+	cargo_types[19] = "leather"
+	cargo_types[20] = "meat"
 	terminal.set_number_of_goods(cargo_types.size())
 
 func get_cargo_name(index: int) -> String:
@@ -87,5 +87,5 @@ func get_cargo_name(index: int) -> String:
 func get_cargo_array_at_location(coords: Vector2i) -> Array:
 	return get_terminal(coords).get_current_hold()
 
-func get_cargo_array():
+func get_cargo_dict() -> Dictionary:
 	return cargo_types

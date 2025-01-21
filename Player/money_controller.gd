@@ -1,7 +1,7 @@
-extends Node
+class_name money_controller extends Node
 
-var money = {}
-var map: TileMapLayer
+static var money = {}
+static var map: TileMapLayer
 
 func _init(peers: Array, new_map: TileMapLayer):
 	peers.append(1)
@@ -9,12 +9,12 @@ func _init(peers: Array, new_map: TileMapLayer):
 		money[peer] = 100000
 	map = new_map
 
-func add_money_to_player(id: int, amount: int):
+static func add_money_to_player(id: int, amount: int):
 	money[id] += amount
 	map.update_money_label.rpc_id(id, get_money(id))
 	
-func get_money(id: int) -> int:
+static func get_money(id: int) -> int:
 	return money[id]
 
-func get_money_dictionary() -> Dictionary:
+static func get_money_dictionary() -> Dictionary:
 	return money
