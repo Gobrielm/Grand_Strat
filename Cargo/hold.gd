@@ -17,6 +17,11 @@ func add_cargo(type: int, amount: int) -> int:
 func remove_cargo(type: int, amount: int):
 	storage[type] -= amount
 
+func transfer_cargo(type: int, amount: int) -> int:
+	var val = min(amount, storage[type])
+	remove_cargo(type, val)
+	return val
+
 func get_amount_to_add(_type: int, amount: int) -> int:
 	return min(max_amount - get_current_hold_total(), amount)
 

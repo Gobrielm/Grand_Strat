@@ -316,27 +316,35 @@ func dfs_to_destination(coords: Vector2i, destination: Vector2i) -> Array:
 	var visited = {}
 	var found = false
 	queue.add_item(0, coords)
+	visited[coords] = 0
 	while !queue.is_empty():
 		current = queue.pop_top()
 		if current == destination or found:
 			found = true
 			break
 		for tile in map.get_surrounding_cells(current):
-			if !visited.has(tile) and map.is_tile_traversable(tile) and next_location_is_available_general(tile):
-				queue.add_item(tile.distance_to(destination), tile)
-				visited[tile] = true
+			if map.get_cell_tile_data(tile) == null:
+				continue
+			var terrain = map.get_cell_tile_data(tile).terrain
+			var current_dist = visited[current] + (1 / base_unit.get_speed_mult(terrain))
+			if found_closer_route(visited, tile, current_dist) and map.is_tile_traversable(tile) and next_location_is_available_general(tile):
+				queue.add_item(current_dist, tile)
+				visited[tile] = current_dist
 				tile_to_prev[tile] = current
 			elif tile == destination:
-				if tile_has_enemy_unit(tile, player_id):
-					tile_to_prev[tile] = current
-					found = true
-					break
-				return create_route_from_tile_to_prev(coords, current, tile_to_prev)
+				tile_to_prev[tile] = current
+				found = true
+				break
 	if found:
 		return create_route_from_tile_to_prev(coords, destination, tile_to_prev)
 	else:
 		return []
-	
+
+func found_closer_route(visited: Dictionary, coords: Vector2i, current_dist: int) -> bool:
+	if !visited.has(coords):
+		return true
+	return visited[coords] > current_dist
+
 func create_route_from_tile_to_prev(start: Vector2i, destination: Vector2i, tile_to_prev: Dictionary) -> Array:
 	var current = destination
 	var route = []
@@ -438,7 +446,6 @@ func _process(delta):
 		unit.update_progress(delta)
 		var next_location = unit.get_next_location()
 		if next_location != location:
-			#TODO: Terrain check
 			var terrain = map.get_cell_tile_data(next_location).terrain
 			if unit.ready_to_move(100.0 / unit.get_speed() / unit.get_speed_mult(terrain)):
 				var next_next_location = unit.get_next_location(1)

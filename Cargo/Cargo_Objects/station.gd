@@ -26,8 +26,6 @@ func distribute_cargo():
 		cash += find_transfer_good(connected_terminal)
 	print(money_controller.get_money_dictionary())
 	money_controller.add_money_to_player(player_owner, cash)
-	#TODO: Cash calculation
-	#map.add_money_to_player(player_owner, cash)
 
 func find_transfer_good(connected_terminal: fixed_hold) -> int:
 	var cash = 0
@@ -73,4 +71,6 @@ func does_accept(type: int) -> bool:
 func reset_accepts_train():
 	for i in NUMBER_OF_GOODS:
 		accepts[i] = false
-	
+
+func month_tick():
+	distribute_cargo()

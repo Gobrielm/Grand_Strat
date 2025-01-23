@@ -307,6 +307,7 @@ func unload_tick(obj: station):
 			var amount_desired = obj.get_desired_cargo(type)
 			var amount_to_transfer = min(amount_desired, LOAD_TICK_AMOUNT - amount_unloaded)
 			var amount = cargo_hold.transfer_cargo(type, amount_to_transfer)
+			obj.deliver_cargo(type, amount)
 			amount_unloaded += amount
 		if amount_unloaded == LOAD_TICK_AMOUNT:
 			return
@@ -315,14 +316,15 @@ func unload_tick(obj: station):
 
 func prep_update_cargo_gui():
 	var cargo_names: Dictionary = cargo_controller.get_cargo_dict()
-	var cargo_array: Dictionary = cargo_hold.get_current_hold()
-	update_cargo_gui.rpc(cargo_names, cargo_array)
+	var cargo_dict: Dictionary = cargo_hold.get_current_hold()
+	update_cargo_gui.rpc(cargo_names, cargo_dict)
 
 @rpc("authority", "unreliable", "call_local")
 func update_cargo_gui(names: Dictionary, amounts: Dictionary):
 	$Train_Window/Goods.clear()
 	for type in amounts:
-		$Train_Window/Goods.add_item(names[type] + ", " + str(amounts[type]))
+		if amounts[type] != 0:
+			$Train_Window/Goods.add_item(names[type] + ", " + str(amounts[type]))
 
 func add_train_car():
 	cargo_hold.change_max_storage(0, TRAIN_CAR_SIZE)
