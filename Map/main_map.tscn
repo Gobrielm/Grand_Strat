@@ -76,10 +76,10 @@ script = ExtResource("3_oilk6")
 [node name="Rail_Placer" parent="." instance=ExtResource("6_4lcrx")]
 
 [node name="unit_creator_window" parent="." instance=ExtResource("9_k4rfp")]
-position = Vector2i(200, 64)
+position = Vector2i(200, 36)
 
 [node name="unit_info_window" parent="." instance=ExtResource("10_75rfn")]
-position = Vector2i(200, 64)
+position = Vector2i(200, 36)
 
 [node name="hold_window" parent="." instance=ExtResource("7_ixktq")]
 
