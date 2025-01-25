@@ -3,6 +3,7 @@ extends Node
 var serviced = {}
 var cargo_map_terminals = {} #Maps coords -> sink/source/hold
 var cargo_types = {}
+var base_prices = {}
 
 
 @onready var map: TileMapLayer
@@ -23,12 +24,7 @@ func _ready():
 	map = get_parent()
 	tile_info = map.get_tile_data()
 	create_cargo_types()
-	#create_cargo_sources()
-
-func create_cargo_sources():
-	var cities = tile_info.get_cities()
-	for coords in cities:
-		create_terminal(town.new(coords, cities[coords][1]))
+	create_base_prices()
 
 func create_station(coords: Vector2i, new_owner: int):
 	var new_station = station.new(coords, new_owner)
@@ -56,7 +52,6 @@ func get_terminal(coords: Vector2i):
 		return cargo_map_terminals[coords]
 	return null
 
-@rpc("authority", "call_local", "reliable")
 func create_cargo_types():
 	cargo_types[0] = "wood"
 	cargo_types[1] = "lumber"
@@ -79,7 +74,33 @@ func create_cargo_types():
 	cargo_types[18] = "lead"
 	cargo_types[19] = "leather"
 	cargo_types[20] = "meat"
-	terminal.set_number_of_goods(cargo_types.size())
+
+func create_base_prices():
+	base_prices[0] = 10
+	base_prices[1] = 10
+	base_prices[2] = 10
+	base_prices[3] = 10
+	base_prices[4] = 10
+	base_prices[5] = 10
+	base_prices[6] = 10
+	base_prices[7] = 10
+	base_prices[8] = 10
+	base_prices[9] = 10
+	base_prices[10] = 10
+	base_prices[11] = 10
+	base_prices[12] = 10
+	base_prices[13] = 10
+	base_prices[14] = 10
+	base_prices[15] = 10
+	base_prices[16] = 10
+	base_prices[17] = 10
+	base_prices[18] = 10
+	base_prices[19] = 10
+	base_prices[20] = 10
+	terminal.set_base_prices(base_prices)
+	local_price_controller.set_base_prices(base_prices)
+	assert(base_prices.size() == cargo_types.size())
+	
 
 func get_cargo_name(index: int) -> String:
 	return cargo_types[index]

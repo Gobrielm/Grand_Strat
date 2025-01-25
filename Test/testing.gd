@@ -5,6 +5,7 @@ var map: TileMapLayer
 func _init(new_map: TileMapLayer):
 	map = new_map
 	#test()
+	#test_local_price_controller()
 
 func test():
 	print("runtime_test         ✔️")
@@ -66,3 +67,14 @@ func train_algorithm_test():
 	train.start_train()
 	end = Time.get_ticks_msec()
 	print(str((end - start) / 1000) + " Seconds passed to pathfind")
+
+
+func test_local_price_controller():
+	var lumber_mill: factory = load("res://Cargo/Cargo_Objects/Specific/lumber_mill.gd").new(Vector2i(0, 0))
+	var price_controller: local_price_controller = local_price_controller.new(lumber_mill.get_accepts())
+	for i in 100:
+		price_controller.vary_prices(10, 13, 0)
+	for i in 100:
+		price_controller.vary_prices(10, 8, 0)
+	
+	

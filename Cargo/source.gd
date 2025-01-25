@@ -1,11 +1,7 @@
 class_name source extends terminal
 
-var production: Array
-var speed: int
-var count: float
+var production: Dictionary
 
-func _init(new_location: Vector2i, new_production: Array):
+func _init(new_location: Vector2i, new_production: Dictionary):
 	location = new_location
 	production = new_production
-	speed = 10
-	count = 0

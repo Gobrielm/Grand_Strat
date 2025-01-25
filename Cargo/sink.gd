@@ -1,12 +1,12 @@
 class_name sink extends terminal
 
-var accepts: Array
+var accepts: Dictionary
 
-func _init(new_location: Vector2i, new_accepts: Array):
+func _init(new_location: Vector2i, new_accepts: Dictionary):
 	location = new_location
 	accepts = new_accepts
 
-func get_accepts() -> Array:
+func get_accepts() -> Dictionary:
 	return accepts
 
 func does_accept(type: int) -> bool:

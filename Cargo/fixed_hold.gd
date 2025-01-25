@@ -1,20 +1,21 @@
 class_name fixed_hold extends hold
 
-var accepts: Array #Cargo the hold accepts
+var accepts: Dictionary #Cargo the hold accepts
 
 func _init(new_location: Vector2i):
 	super._init(new_location)
-	accepts = []
-	for i in NUMBER_OF_GOODS:
-		accepts.append(false)
+	accepts = {}
 
 #Return amount added
 func add_cargo(type: int, amount: int) -> int:
-	if accepts[type]:
+	if accepts.has(type):
 		var amount_to_add = min(max_amount - storage[type], amount)
 		storage[type] += amount_to_add
 		return amount_to_add
 	return 0
+
+func get_cargo_amount(type: int) -> int:
+	return storage[type]
 
 func transfer_cargo(type: int, amount: int) -> int:
 	var new_amount = min(storage[type], amount)
@@ -22,16 +23,21 @@ func transfer_cargo(type: int, amount: int) -> int:
 	return new_amount
 
 func get_desired_cargo(type: int) -> int:
-	if accepts[type]:
+	if accepts.has(type):
 		return max_amount - storage[type]
 	return 0
 
-func get_accepts() -> Array:
+func reset_accepts():
+	accepts = {}
+
+func get_accepts() -> Dictionary:
 	return accepts
+
 func add_accept(type: int):
 	accepts[type] = true
+
 func remove_accept(type: int):
-	accepts[type] = false
+	accepts.erase(type)
 
 func does_accept(type: int) -> bool:
-	return accepts[type]
+	return accepts.has(type)

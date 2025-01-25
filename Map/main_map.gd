@@ -63,7 +63,6 @@ func _ready():
 		add_child(unit_map)
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
-		testing = preload("res://Test/testing.gd").new(self)
 		tile_info = load("res://Map/tile_info.gd").new(self)
 		create_client_tile_info.rpc(tile_info.get_cities())
 		cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
@@ -71,6 +70,7 @@ func _ready():
 		create_cargo_index_to_name.rpc(cargo_controller.cargo_types)
 		$player_camera/CanvasLayer/Desync_Label.visible = true
 		map_node.assign_cargo_controller(cargo_controller)
+		testing = preload("res://Test/testing.gd").new(self)
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
 		unit_map.name = "unit_map"

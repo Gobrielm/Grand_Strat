@@ -9,12 +9,9 @@ func delete_terminal(coords: Vector2i):
 	connected_holds.erase(coords)
 
 func distribute_cargo():
-	for index in production.size():
+	for index: int in production:
 		var specific_production = production[index]
-		
-		if specific_production > 0:
-			
-			distribute_specific_type(index)
+		distribute_specific_type(index)
 
 func distribute_specific_type(type: int):
 	var recieving_holds = []
@@ -42,9 +39,6 @@ func distribute_specific_type(type: int):
 		size = recieving_holds.size()
 
 
-func process(delta):
-	count += delta
-	if count > speed:
-		if connected_holds.size() > 0:
-			distribute_cargo()
-		count = 0
+func month_tick():
+	if connected_holds.size() > 0:
+		distribute_cargo()

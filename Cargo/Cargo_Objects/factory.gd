@@ -1,24 +1,28 @@
 class_name factory extends fixed_hold
 
-var inputs: Array
-var outputs: Array
+var inputs: Dictionary
+var outputs: Dictionary
 var max_batch_size: int
+var local_pricer: local_price_controller
 
-func _init(new_location: Vector2i, new_inputs: Array, new_outputs: Array):
+func _init(new_location: Vector2i, new_inputs: Dictionary, new_outputs: Dictionary):
 	super._init(new_location)
 	inputs = new_inputs
+	for input in inputs:
+		add_accept(input)
 	outputs = new_outputs
 	max_batch_size = 2
-	for index in inputs.size():
-		if index != 0:
-			add_accept(index)
+	for type in inputs.size():
+		if inputs[type] != 0:
+			add_accept(type)
+	local_pricer = local_price_controller.new(accepts)
 
 func deliver_cargo(type: int, amount: int) -> int:
 	add_cargo(type, amount)
 	return calculate_reward(type, amount)
 
 func calculate_reward(type: int, amount: int) -> int:
-	return amount
+	return local_pricer.get_local_price(type) * amount
 
 func check_recipe() -> bool:
 	return check_inputs() and check_outputs()
@@ -67,5 +71,8 @@ func get_price(_type: int, _amount: int) -> int:
 	return 0
 
 func month_tick():
+	for type in accepts:
+		local_pricer.vary_prices(inputs[type] * max_batch_size, storage[type], type)
+	
 	if check_recipe():
 		create_recipe()

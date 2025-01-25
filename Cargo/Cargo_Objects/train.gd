@@ -301,14 +301,14 @@ func done_unloading():
 
 func unload_tick(obj: station):
 	var amount_unloaded = 0
-	var accepts: Array = obj.get_accepts()
-	for type in accepts.size():
-		if accepts[type]:
-			var amount_desired = obj.get_desired_cargo(type)
-			var amount_to_transfer = min(amount_desired, LOAD_TICK_AMOUNT - amount_unloaded)
-			var amount = cargo_hold.transfer_cargo(type, amount_to_transfer)
-			obj.deliver_cargo(type, amount)
-			amount_unloaded += amount
+	var accepts: Dictionary = obj.get_in_accepts()
+	for type in accepts:
+		var amount_desired = obj.get_desired_cargo(type)
+		var amount_to_transfer = min(amount_desired, LOAD_TICK_AMOUNT - amount_unloaded)
+		var amount = cargo_hold.transfer_cargo(type, amount_to_transfer)
+		obj.deliver_cargo(type, amount)
+		amount_unloaded += amount
+		
 		if amount_unloaded == LOAD_TICK_AMOUNT:
 			return
 	if amount_unloaded < LOAD_TICK_AMOUNT:
