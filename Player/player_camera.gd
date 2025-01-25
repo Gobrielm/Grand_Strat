@@ -78,7 +78,7 @@ func update_desync_label(amount: int):
 	$CanvasLayer/Desync_Label.text = str(amount)
 
 func _on_station_button_pressed():
-	state_machine.station_button_toggled()
+	state_machine.print_all()
 
 func _on_track_button_pressed():
 	state_machine.many_track_button_toggled()

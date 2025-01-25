@@ -28,14 +28,14 @@ func check_recipe() -> bool:
 	return check_inputs() and check_outputs()
 
 func check_inputs() -> bool:
-	for index in inputs.size():
+	for index in inputs:
 		var amount = inputs[index]
 		if storage[index] < amount:
 			return false
 	return true
 
 func check_outputs() -> bool:
-	for index in outputs.size():
+	for index in outputs:
 		var amount = outputs[index]
 		if max_amount - storage[index] < amount:
 			return false

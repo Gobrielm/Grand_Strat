@@ -1,13 +1,13 @@
 extends Node
 
-var building = false
-var building_many_rails = false
-var hovering_over_gui = false
-var controlling_camera = false
-var unit_selected = false
-var building_units = false
-var selecting_route = false
-var picking_nation = false
+static var building = false
+static var building_many_rails = false
+static var hovering_over_gui = false
+static var controlling_camera = false
+static var unit_selected = false
+static var building_units = false
+static var selecting_route = false
+static var picking_nation = false
 
 func print_all():
 	print(building)
@@ -20,11 +20,11 @@ func print_all():
 	print(picking_nation)
 	print("-----------")
 
-func default():
+static func default():
 	all_off()
 	controlling_camera = true
 
-func all_off():
+static func all_off():
 	building = false
 	building_many_rails = false
 	hovering_over_gui = false
@@ -34,20 +34,20 @@ func all_off():
 	selecting_route = false
 	picking_nation = false
 
-func gui_button_pressed():
+static func gui_button_pressed():
 	all_off()
 	building = true
 
-func gui_button_unpressed():
+static func gui_button_unpressed():
 	building = false
 	default()
 
-func unpress_gui():
+static func unpress_gui():
 	building = false
 	building_many_rails = false
 	default()
 
-func many_track_button_toggled():
+static func many_track_button_toggled():
 	building_many_rails = !building_many_rails
 	if building_many_rails:
 		all_off()
@@ -55,7 +55,7 @@ func many_track_button_toggled():
 	else:
 		default()
 
-func track_button_toggled():
+static func track_button_toggled():
 	building = !building
 	if building:
 		all_off()
@@ -63,7 +63,7 @@ func track_button_toggled():
 	else:
 		default()
 
-func depot_button_toggled():
+static func depot_button_toggled():
 	building = !building
 	if building:
 		all_off()
@@ -71,7 +71,7 @@ func depot_button_toggled():
 	else:
 		default()
 
-func station_button_toggled():
+static func station_button_toggled():
 	building = !building
 	if building:
 		all_off()
@@ -79,64 +79,64 @@ func station_button_toggled():
 	else:
 		default()
 
-func is_building_many_rails() -> bool:
+static func is_building_many_rails() -> bool:
 	return building_many_rails and !hovering_over_gui
 
-func is_controlling_camera() -> bool:
+static func is_controlling_camera() -> bool:
 	return controlling_camera
 
-func is_building() -> bool:
+static func is_building() -> bool:
 	return building and !hovering_over_gui
 
-func is_selecting_unit() -> bool:
+static func is_selecting_unit() -> bool:
 	return unit_selected and !hovering_over_gui
 
-func click_unit():
+static func click_unit():
 	all_off()
 	unit_selected = true
 
-func unclick_unit():
+static func unclick_unit():
 	unit_selected = false
 	controlling_camera = true
 
-func start_building_units():
+static func start_building_units():
 	all_off()
 	building_units = true
 
-func stop_building_units():
+static func stop_building_units():
 	all_off()
 	default()
 
-func is_building_units() -> bool:
+static func is_building_units() -> bool:
 	return building_units and !hovering_over_gui
 
-func start_selecting_route():
+static func start_selecting_route():
 	all_off()
 	selecting_route = true
 
-func stop_selecting_route():
+static func stop_selecting_route():
 	all_off()
 	default()
 
-func is_selecting_route() -> bool:
+static func is_selecting_route() -> bool:
 	return selecting_route and !hovering_over_gui
 
-func start_picking_nation():
+static func start_picking_nation():
 	all_off()
 	picking_nation = true
 
-func stop_picking_nation():
+static func stop_picking_nation():
 	all_off()
 	default()
 
-func is_picking_nation() -> bool:
+static func is_picking_nation() -> bool:
 	return picking_nation and !hovering_over_gui
 
-func hovering_over_gui_active():
+static func hovering_over_gui_active():
 	hovering_over_gui = true
 
-func hovering_over_gui_inactive():
+static func hovering_over_gui_inactive():
 	hovering_over_gui = false
 
-func is_hovering_over_gui() -> bool:
+static func is_hovering_over_gui() -> bool:
 	return hovering_over_gui

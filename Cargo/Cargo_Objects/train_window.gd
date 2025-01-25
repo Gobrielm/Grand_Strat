@@ -1,5 +1,7 @@
 extends Window
 @onready var train = get_parent()
+var state_machine = load("res://Game/state_machine.gd")
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -15,15 +17,20 @@ func _input(event):
 	elif event.is_action_pressed("deselect"):
 		deselect_add_stop()
 
+#func is_mouse_hovering() -> bool:
+	#var state = false
+	#print(gui_get_hovered_control())
+	#return state
+
+
 func deselect_add_stop():
 	$Routes/Add_Stop.button_pressed = false
-	train.stop_selecting_route()
+	state_machine.stop_selecting_route()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	pass
 
-
 func _on_add_stop_pressed():
-	train.start_selecting_route()
+	state_machine.start_selecting_route()
 	

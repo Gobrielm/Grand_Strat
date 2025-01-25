@@ -24,7 +24,7 @@ const ACCELERATION_SPEED = 20
 const BREAKING_SPEED = 40
 const TRAIN_CAR_SIZE = 16
 const LOAD_SPEED = 1
-const LOAD_TICK_AMOUNT = 1
+const LOAD_TICK_AMOUNT = 5
 
 const train_car_scene = preload("res://Cargo/Cargo_Objects/train_car.tscn")
 
@@ -141,12 +141,6 @@ func _input(event):
 		open_menu(map.get_mouse_local_to_map())
 	elif event.is_action_pressed("deselect"):
 		window.deselect_add_stop()
-
-func start_selecting_route():
-	map.state_machine.start_selecting_route()
-
-func stop_selecting_route():
-	map.state_machine.stop_selecting_route()
 
 func is_selecting_route() -> bool:
 	return map.state_machine.is_selecting_route()
