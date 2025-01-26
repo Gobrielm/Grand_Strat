@@ -1,5 +1,7 @@
 class_name station extends hold
 
+const LOAD_TICK_AMOUNT = 5
+
 var ingoing_cargo: fixed_hold
 
 var connected_terminals: Dictionary = {}
@@ -11,6 +13,12 @@ func _init(new_location: Vector2i, new_owner):
 
 func get_storage_available_for_delievery(type: int) -> int:
 	return ingoing_cargo.get_cargo_amount(type)
+
+func get_ingoing_cargo() -> Dictionary:
+	return ingoing_cargo.get_current_hold()
+
+func get_outgoing_cargo() -> Dictionary:
+	return get_current_hold()
 
 func can_take_type(type: int, term: terminal) -> bool:
 	if term is factory or term is apex_factory:
@@ -36,7 +44,7 @@ func find_transfer_good(connected_terminal: terminal) -> int:
 	var in_storage = ingoing_cargo.get_current_hold()
 	for cargo in in_storage.size():
 		if in_storage[cargo] > 0 and connected_terminal.does_accept(cargo):
-			var amount = ingoing_cargo.transfer_cargo(cargo, 1)
+			var amount = ingoing_cargo.transfer_cargo(cargo, LOAD_TICK_AMOUNT)
 			cash += connected_terminal.deliver_cargo(cargo, amount)
 			return cash
 	return cash
@@ -71,6 +79,17 @@ func does_out_accept(type: int) -> bool:
 
 func reset_accepts_train():
 	ingoing_cargo.reset_accepts()
+
+func swap_good_to_ingoing(index: int):
+	if ingoing_cargo.does_accept(index):
+		var amount = get_cargo_amount(index)
+		remove_cargo(index, amount)
+		ingoing_cargo.add_cargo(index, amount)
+
+func swap_good_to_outgoing(index: int):
+	var amount = ingoing_cargo.get_cargo_amount(index)
+	ingoing_cargo.remove_cargo(index, amount)
+	add_cargo(index, amount)
 
 func month_tick():
 	distribute_cargo()

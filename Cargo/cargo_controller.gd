@@ -47,10 +47,33 @@ func add_connected_terminals(coords: Vector2i, new_terminal: terminal):
 func is_hold(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is hold
 
+func is_factory(coords: Vector2i) -> bool:
+	if cargo_map_terminals.has(coords):
+		var term = cargo_map_terminals[coords]
+		return term is factory or term is apex_factory or term is base_factory
+	return false
+
 func get_terminal(coords: Vector2i):
 	if cargo_map_terminals.has(coords):
 		return cargo_map_terminals[coords]
 	return null
+
+func is_station(coords: Vector2i):
+	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is station
+
+func get_ingoing_cargo(coords: Vector2i) -> Dictionary:
+	return cargo_map_terminals[coords].get_ingoing_cargo()
+
+func get_outgoing_cargo(coords: Vector2i) -> Dictionary:
+	return cargo_map_terminals[coords].get_outgoing_cargo()
+
+func swap_good_to_ingoing_station(coords: Vector2i, good_index: int):
+	if is_station(coords):
+		cargo_map_terminals[coords].swap_good_to_ingoing(good_index)
+
+func swap_good_to_outgoing_station(coords: Vector2i, good_index: int):
+	if is_station(coords):
+		cargo_map_terminals[coords].swap_good_to_outgoing(good_index)
 
 func create_cargo_types():
 	cargo_types[0] = "wood"

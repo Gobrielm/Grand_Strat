@@ -5,7 +5,6 @@ var selected_unit: base_unit
 var map: TileMapLayer
 var unit_data: Dictionary = {}
 var extra_unit_data: Dictionary = {}
-var state_machine
 
 const client_unit = preload("res://Client_Objects/client_base_unit.gd")
 # Called when the node enters the scene tree for the first time.
@@ -18,10 +17,6 @@ func _input(event):
 		if state_machine.is_selecting_unit():
 			set_up_set_unit_route(selected_unit, map.get_cell_position())
 			map.update_info_window(get_unit_client_array(get_selected_coords()))
-
-func assign_state_machine(new_state_machine):
-	state_machine = new_state_machine
-	
 
 @rpc("any_peer", "call_remote", "unreliable")
 func request_refresh_map():

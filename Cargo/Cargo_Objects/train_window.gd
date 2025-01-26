@@ -1,7 +1,5 @@
 extends Window
 @onready var train = get_parent()
-var state_machine = load("res://Game/state_machine.gd")
-
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

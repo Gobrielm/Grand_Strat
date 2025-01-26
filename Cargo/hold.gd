@@ -14,6 +14,9 @@ func add_cargo(type: int, amount: int) -> int:
 	storage[type] += amount_to_add
 	return amount_to_add
 
+func get_cargo_amount(type: int) -> int:
+	return storage[type]
+
 func remove_cargo(type: int, amount: int):
 	storage[type] -= amount
 

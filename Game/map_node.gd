@@ -3,13 +3,13 @@ extends Node
 @onready var tile_ownership = $tile_ownership
 @onready var main_map = $main_map
 @onready var camera = $main_map/player_camera
-@onready var hold_window = $main_map/hold_window
+@onready var factory_window = $main_map/factory_window
 @onready var depot_window = $main_map/depot_window
+@onready var station_window = $main_map/station_window
 @onready var unit_creator_window = $main_map/unit_creator_window
 @onready var cargo_map = $cargo_map
 
 var cargo_controller
-var state_machine
 var unique_id
 
 
@@ -28,14 +28,11 @@ func _ready():
 		tile_ownership = load("res://Client_Objects/client_tile_ownership.tscn").instantiate()
 		tile_ownership.name = "tile_ownership"
 		add_child(tile_ownership)
-	state_machine = load("res://Game/state_machine.gd").new()
-	main_map.assign_state_machine(state_machine)
 	enable_nation_picker()
 
 func _input(event):
 	main_map.update_hover()
 	camera.update_coord_label(get_cell_position())
-	
 	if event.is_action_pressed("click"):
 		if state_machine.is_picking_nation():
 			pick_nation()
@@ -48,11 +45,14 @@ func _input(event):
 		elif state_machine.is_selecting_unit() and main_map.is_unit_double_clicked():
 			main_map.show_unit_info_window()
 		else:
-			state_machine.unclick_unit()
+			if state_machine.is_selecting_unit():
+				state_machine.unclick_unit()
 			main_map.unit_map.select_unit(get_cell_position(), unique_id)
 	elif event.is_action_released("click"):
-		if state_machine.is_controlling_camera() and main_map.is_owned_hold(get_cell_position()):
-			hold_window.open_window(get_cell_position())
+		if state_machine.is_controlling_camera() and main_map.is_owned_station(get_cell_position()):
+			station_window.open_window(get_cell_position())
+		elif state_machine.is_controlling_camera() and main_map.is_factory(get_cell_position()):
+			factory_window.open_window(get_cell_position())
 		elif state_machine.is_controlling_camera() and main_map.is_owned_depot(get_cell_position()):
 			depot_window.open_window(get_cell_position())
 		elif state_machine.is_building_many_rails():

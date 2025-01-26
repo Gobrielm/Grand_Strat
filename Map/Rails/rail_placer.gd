@@ -6,7 +6,6 @@ extends Node2D
 @onready var rail_layer_4: TileMapLayer = $Rail_Layer_4
 @onready var rail_layer_5: TileMapLayer = $Rail_Layer_5
 
-var state_machine
 
 var temp_layer_array = []
 var track_connection: Dictionary = {}
@@ -20,9 +19,6 @@ func _ready():
 	for item in get_children():
 		if item.name.begins_with("Rail_Temp_Layer"):
 			temp_layer_array.append(item)
-
-func assign_state_machine(new_state_machine):
-	state_machine = new_state_machine
 
 func get_rail_layers() -> Array:
 	var toReturn = []

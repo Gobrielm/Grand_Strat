@@ -143,7 +143,7 @@ func _input(event):
 		window.deselect_add_stop()
 
 func is_selecting_route() -> bool:
-	return map.state_machine.is_selecting_route()
+	return state_machine.is_selecting_route()
 
 @rpc("authority", "unreliable", "call_local")
 func create(new_location: Vector2i, new_cargo_controller, new_owner: int):

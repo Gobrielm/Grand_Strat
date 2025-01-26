@@ -19,6 +19,20 @@ position = Vector2i(0, 36)
 size = Vector2i(600, 400)
 script = ExtResource("3_gn3y4")
 
+[node name="Panel" type="Panel" parent="Train_Window"]
+self_modulate = Color(1, 1, 1, 0.27451)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
 [node name="Name" type="RichTextLabel" parent="Train_Window"]
 anchors_preset = 5
 anchor_left = 0.5
@@ -105,20 +119,6 @@ offset_right = 250.0
 offset_bottom = 150.0
 grow_vertical = 2
 focus_mode = 0
-
-[node name="Panel" type="Panel" parent="Train_Window"]
-self_modulate = Color(1, 1, 1, 0.27451)
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -200.0
-offset_right = 300.0
-offset_bottom = 200.0
-grow_horizontal = 2
-grow_vertical = 2
 
 [connection signal="close_requested" from="Train_Window" to="." method="_on_window_close_requested"]
 [connection signal="pressed" from="Train_Window/Routes/Add_Stop" to="Train_Window" method="_on_add_stop_pressed"]

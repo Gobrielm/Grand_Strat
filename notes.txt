@@ -30,6 +30,12 @@ Game Info:
 		3: 12 month, cannot break contract, 90%
 		4: You sell it all and get a huge chunk of money but no divedends
 		
+		When any terminal adds goods to a station, it checks to see if it can use it
+		If not it will sell it to the highest paying station
+		If so it will see its local price and compare to station price, which is higher gets it
+		From stations it can be bought by a train and delivered to somewhere else to hopefully make profit
+		
+		
 	
 	
 	Unit Stuff:

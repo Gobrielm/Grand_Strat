@@ -45,8 +45,36 @@ func request_current_cargo(coords: Vector2i):
 @rpc("authority", "call_local", "unreliable")
 func update_current_cargo(new_current_cargo: Dictionary):
 	current_cargo = new_current_cargo
+	factory_window()
 
 @rpc("authority", "call_local", "unreliable")
 func update_current_name(new_name: String):
 	hold_name = new_name
+	
+func factory_window():
+	$Name.text = "[center][font_size=30]" + hold_name + "[/font_size][/center]"
+	var cargo_list: ItemList = $Cargo_Node/Cargo_List
+	var names = map.get_cargo_index_to_name()
+	var selected_name = get_selected_name()
+	
+	for i in cargo_list.item_count:
+		cargo_list.remove_item(0)
+	for cargo in current_cargo.size():
+		if current_cargo[cargo] != 0:
+			var cargo_name: String = names[cargo]
+			cargo_list.add_item(cargo_name + ", " + str(current_cargo[cargo]))
+			if cargo_name == selected_name:
+				cargo_list.select(cargo)
+
+func get_selected_name() -> String:
+	var cargo_list: ItemList = $Cargo_Node/Cargo_List
+	var selected_items: Array = cargo_list.get_selected_items()
+	if selected_items.size() > 0:
+		var toReturn = ""
+		for i in cargo_list.get_item_text(selected_items[0]):
+			if i == ',':
+				break
+			toReturn += i
+		return toReturn
+	return ""
 	

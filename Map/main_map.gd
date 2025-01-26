@@ -10,14 +10,11 @@ var unique_id
 @onready var unit_creator_window = $unit_creator_window
 @onready var game = get_parent().get_parent()
 @onready var rail_placer = $Rail_Placer
-@onready var hold_window: Window = $hold_window
-@onready var depot_window: Window = $depot_window
 @onready var map_node = get_parent()
 var tile_info
 var cargo_controller
 var unit_map
 var money_interface
-var state_machine
 var untraversable_tiles = {}
 var visible_tiles = []
 var cargo_index_to_name = {}
@@ -94,13 +91,6 @@ func create_client_tile_info(cities: Dictionary):
 func is_owned(player_id: int, coords: Vector2i) -> bool:
 	return map_node.is_owned(player_id, coords)
 
-#State_Machine
-func assign_state_machine(new_state_machine):
-	state_machine = new_state_machine
-	camera.assign_state_machine(state_machine)
-	unit_map.assign_state_machine(state_machine)
-	rail_placer.assign_state_machine(state_machine)
-
 func start_building_units():
 	state_machine.start_building_units()
 
@@ -176,6 +166,12 @@ func get_depot_direction(coords: Vector2i) -> int:
 	return rail_placer.get_depot_direction(coords)
 
 #Cargo
+func request_swap_to_out(coords: Vector2i, index: int):
+	cargo_controller.swap_good_to_outgoing_station(coords, index)
+
+func request_swap_to_in(coords: Vector2i, index: int):
+	cargo_controller.swap_good_to_ingoing_station(coords, index)
+
 func get_cargo_array() -> Dictionary:
 	return cargo_controller.get_cargo_dict()
 
@@ -191,6 +187,12 @@ func is_hold(coords: Vector2i) -> bool:
 func is_owned_hold(coords: Vector2i) -> bool:
 	return tile_info.is_owned_hold(coords, unique_id)
 
+func is_factory(coords: Vector2i) -> bool:
+	return cargo_controller.is_factory(coords)
+
+func is_owned_station(coords: Vector2i) -> bool:
+	return cargo_controller.is_station(coords) and tile_info.is_owned_hold(coords, unique_id)
+
 func is_location_valid_stop(coords: Vector2i) -> bool:
 	return tile_info.is_hold(coords) or tile_info.is_depot(coords)
 
@@ -198,6 +200,16 @@ func is_location_valid_stop(coords: Vector2i) -> bool:
 func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
 	if cargo_controller.is_hold(coords):
 		return cargo_controller.get_terminal(coords).get_current_hold()
+	return {}
+
+func get_in_station_cargo(coords: Vector2i) -> Dictionary:
+	if cargo_controller.is_station(coords):
+		return cargo_controller.get_ingoing_cargo(coords)
+	return {}
+
+func get_out_station_cargo(coords: Vector2i) -> Dictionary:
+	if cargo_controller.is_station(coords):
+		return cargo_controller.get_outgoing_cargo(coords)
 	return {}
 
 func get_depot_or_terminal(coords: Vector2i) -> terminal:

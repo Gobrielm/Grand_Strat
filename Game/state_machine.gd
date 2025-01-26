@@ -1,4 +1,4 @@
-extends Node
+class_name state_machine extends Node
 
 static var building = false
 static var building_many_rails = false
@@ -9,7 +9,7 @@ static var building_units = false
 static var selecting_route = false
 static var picking_nation = false
 
-func print_all():
+static func print_all():
 	print(building)
 	print(building_many_rails)
 	print(hovering_over_gui)

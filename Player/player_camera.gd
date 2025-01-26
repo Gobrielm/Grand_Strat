@@ -1,6 +1,5 @@
 extends Camera2D
 var last_mouse_position
-var state_machine
 var map
 @onready var coords_label = $CanvasLayer/Coordinate_Label
 # Called when the node enters the scene tree for the first time.
@@ -51,9 +50,6 @@ func is_mouse_hovering() -> bool:
 			state = state or element.is_hovered()
 	return state or $nation_picker/start_or_ready.is_hovered()
 
-func assign_state_machine(new_state_machine):
-	state_machine = new_state_machine
-
 func unpress_all_buttons():
 	for element in $CanvasLayer.get_children():
 		if element is Button and element.has_method("unpress") and element.active:
@@ -78,7 +74,7 @@ func update_desync_label(amount: int):
 	$CanvasLayer/Desync_Label.text = str(amount)
 
 func _on_station_button_pressed():
-	state_machine.print_all()
+	state_machine.station_button_toggled()
 
 func _on_track_button_pressed():
 	state_machine.many_track_button_toggled()

@@ -11,8 +11,6 @@ var selected_unit: base_unit
 var units_to_kill = []
 var units_to_retreat = []
 
-var state_machine
-
 func _ready():
 	battle_script = load("res://Units/unit_managers/battle_script.gd").new(self)
 	unit_creator = load("res://Units/unit_managers/unit_creator.gd").new()
@@ -23,9 +21,6 @@ func _input(event):
 		if state_machine.is_selecting_unit():
 			set_up_set_unit_route(selected_unit, map.get_cell_position())
 			map.update_info_window(get_unit_client_array(get_selected_coords()))
-
-func assign_state_machine(new_state_machine):
-	state_machine = new_state_machine
 
 func send_data_to_clients():
 	map.refresh_unit_map.rpc(get_used_cells_dictionary())
