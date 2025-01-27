@@ -31,21 +31,21 @@ func deliver_cargo(type: int, amount: int):
 	return amount_to_add
 
 func distribute_cargo():
-	var cash = 0
+	var cash_made = 0
 	for connected_terminal in connected_terminals.values():
 		if connected_terminal is factory or connected_terminal is apex_factory:
-			cash += find_transfer_good(connected_terminal)
-	money_controller.add_money_to_player(player_owner, cash)
+			cash_made += find_transfer_good(connected_terminal)
+	money_controller.add_money_to_player(player_owner, cash_made)
 
 func find_transfer_good(connected_terminal: terminal) -> int:
-	var cash = 0
+	var cash_made = 0
 	var in_storage = ingoing_cargo.get_current_hold()
 	for cargo in in_storage.size():
 		if in_storage[cargo] > 0 and connected_terminal.does_accept(cargo):
 			var amount = ingoing_cargo.transfer_cargo(cargo, LOAD_TICK_AMOUNT)
-			cash += connected_terminal.deliver_cargo(cargo, amount)
-			return cash
-	return cash
+			cash_made += connected_terminal.deliver_cargo(cargo, amount)
+			return cash_made
+	return cash_made
 
 func add_connected_terminal(new_terminal: terminal):
 	connected_terminals[new_terminal.get_location()] = new_terminal
@@ -58,7 +58,7 @@ func remove_connected_terminal(new_terminal):
 func update_accepts_from_trains():
 	reset_accepts_train()
 	for obj:terminal in connected_terminals.values():
-		if obj is fixed_hold or obj is sink:
+		if obj is fixed_hold:
 			add_accepts(obj)
 
 func add_accepts(obj):

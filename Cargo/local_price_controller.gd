@@ -9,6 +9,7 @@ static var base_prices: Dictionary
 func _init(inputs: Dictionary, outputs: Dictionary):
 	for type in inputs:
 		local_prices[type] = base_prices[type]
+		bought[type] = 0
 	for type in outputs:
 		local_prices[type] = base_prices[type]
 		bought[type] = 0

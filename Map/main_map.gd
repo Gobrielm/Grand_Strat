@@ -213,9 +213,9 @@ func get_out_station_cargo(coords: Vector2i) -> Dictionary:
 	return {}
 
 func get_depot_or_terminal(coords: Vector2i) -> terminal:
-	var depot = tile_info.get_depot(coords)
-	if depot != null:
-		return depot
+	var new_depot = tile_info.get_depot(coords)
+	if new_depot != null:
+		return new_depot
 	return cargo_controller.get_terminal(coords)
 
 #Trains
@@ -420,13 +420,6 @@ func encode_depot_client(coords: Vector2i, depot_name: String, new_owner: int):
 @rpc("authority", "call_local", "unreliable")
 func encode_station(coords: Vector2i, new_owner: int):
 	tile_info.add_hold(coords, "Station", new_owner)
-
-@rpc("any_peer", "call_local", "unreliable")
-func set_cell_rail_placer_client(coords: Vector2i, orientation: int, type: int, new_owner: int):
-	if type == 1:
-		encode_depot(coords, new_owner)
-	elif type == 2:
-		encode_station(coords, new_owner)
 
 #Rails, Depot, Station
 func place_rail_general(coords: Vector2i, orientation: int, type: int):

@@ -8,7 +8,7 @@ var outputs: Dictionary
 var max_batch_size: int
 var local_pricer: local_price_controller
 
-const DEFAULT_BATCH_SIZE = 2
+const DEFAULT_BATCH_SIZE = 1
 
 func _init(new_location: Vector2i, new_inputs: Dictionary, new_outputs: Dictionary):
 	super._init(new_location)
@@ -34,28 +34,11 @@ func deliver_cargo(type: int, amount: int) -> int:
 func calculate_reward(type: int, amount: int) -> int:
 	return local_pricer.get_local_price(type) * amount
 
-func check_recipe() -> bool:
-	return check_inputs() and check_outputs()
-
 func transfer_cargo(type: int, amount: int) -> int:
 	var new_amount = min(storage[type], amount)
 	remove_cargo(type, amount)
 	local_pricer.report_sale(type, new_amount)
 	return new_amount
-
-func check_inputs() -> bool:
-	for index in inputs:
-		var amount = inputs[index]
-		if storage[index] < amount:
-			return false
-	return true
-
-func check_outputs() -> bool:
-	for index in outputs:
-		var amount = outputs[index]
-		if max_amount - storage[index] < amount:
-			return false
-	return true
 
 func create_recipe():
 	var batch_size = get_batch_size()
@@ -81,9 +64,6 @@ func add_outputs(batch_size: int):
 	for index in outputs:
 		var amount = outputs[index] * batch_size
 		storage[index] += amount
-
-func get_price(_type: int, _amount: int) -> int:
-	return 0
 
 func distribute_cargo():
 	var array = []
@@ -115,13 +95,6 @@ func distribute_specific_type(type: int, connected_stations_array: Array):
 		index = (index + 1) % size
 
 func month_tick():
-	for type in inputs:
-		local_pricer.vary_input_price(inputs[type] * max_batch_size, type)
-	for type in outputs:
-		local_pricer.vary_output_price(outputs[type] * max_batch_size, type)
-	
-	if check_recipe():
-		create_recipe()
-	if connected_stations.size() != 0:
-		distribute_cargo()
+	print("Default implementation")
+	assert(false)
 	

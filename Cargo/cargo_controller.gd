@@ -1,7 +1,7 @@
 extends Node
 
 var serviced = {}
-var cargo_map_terminals = {} #Maps coords -> sink/source/hold
+var cargo_map_terminals = {} #Maps coords -> hold
 var cargo_types = {}
 var base_prices = {}
 

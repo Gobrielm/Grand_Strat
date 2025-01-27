@@ -1,14 +1,13 @@
-class_name apex_factory extends sink
+class_name apex_factory extends factory_template
 
-#Returns Money
-func deliver_cargo(type: int, amount: int) -> int:
-	if accepts[type]:
-		#Money System
-		return amount
-	return 0
+func _init(new_location: Vector2i, new_inputs: Dictionary):
+	super._init(new_location, new_inputs, {})
+	local_pricer = local_price_controller.new(inputs, {})
 
-func get_desired_cargo(type: int) -> int:
-	if accepts[type]:
-		return 1000
-	return 0
-	
+func withdraw():
+	remove_inputs(max_batch_size)
+
+func month_tick():
+	for type in inputs:
+		local_pricer.vary_output_price(inputs[type] * max_batch_size, type)
+	withdraw()
