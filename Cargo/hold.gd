@@ -1,10 +1,12 @@
-class_name hold extends terminal
+class_name hold extends firm
+
+const LOAD_TICK_AMOUNT = 5
 
 var storage: Dictionary = {} #Cargo the hold has
 var max_amount: int = 50 #Max Amount of cargo the hold can hold
 
 func _init(new_location: Vector2i):
-	location = new_location
+	super._init(new_location)
 	for i in NUMBER_OF_GOODS:
 		storage[i] = 0
 

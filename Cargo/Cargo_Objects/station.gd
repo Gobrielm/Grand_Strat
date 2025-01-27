@@ -1,7 +1,5 @@
 class_name station extends hold
 
-const LOAD_TICK_AMOUNT = 5
-
 var ingoing_cargo: fixed_hold
 
 var connected_terminals: Dictionary = {}

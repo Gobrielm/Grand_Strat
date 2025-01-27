@@ -1,7 +1,7 @@
-class_name source extends terminal
+class_name source extends hold
 
-var production: Dictionary
+var outputs: Dictionary
 
-func _init(new_location: Vector2i, new_production: Dictionary):
-	location = new_location
-	production = new_production
+func _init(new_location: Vector2i, new_outputs: Dictionary):
+	super._init(new_location)
+	outputs = new_outputs

@@ -2,19 +2,33 @@ class_name local_price_controller extends Node
 
 const MAX_DIFF = 1.5
 
-var changes = {}
+var bought = {}
 var local_prices = {}
 static var base_prices: Dictionary
 
-func _init(accepts: Dictionary):
-	for type in accepts:
+func _init(inputs: Dictionary, outputs: Dictionary):
+	for type in inputs:
 		local_prices[type] = base_prices[type]
+	for type in outputs:
+		local_prices[type] = base_prices[type]
+		bought[type] = 0
 
 static func set_base_prices(new_base_prices):
 	base_prices = new_base_prices
 
+func report_sale(type: int, amount: int):
+	bought[type] += amount
+
 func get_local_price(type: int) -> int:
 	return local_prices[type]
+
+func vary_input_price(demand: int, type: int):
+	vary_prices(demand, bought[type], type)
+	bought[type] = 0
+
+func vary_output_price(supply: int, type: int):
+	vary_prices(bought[type], supply, type)
+	bought[type] = 0
 
 func vary_prices(demand: int, supply: int, type: int):
 	var percentage_being_met = 1 - float(supply - demand) / demand
@@ -24,6 +38,7 @@ func vary_prices(demand: int, supply: int, type: int):
 		bump_down_good_price(type, percentage_being_met)
 	else:
 		equalize_good_price(type)
+
 func get_multiple(type: int) -> float:
 	return local_prices[type] /  base_prices[type]
 

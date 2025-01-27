@@ -1,17 +1,20 @@
-class_name factory extends fixed_hold
+class_name factory_template extends fixed_hold
 
 var connected_stations: Dictionary = {}
 
 var inputs: Dictionary
 var outputs: Dictionary
+
 var max_batch_size: int
 var local_pricer: local_price_controller
+
+const DEFAULT_BATCH_SIZE = 2
 
 func _init(new_location: Vector2i, new_inputs: Dictionary, new_outputs: Dictionary):
 	super._init(new_location)
 	inputs = new_inputs
 	outputs = new_outputs
-	max_batch_size = 2
+	max_batch_size = DEFAULT_BATCH_SIZE
 	for type in inputs.size():
 		if inputs[type] != 0:
 			add_accept(type)
