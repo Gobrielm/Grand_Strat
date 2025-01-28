@@ -190,6 +190,9 @@ func is_owned_hold(coords: Vector2i) -> bool:
 func is_factory(coords: Vector2i) -> bool:
 	return cargo_controller.is_factory(coords)
 
+func get_local_prices(coords: Vector2i) -> Dictionary:
+	return cargo_controller.get_local_prices(coords)
+
 func is_owned_station(coords: Vector2i) -> bool:
 	return cargo_controller.is_station(coords) and tile_info.is_owned_hold(coords, unique_id)
 

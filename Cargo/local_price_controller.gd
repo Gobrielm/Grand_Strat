@@ -32,7 +32,9 @@ func vary_output_price(supply: int, type: int):
 	bought[type] = 0
 
 func vary_prices(demand: int, supply: int, type: int):
-	var percentage_being_met = 1 - float(supply - demand) / demand
+	var percentage_being_met = 1 - float(supply - demand) / supply
+	print(demand)
+	print(supply)
 	if demand / 1.1 > supply:
 		bump_up_good_price(type, percentage_being_met)
 	elif demand * 1.1 < supply:

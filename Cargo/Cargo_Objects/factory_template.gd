@@ -26,6 +26,9 @@ func add_station(coords: Vector2i, new_station: station):
 func delete_station(coords: Vector2i):
 	connected_stations.erase(coords)
 
+func get_local_prices() -> Dictionary:
+	return local_pricer.local_prices
+
 func deliver_cargo(type: int, amount: int) -> int:
 	add_cargo(type, amount)
 	local_pricer.report_sale(type, amount)

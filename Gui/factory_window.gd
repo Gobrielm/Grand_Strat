@@ -2,6 +2,7 @@ extends Window
 var location = null
 var hold_name: String
 var current_cargo: Dictionary
+var current_prices: Dictionary
 
 const time_every_update = 1
 var progress: float = 0.0
@@ -31,6 +32,7 @@ func refresh_window():
 	if location != null:
 		request_current_cargo.rpc_id(1, location)
 		request_current_name.rpc_id(1, location)
+		request_current_prices.rpc_id(1, location)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_name(coords: Vector2i):
@@ -42,6 +44,11 @@ func request_current_cargo(coords: Vector2i):
 	var dict = map.get_cargo_array_at_location(coords)
 	update_current_cargo.rpc_id(multiplayer.get_remote_sender_id(), dict)
 
+@rpc("any_peer", "call_local", "unreliable")
+func request_current_prices(coords: Vector2i):
+	var dict = map.get_local_prices(coords)
+	update_current_prices.rpc_id(multiplayer.get_remote_sender_id(), dict)
+
 @rpc("authority", "call_local", "unreliable")
 func update_current_cargo(new_current_cargo: Dictionary):
 	current_cargo = new_current_cargo
@@ -50,7 +57,12 @@ func update_current_cargo(new_current_cargo: Dictionary):
 @rpc("authority", "call_local", "unreliable")
 func update_current_name(new_name: String):
 	hold_name = new_name
-	
+
+@rpc("authority", "call_local", "unreliable")
+func update_current_prices(new_prices: Dictionary):
+	current_prices = new_prices
+	display_current_prices()
+
 func factory_window():
 	$Name.text = "[center][font_size=30]" + hold_name + "[/font_size][/center]"
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List
@@ -65,6 +77,13 @@ func factory_window():
 			cargo_list.add_item(cargo_name + ", " + str(current_cargo[cargo]))
 			if cargo_name == selected_name:
 				cargo_list.select(cargo)
+
+func display_current_prices():
+	var price_list: ItemList = $Price_Node/Price_List
+	price_list.clear()
+	var names = map.get_cargo_index_to_name()
+	for i in current_prices:
+		price_list.add_item(names[i] + ": " + str(current_prices[i]))
 
 func get_selected_name() -> String:
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List

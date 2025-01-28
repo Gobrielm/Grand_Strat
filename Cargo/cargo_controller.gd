@@ -53,6 +53,13 @@ func is_factory(coords: Vector2i) -> bool:
 		return term is factory or term is apex_factory or term is base_factory
 	return false
 
+func get_local_prices(coords: Vector2i) -> Dictionary:
+	if cargo_map_terminals.has(coords):
+		var fact = cargo_map_terminals[coords]
+		if fact is factory_template:
+			return fact.get_local_prices()
+	return {}
+
 func get_terminal(coords: Vector2i):
 	if cargo_map_terminals.has(coords):
 		return cargo_map_terminals[coords]
