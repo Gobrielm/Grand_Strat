@@ -83,7 +83,7 @@ func distribute_specific_type(type: int, connected_stations_array: Array):
 	var index = 0
 	while amount_to_transfer > 0:
 		var connected_station: station = connected_stations_array[index]
-		var amount_can_buy = min(connected_station.get_amount_can_buy(price), amount_for_each)
+		var amount_can_buy = min(connected_station.get_amount_can_buy(price), amount_for_each, connected_station.get_desired_cargo_to_load(type))
 		if amount_can_buy == 0:
 			size -= 1
 			if size == 0:
@@ -93,9 +93,14 @@ func distribute_specific_type(type: int, connected_stations_array: Array):
 			continue
 		var amount = transfer_cargo(type, amount_can_buy)
 		amount_to_transfer -= amount
-		add_cash(connected_station.transfer_cash(amount * price))
+		connected_station.buy_cargo(type, amount, price)
+		add_cash(amount * price)
 		connected_station.add_cargo(type, amount)
 		index = (index + 1) % size
+
+func day_tick():
+	print("Default implementation")
+	assert(false)
 
 func month_tick():
 	print("Default implementation")

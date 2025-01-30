@@ -360,6 +360,9 @@ func clear_highlights():
 		node.queue_free()
 
 #Money Stuff
+func get_cash_of_firm(coords: Vector2i) -> int:
+	return cargo_controller.get_cash_of_firm(coords)
+
 func add_money_to_player(id: int, amount: int):
 	money_interface.add_money_to_player(id, amount)
 

@@ -25,14 +25,14 @@ func create_recipe():
 	remove_inputs(batch_size)
 	add_outputs(batch_size)
 
+func day_tick():
+	if check_recipe():
+		create_recipe()
+	if connected_stations.size() != 0:
+		distribute_cargo()
+
 func month_tick():
 	for type in inputs:
 		local_pricer.vary_input_price(inputs[type] * max_batch_size, type)
 	for type in outputs:
 		local_pricer.vary_output_price(outputs[type] * max_batch_size, type)
-	
-	if check_recipe():
-		create_recipe()
-	if connected_stations.size() != 0:
-		distribute_cargo()
-	

@@ -26,9 +26,15 @@ func can_take_type(type: int, term: terminal) -> bool:
 func get_desired_cargo(type: int) -> int:
 	return ingoing_cargo.get_desired_cargo(type)
 
-func deliver_cargo(type: int, amount: int):
-	var amount_to_add = ingoing_cargo.add_cargo(type, amount)
-	return amount_to_add
+func get_desired_cargo_to_load(type: int) -> int:
+	return max_amount - get_cargo_amount(type)
+
+func can_afford(price: int) -> bool:
+	return cash >= price
+
+func buy_cargo(type: int, amount: int, price_per: float):
+	add_cargo(type, amount)
+	remove_cash(round(amount * price_per))
 
 func distribute_cargo():
 	var cash_made = 0
@@ -89,5 +95,5 @@ func swap_good_to_outgoing(index: int):
 	ingoing_cargo.remove_cargo(index, amount)
 	add_cargo(index, amount)
 
-func month_tick():
+func day_tick():
 	distribute_cargo()

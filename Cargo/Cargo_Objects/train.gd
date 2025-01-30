@@ -300,7 +300,7 @@ func unload_tick(obj: station):
 		var amount_desired = obj.get_desired_cargo(type)
 		var amount_to_transfer = min(amount_desired, LOAD_TICK_AMOUNT - amount_unloaded)
 		var amount = cargo_hold.transfer_cargo(type, amount_to_transfer)
-		obj.deliver_cargo(type, amount)
+		obj.add_cargo(type, amount)
 		amount_unloaded += amount
 		
 		if amount_unloaded == LOAD_TICK_AMOUNT:

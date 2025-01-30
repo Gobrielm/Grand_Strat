@@ -14,6 +14,11 @@ func _process(delta):
 		if obj.has_method("process"):
 			obj.process(delta)
 
+func _on_day_tick_timeout():
+	for obj: terminal in cargo_map_terminals.values():
+		if obj.has_method("day_tick"):
+			obj.day_tick()
+
 func _on_month_tick_timeout():
 	for obj: terminal in cargo_map_terminals.values():
 		if obj.has_method("month_tick"):
@@ -39,8 +44,8 @@ func add_connected_terminals(coords: Vector2i, new_terminal: terminal):
 	for coord in map.get_surrounding_cells(coords):
 		if cargo_map_terminals.has(coord):
 			var term = cargo_map_terminals[coord]
-			if term.has_method("add_terminal"):
-				term.add_terminal(coords, new_terminal)
+			if term.has_method("add_station"):
+				term.add_station(coords, new_terminal)
 			if new_terminal.has_method("add_connected_terminal"):
 				new_terminal.add_connected_terminal(term)
 
@@ -52,6 +57,13 @@ func is_factory(coords: Vector2i) -> bool:
 		var term = cargo_map_terminals[coords]
 		return term is factory or term is apex_factory or term is base_factory
 	return false
+
+func get_cash_of_firm(coords: Vector2i) -> int:
+	if cargo_map_terminals.has(coords):
+		var firm_inst = cargo_map_terminals[coords]
+		if firm_inst is firm:
+			return firm_inst.get_cash()
+	return 0
 
 func get_local_prices(coords: Vector2i) -> Dictionary:
 	if cargo_map_terminals.has(coords):

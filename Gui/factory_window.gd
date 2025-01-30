@@ -3,6 +3,7 @@ var location = null
 var hold_name: String
 var current_cargo: Dictionary
 var current_prices: Dictionary
+var current_cash: int
 
 const time_every_update = 1
 var progress: float = 0.0
@@ -33,6 +34,7 @@ func refresh_window():
 		request_current_cargo.rpc_id(1, location)
 		request_current_name.rpc_id(1, location)
 		request_current_prices.rpc_id(1, location)
+		request_current_cash.rpc_id(1, location)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_name(coords: Vector2i):
@@ -43,6 +45,11 @@ func request_current_name(coords: Vector2i):
 func request_current_cargo(coords: Vector2i):
 	var dict = map.get_cargo_array_at_location(coords)
 	update_current_cargo.rpc_id(multiplayer.get_remote_sender_id(), dict)
+
+@rpc("any_peer", "call_local", "unreliable")
+func request_current_cash(coords: Vector2i):
+	var current_cash = map.get_cash_of_firm(coords)
+	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), current_cash)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_prices(coords: Vector2i):
@@ -59,12 +66,17 @@ func update_current_name(new_name: String):
 	hold_name = new_name
 
 @rpc("authority", "call_local", "unreliable")
+func update_current_cash(new_cash: int):
+	current_cash = new_cash
+
+@rpc("authority", "call_local", "unreliable")
 func update_current_prices(new_prices: Dictionary):
 	current_prices = new_prices
 	display_current_prices()
 
 func factory_window():
 	$Name.text = "[center][font_size=30]" + hold_name + "[/font_size][/center]"
+	$Cash.text = "$" + str(current_cash)
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List
 	var names = map.get_cargo_index_to_name()
 	var selected_name = get_selected_name()

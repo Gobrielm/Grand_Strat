@@ -24,50 +24,57 @@ func get_local_price(type: int) -> int:
 	return local_prices[type]
 
 func vary_input_price(demand: int, type: int):
-	vary_prices(demand, bought[type], type)
+	vary_buy_order(demand, bought[type], type)
 	bought[type] = 0
 
 func vary_output_price(supply: int, type: int):
-	vary_prices(bought[type], supply, type)
+	vary_sell_order(bought[type], supply, type)
 	bought[type] = 0
 
-func vary_prices(demand: int, supply: int, type: int):
-	var percentage_being_met = 1 - float(supply - demand) / supply
-	print(demand)
-	print(supply)
+func vary_buy_order(demand: int, supply: int, type: int):
+	var percentage_being_met = 1 - float(demand - supply) / demand
 	if demand / 1.1 > supply:
-		bump_up_good_price(type, percentage_being_met)
+		bump_up_good_price(type, percentage_being_met, 1)
 	elif demand * 1.1 < supply:
-		bump_down_good_price(type, percentage_being_met)
+		bump_down_good_price(type, percentage_being_met, 2)
+	else:
+		equalize_good_price(type)
+
+func vary_sell_order(demand: int, supply: int, type: int):
+	var percentage_being_met = 1 - float(supply - demand) / supply
+	if demand / 1.1 > supply:
+		bump_up_good_price(type, percentage_being_met, 2)
+	elif demand * 1.1 < supply:
+		bump_down_good_price(type, percentage_being_met, 1)
 	else:
 		equalize_good_price(type)
 
 func get_multiple(type: int) -> float:
 	return local_prices[type] /  base_prices[type]
 
-func bump_up_good_price(type: int, percentage_met: float):
+func bump_up_good_price(type: int, percentage_met: float, amount: int):
 	var multiple = get_multiple(type)
 	if multiple >= percentage_met:
 		multiple = percentage_met
 	elif multiple >= MAX_DIFF:
 		multiple = MAX_DIFF
 	else:
-		multiple += 0.01
+		multiple += (0.01 * amount)
 	local_prices[type] = base_prices[type] * multiple
 
-func bump_down_good_price(type: int, percentage_met: float):
+func bump_down_good_price(type: int, percentage_met: float, amount: int):
 	var multiple = get_multiple(type)
 	if multiple <= percentage_met:
 		multiple = percentage_met
 	elif multiple <= 1 / MAX_DIFF:
 		multiple = 1 / MAX_DIFF
 	else:
-		multiple -= 0.02
+		multiple -= (0.01 * amount)
 	local_prices[type] = base_prices[type] * multiple
 
 func equalize_good_price(type: int):
 	var multiple = get_multiple(type)
 	if multiple > 1:
-		bump_down_good_price(type, 1)
+		bump_down_good_price(type, 1, 1)
 	elif multiple < 1:
-		bump_up_good_price(type, 1)
+		bump_up_good_price(type, 1, 1)
