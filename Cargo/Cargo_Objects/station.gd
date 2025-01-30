@@ -41,7 +41,7 @@ func distribute_cargo():
 	for connected_terminal in connected_terminals.values():
 		if connected_terminal is factory or connected_terminal is apex_factory:
 			cash_made += find_transfer_good(connected_terminal)
-	money_controller.add_money_to_player(player_owner, cash_made)
+	add_cash(cash_made)
 
 func find_transfer_good(connected_terminal: terminal) -> int:
 	var cash_made = 0

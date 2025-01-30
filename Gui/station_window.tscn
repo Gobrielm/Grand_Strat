@@ -102,6 +102,10 @@ focus_mode = 0
 icon = ExtResource("1_tnl28")
 flat = true
 
+[node name="Cash" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
 [connection signal="pressed" from="Out_Node/Out_Switch_Sides" to="." method="_on_out_switch_sides_pressed"]
 [connection signal="pressed" from="In_Node/In_Switch_Sides" to="." method="_on_in_switch_sides_pressed"]

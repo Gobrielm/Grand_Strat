@@ -32,10 +32,16 @@ func get_local_prices() -> Dictionary:
 func deliver_cargo(type: int, amount: int) -> int:
 	add_cargo(type, amount)
 	local_pricer.report_sale(type, amount)
-	return calculate_reward(type, amount)
+	var price = calculate_reward(type, amount)
+	remove_cash(price)
+	return price
 
 func calculate_reward(type: int, amount: int) -> int:
 	return local_pricer.get_local_price(type) * amount
+
+func get_desired_cargo_to_load(type: int) -> int:
+	var amount: int = get_amount_can_buy(local_pricer.get_local_price(type))
+	return min(amount, max_amount - get_cargo_amount(type))
 
 func transfer_cargo(type: int, amount: int) -> int:
 	var new_amount = min(storage[type], amount)
@@ -95,7 +101,6 @@ func distribute_specific_type(type: int, connected_stations_array: Array):
 		amount_to_transfer -= amount
 		connected_station.buy_cargo(type, amount, price)
 		add_cash(amount * price)
-		connected_station.add_cargo(type, amount)
 		index = (index + 1) % size
 
 func day_tick():
