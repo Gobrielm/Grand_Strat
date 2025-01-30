@@ -64,10 +64,12 @@ func update_current_cargo(new_current_cargo: Dictionary):
 @rpc("authority", "call_local", "unreliable")
 func update_current_name(new_name: String):
 	hold_name = new_name
+	$Name.text = "[center][font_size=30]" + hold_name + "[/font_size][/center]"
 
 @rpc("authority", "call_local", "unreliable")
 func update_current_cash(new_cash: int):
 	current_cash = new_cash
+	$Cash.text = "$" + str(current_cash)
 
 @rpc("authority", "call_local", "unreliable")
 func update_current_prices(new_prices: Dictionary):
@@ -75,8 +77,6 @@ func update_current_prices(new_prices: Dictionary):
 	display_current_prices()
 
 func factory_window():
-	$Name.text = "[center][font_size=30]" + hold_name + "[/font_size][/center]"
-	$Cash.text = "$" + str(current_cash)
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List
 	var names = map.get_cargo_index_to_name()
 	var selected_name = get_selected_name()
