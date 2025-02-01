@@ -8,12 +8,9 @@ var current_cash: int
 const time_every_update = 1
 var progress: float = 0.0
 
-var map: TileMapLayer
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	hide()
-	map = get_parent()
-
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	progress += delta
@@ -38,22 +35,22 @@ func refresh_window():
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_name(coords: Vector2i):
-	var current_name = map.tile_info.get_hold_name(coords)
+	var current_name = terminal_map.tile_info.get_hold_name(coords)
 	update_current_name.rpc_id(multiplayer.get_remote_sender_id(), current_name)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_cargo(coords: Vector2i):
-	var dict = map.get_cargo_array_at_location(coords)
+	var dict = terminal_map.get_cargo_array_at_location(coords)
 	update_current_cargo.rpc_id(multiplayer.get_remote_sender_id(), dict)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_cash(coords: Vector2i):
-	var current_cash = map.get_cash_of_firm(coords)
+	var current_cash = terminal_map.get_cash_of_firm(coords)
 	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), current_cash)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_prices(coords: Vector2i):
-	var dict = map.get_local_prices(coords)
+	var dict = terminal_map.get_local_prices(coords)
 	update_current_prices.rpc_id(multiplayer.get_remote_sender_id(), dict)
 
 @rpc("authority", "call_local", "unreliable")
@@ -78,7 +75,7 @@ func update_current_prices(new_prices: Dictionary):
 
 func factory_window():
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List
-	var names = map.get_cargo_index_to_name()
+	var names = terminal_map.get_cargo_dict()
 	var selected_name = get_selected_name()
 	
 	for i in cargo_list.item_count:
@@ -93,7 +90,7 @@ func factory_window():
 func display_current_prices():
 	var price_list: ItemList = $Price_Node/Price_List
 	price_list.clear()
-	var names = map.get_cargo_index_to_name()
+	var names = terminal_map.get_cargo_dict()
 	for i in current_prices:
 		price_list.add_item(names[i] + ": " + str(current_prices[i]))
 

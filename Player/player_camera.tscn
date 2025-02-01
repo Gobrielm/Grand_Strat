@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://c6spn0m6m85vs"]
 
 [ext_resource type="Script" path="res://Player/player_camera.gd" id="1_7vtmc"]
-[ext_resource type="PackedScene" uid="uid://pbahdxufv0k5" path="res://Gui/track_button.tscn" id="2_f342f"]
-[ext_resource type="PackedScene" uid="uid://dv4710kbsjsqm" path="res://Gui/station_button.tscn" id="3_qhawj"]
+[ext_resource type="PackedScene" uid="uid://pbahdxufv0k5" path="res://Gui/Building_Buttons/track_button.tscn" id="2_f342f"]
+[ext_resource type="PackedScene" uid="uid://dv4710kbsjsqm" path="res://Gui/Building_Buttons/station_button.tscn" id="3_qhawj"]
 [ext_resource type="Texture2D" uid="uid://b02j10d0auchi" path="res://Gui/Icons/go_back.png" id="4_t2r7r"]
 [ext_resource type="Script" path="res://Player/start_or_ready.gd" id="5_c6rps"]
 

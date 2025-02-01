@@ -1,26 +1,24 @@
-[gd_scene load_steps=3 format=3 uid="uid://tgrwgdaijaeh"]
+[gd_scene load_steps=4 format=3 uid="uid://tgrwgdaijaeh"]
 
 [ext_resource type="Script" path="res://Gui/station_window.gd" id="1_8pdlu"]
 [ext_resource type="Texture2D" uid="uid://cfcpxbgu2gtyd" path="res://Gui/Icons/revert.png" id="1_tnl28"]
+[ext_resource type="PackedScene" uid="uid://ddsk0bc0ixiwt" path="res://Gui/order_screen.tscn" id="3_bfn1f"]
 
 [node name="station_window" type="Window"]
 position = Vector2i(201, 74)
 size = Vector2i(750, 500)
+content_scale_aspect = 1
 script = ExtResource("1_8pdlu")
 
 [node name="Out_Node" type="Control" parent="."]
 layout_mode = 3
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -120.0
-offset_right = -180.0
-offset_bottom = -80.0
+anchor_left = 0.706667
+anchor_top = 0.26
+anchor_right = 0.76
+anchor_bottom = 0.34
 grow_horizontal = 0
 grow_vertical = 2
+metadata/_edit_use_anchors_ = true
 
 [node name="ColorRect" type="ColorRect" parent="Out_Node"]
 layout_mode = 0
@@ -60,17 +58,13 @@ scroll_active = false
 
 [node name="In_Node" type="Control" parent="."]
 layout_mode = 3
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -450.0
-offset_top = -120.0
-offset_right = -410.0
-offset_bottom = -80.0
+anchor_left = 0.4
+anchor_top = 0.26
+anchor_right = 0.453333
+anchor_bottom = 0.34
 grow_horizontal = 0
 grow_vertical = 2
+metadata/_edit_use_anchors_ = true
 
 [node name="ColorRect" type="ColorRect" parent="In_Node"]
 layout_mode = 0
@@ -105,6 +99,12 @@ flat = true
 [node name="Cash" type="Label" parent="."]
 offset_right = 40.0
 offset_bottom = 23.0
+
+[node name="Order_Screen" parent="." instance=ExtResource("3_bfn1f")]
+offset_left = -40.0
+offset_top = -37.0
+offset_right = -40.0
+offset_bottom = -37.0
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
 [connection signal="pressed" from="Out_Node/Out_Switch_Sides" to="." method="_on_out_switch_sides_pressed"]

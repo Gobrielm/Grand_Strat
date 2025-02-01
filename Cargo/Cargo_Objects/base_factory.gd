@@ -9,9 +9,9 @@ func produce():
 
 func day_tick():
 	produce()
-	if connected_stations.size() > 0:
+	if trade_orders.size() > 0:
 		distribute_cargo()
 
 func month_tick():
 	for type in outputs:
-		local_pricer.vary_output_price(outputs[type] * max_batch_size, type)
+		local_pricer.vary_output_price(get_buy_order_total(type), type)

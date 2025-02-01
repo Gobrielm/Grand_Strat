@@ -20,20 +20,12 @@ Game Info:
 		Base -> Middle -> Apex
 	
 	Trains/Routes Stuff:
-		Having directly controlled trains/routes uses up part of the oversight meter
-		If the oversight meter goes over or runs out it causes you to lose money to corruption
-		To combat this you give your routes to companies that will manage them
-		All of them use the same ai but have different bonuses
-		0: Directly control where all of it goes, 100 % Profits
-		1: 1-3 month contract, can break and costs almost nothing, 70% Profit
-		2: 4-6 month, can break contract but costs a bit, 80% Profit
-		3: 12 month, cannot break contract, 90%
-		4: You sell it all and get a huge chunk of money but no divedends
-		
-		When any terminal adds goods to a station, it checks to see if it can use it
-		If not it will sell it to the highest paying station
-		If so it will see its local price and compare to station price, which is higher gets it
-		From stations it can be bought by a train and delivered to somewhere else to hopefully make profit
+		Questions/Assumptions:
+			Can stations border multiple factories? -- No
+			Can multiple stations take from the same factory? -- Yes
+			If there are extra goods is it random or priority on who gets it? -- Random
+			Can you control how much you are willing to buy and at what price? -- No
+			Do stations or trains get control over automation? -- Trains and Stations
 		
 		
 	

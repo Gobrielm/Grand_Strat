@@ -12,12 +12,10 @@ var unique_id
 @onready var rail_placer = $Rail_Placer
 @onready var map_node = get_parent()
 var tile_info
-var cargo_controller
 var unit_map
 var money_interface
 var untraversable_tiles = {}
 var visible_tiles = []
-var cargo_index_to_name = {}
 
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 const train_scene_client = preload('res://Client_Objects/client_train.tscn')
@@ -62,11 +60,10 @@ func _ready():
 			rail_placer.init_track_connection.rpc(cell)
 		tile_info = load("res://Map/tile_info.gd").new(self)
 		create_client_tile_info.rpc(tile_info.get_cities())
-		cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
+		var cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
 		add_child(cargo_controller)
-		create_cargo_index_to_name.rpc(cargo_controller.cargo_types)
+		terminal_map.create(self)
 		$player_camera/CanvasLayer/Desync_Label.visible = true
-		map_node.assign_cargo_controller(cargo_controller)
 		testing = preload("res://Test/testing.gd").new(self)
 	else:
 		unit_map = load("res://Client_Objects/client_unit_map.tscn").instantiate()
@@ -74,16 +71,8 @@ func _ready():
 		add_child(unit_map)
 		for tile in get_used_cells():
 			visible_tiles.append(tile)
-		
 
 #Constants
-@rpc("authority", "call_local", "reliable")
-func create_cargo_index_to_name(dict: Dictionary):
-	cargo_index_to_name = dict
-
-func get_cargo_index_to_name() -> Dictionary:
-	return cargo_index_to_name
-
 @rpc("authority", "call_remote", "reliable")
 func create_client_tile_info(cities: Dictionary):
 	tile_info = load("res://Client_Objects/client_tile_info.gd").new(self, cities)
@@ -166,14 +155,8 @@ func get_depot_direction(coords: Vector2i) -> int:
 	return rail_placer.get_depot_direction(coords)
 
 #Cargo
-func request_swap_to_out(coords: Vector2i, index: int):
-	cargo_controller.swap_good_to_outgoing_station(coords, index)
-
-func request_swap_to_in(coords: Vector2i, index: int):
-	cargo_controller.swap_good_to_ingoing_station(coords, index)
-
 func get_cargo_array() -> Dictionary:
-	return cargo_controller.get_cargo_dict()
+	return terminal_map.get_cargo_dict()
 
 func is_depot(coords: Vector2i) -> bool:
 	return tile_info.is_depot(coords)
@@ -182,44 +165,25 @@ func is_owned_depot(coords: Vector2i) -> bool:
 	return tile_info.is_owned_depot(coords, unique_id)
 
 func is_hold(coords: Vector2i) -> bool:
-	return cargo_controller.is_hold(coords)
+	return terminal_map.is_hold(coords)
 
 func is_owned_hold(coords: Vector2i) -> bool:
 	return tile_info.is_owned_hold(coords, unique_id)
 
 func is_factory(coords: Vector2i) -> bool:
-	return cargo_controller.is_factory(coords)
-
-func get_local_prices(coords: Vector2i) -> Dictionary:
-	return cargo_controller.get_local_prices(coords)
+	return terminal_map.is_factory(coords)
 
 func is_owned_station(coords: Vector2i) -> bool:
-	return cargo_controller.is_station(coords) and tile_info.is_owned_hold(coords, unique_id)
+	return terminal_map.is_station(coords) and tile_info.is_owned_hold(coords, unique_id)
 
 func is_location_valid_stop(coords: Vector2i) -> bool:
 	return tile_info.is_hold(coords) or tile_info.is_depot(coords)
-
-@rpc("any_peer", "call_remote", "unreliable")
-func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
-	if cargo_controller.is_hold(coords):
-		return cargo_controller.get_terminal(coords).get_current_hold()
-	return {}
-
-func get_in_station_cargo(coords: Vector2i) -> Dictionary:
-	if cargo_controller.is_station(coords):
-		return cargo_controller.get_ingoing_cargo(coords)
-	return {}
-
-func get_out_station_cargo(coords: Vector2i) -> Dictionary:
-	if cargo_controller.is_station(coords):
-		return cargo_controller.get_outgoing_cargo(coords)
-	return {}
 
 func get_depot_or_terminal(coords: Vector2i) -> terminal:
 	var new_depot = tile_info.get_depot(coords)
 	if new_depot != null:
 		return new_depot
-	return cargo_controller.get_terminal(coords)
+	return terminal_map.get_terminal(coords)
 
 #Trains
 @rpc("any_peer", "reliable", "call_local")
@@ -229,7 +193,7 @@ func create_train(coords: Vector2i):
 		var train = train_scene.instantiate()
 		train.name = "Train" + str(get_number_of_trains())
 		add_child(train)
-		train.create(coords, cargo_controller, caller)
+		train.create(coords, caller)
 	else:
 		var train = train_scene_client.instantiate()
 		train.name = "Train" + str(get_number_of_trains())
@@ -361,7 +325,7 @@ func clear_highlights():
 
 #Money Stuff
 func get_cash_of_firm(coords: Vector2i) -> int:
-	return cargo_controller.get_cash_of_firm(coords)
+	return terminal_map.get_cash_of_firm(coords)
 
 func add_money_to_player(id: int, amount: int):
 	money_interface.add_money_to_player(id, amount)
@@ -401,7 +365,7 @@ func place_tile(coords: Vector2i, orientation: int, type: int, _new_owner: int):
 	rail_placer.place_tile(coords, orientation, type)
 
 func set_cell_rail_placer_request(coords: Vector2i, orientation: int, type: int, new_owner: int):
-	set_cell_rail_placer_server.rpc_id(1, coords, orientation, type, unique_id)
+	set_cell_rail_placer_server.rpc_id(1, coords, orientation, type, new_owner)
 
 @rpc("any_peer", "call_remote", "unreliable")
 func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, new_owner: int):
@@ -413,7 +377,7 @@ func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, 
 			encode_depot_client.rpc(coords, depot_name, new_owner)
 		elif type == 2:
 			encode_station.rpc(coords, new_owner)
-			cargo_controller.create_station(coords, new_owner)
+			terminal_map.create_station(coords, new_owner)
 	else:
 		rail_placer.clear_all_temps()
 

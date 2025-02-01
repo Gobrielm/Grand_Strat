@@ -4,6 +4,8 @@ var ingoing_cargo: fixed_hold
 
 var connected_terminals: Dictionary = {}
 
+var trade_orders = {}
+
 func _init(new_location: Vector2i, new_owner):
 	super._init(new_location)
 	ingoing_cargo = fixed_hold.new(new_location)
@@ -18,6 +20,37 @@ func get_ingoing_cargo() -> Dictionary:
 func get_outgoing_cargo() -> Dictionary:
 	return get_current_hold()
 
+func place_order(type: int, buy: bool):
+	if trade_orders.has(type):
+		return
+	if buy:
+		for term in connected_terminals.values():
+			if term is factory_template and term.does_create(type):
+				var order = trade_order.new(type, 1, buy, term.get_location())
+				term.add_order(location, order)
+				trade_orders[order.get_type()] = order
+	else:
+		for term in connected_terminals.values():
+			if term is factory_template and term.does_accept(type):
+				var order = trade_order.new(type, 1, buy, term.get_location())
+				term.add_order(location, order)
+				trade_orders[order.get_type()] = order
+
+func edit_order(type: int, amount: int, buy: bool):
+	if trade_orders.has(type):
+		var order = trade_orders[type]
+		order.change_buy(buy)
+		order.change_amount(amount)
+
+func remove_order(type):
+	if trade_orders.has(type):
+		var order: trade_order = trade_orders[type]
+		var term_coords = order.get_coords_of_factory()
+		var term = connected_terminals[term_coords]
+		term.remove_order(location, type)
+		trade_orders.erase(type)
+		order.queue_free()
+
 func can_take_type(type: int, term: terminal) -> bool:
 	if term is factory or term is apex_factory:
 		return term.does_accept(type)
@@ -26,8 +59,8 @@ func can_take_type(type: int, term: terminal) -> bool:
 func get_desired_cargo(type: int) -> int:
 	return ingoing_cargo.get_desired_cargo(type)
 
-func get_desired_cargo_to_load(type: int) -> int:
-	return max_amount - get_cargo_amount(type)
+func get_desired_cargo_to_load(type: int, price_per: int) -> int:
+	return min(max_amount - get_cargo_amount(type), get_amount_can_buy(price_per))
 
 func can_afford(price: int) -> bool:
 	return cash >= price
@@ -49,7 +82,7 @@ func find_transfer_good(connected_terminal: terminal) -> int:
 	for cargo in in_storage.size():
 		if in_storage[cargo] > 0 and connected_terminal.does_accept(cargo):
 			var amount = ingoing_cargo.transfer_cargo(cargo, LOAD_TICK_AMOUNT)
-			cash_made += connected_terminal.deliver_cargo(cargo, amount)
+			cash_made += connected_terminal.trade_cargo(cargo, amount)
 			return cash_made
 	return cash_made
 

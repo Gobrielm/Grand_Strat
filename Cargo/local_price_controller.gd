@@ -2,34 +2,40 @@ class_name local_price_controller extends Node
 
 const MAX_DIFF = 1.5
 
-var bought = {}
+var change = {}
 var local_prices = {}
 static var base_prices: Dictionary
 
 func _init(inputs: Dictionary, outputs: Dictionary):
 	for type in inputs:
 		local_prices[type] = base_prices[type]
-		bought[type] = 0
+		reset_change(type)
 	for type in outputs:
 		local_prices[type] = base_prices[type]
-		bought[type] = 0
+		reset_change(type)
 
 static func set_base_prices(new_base_prices):
 	base_prices = new_base_prices
 
-func report_sale(type: int, amount: int):
-	bought[type] += amount
+func report_change(type: int, amount: int):
+	change[type] += amount
+
+func reset_change(type: int):
+	change[type] = 0
+
+func get_change(type: int) -> int:
+	return change[type]
 
 func get_local_price(type: int) -> int:
 	return local_prices[type]
 
-func vary_input_price(demand: int, type: int):
-	vary_buy_order(demand, bought[type], type)
-	bought[type] = 0
+func vary_input_price(demand: int, supply: int, type: int):
+	vary_buy_order(demand, supply, type)
+	reset_change(type)
 
-func vary_output_price(supply: int, type: int):
-	vary_sell_order(bought[type], supply, type)
-	bought[type] = 0
+func vary_output_price(demand: int, type: int):
+	vary_sell_order(demand, get_change(type), type)
+	reset_change(type)
 
 func vary_buy_order(demand: int, supply: int, type: int):
 	var percentage_being_met = 1 - float(demand - supply) / demand

@@ -6,11 +6,9 @@ var current_cargo: Dictionary
 const time_every_update = 1
 var progress: float = 0.0
 
-var map: TileMapLayer
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	hide()
-	map = get_parent()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -34,12 +32,12 @@ func refresh_window():
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_name(coords: Vector2i):
-	var current_name = map.tile_info.get_hold_name(coords)
+	var current_name = terminal_map.tile_info.get_hold_name(coords)
 	update_current_name.rpc_id(multiplayer.get_remote_sender_id(), current_name)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_cargo(coords: Vector2i):
-	var dict = map.get_cargo_array_at_location(coords)
+	var dict = terminal_map.get_cargo_array_at_location(coords)
 	update_current_cargo.rpc_id(multiplayer.get_remote_sender_id(), dict)
 
 @rpc("authority", "call_local", "unreliable")

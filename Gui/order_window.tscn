@@ -1,0 +1,58 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwxvajubclxrm"]
+
+[ext_resource type="Script" path="res://Gui/order_window.gd" id="1_qxeqy"]
+
+[node name="Order_Window" type="Window"]
+initial_position = 1
+size = Vector2i(200, 300)
+script = ExtResource("1_qxeqy")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -150.0
+offset_right = 100.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.18359, 0.18359, 0.18359, 1)
+
+[node name="Label" type="Label" parent="Control/ColorRect"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Trade Orders:"
+
+[node name="Cargo_List" type="ItemList" parent="Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = -100.0
+offset_right = 100.0
+offset_bottom = 170.0
+grow_horizontal = 2
+focus_mode = 0
+
+[connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
+[connection signal="item_selected" from="Control/Cargo_List" to="." method="_on_cargo_list_item_selected"]

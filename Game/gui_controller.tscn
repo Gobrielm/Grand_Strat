@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://6neu625dq5i" path="res://Gui/hold_window.tscn" id="1_dtxc8"]
 [ext_resource type="Script" path="res://Game/gui_controller.gd" id="1_h6frl"]
 [ext_resource type="PackedScene" uid="uid://dqvn8y35ax23b" path="res://Units/unit_info_window.tscn" id="2_r0qrs"]
-[ext_resource type="PackedScene" uid="uid://bsap4yl65x1wd" path="res://Gui/depot_window.tscn" id="3_mlhlk"]
+[ext_resource type="PackedScene" uid="uid://bsap4yl65x1wd" path="res://Gui/Train_Gui/depot_window.tscn" id="3_mlhlk"]
 [ext_resource type="PackedScene" uid="uid://d2x16vqu0dy7j" path="res://Units/unit_managers/unit_creator_window.tscn" id="5_go62f"]
 
 [node name="gui_controller" type="Node"]

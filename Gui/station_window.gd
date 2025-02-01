@@ -8,11 +8,9 @@ var current_cash: int
 const time_every_update = 1
 var progress: float = 0.0
 
-var map: TileMapLayer
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	hide()
-	map = get_parent()
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
@@ -28,6 +26,9 @@ func open_window(new_location: Vector2i):
 	refresh_window()
 	popup()
 
+func get_location() -> Vector2i:
+	return location
+
 func refresh_window():
 	progress = 0
 	if location != null:
@@ -38,18 +39,18 @@ func refresh_window():
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_name(coords: Vector2i):
-	var current_name = map.tile_info.get_hold_name(coords)
+	var current_name = terminal_map.tile_info.get_hold_name(coords)
 	update_current_name.rpc_id(multiplayer.get_remote_sender_id(), current_name)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_station_cargo(coords: Vector2i):
-	var in_dict = map.get_in_station_cargo(coords)
-	var out_dict = map.get_out_station_cargo(coords)
+	var in_dict = terminal_map.get_ingoing_cargo(coords)
+	var out_dict = terminal_map.get_outgoing_cargo(coords)
 	update_current_cargo.rpc_id(multiplayer.get_remote_sender_id(), in_dict, out_dict)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_cash(coords: Vector2i):
-	var current_cash = map.get_cash_of_firm(coords)
+	var current_cash = terminal_map.get_cash_of_firm(coords)
 	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), current_cash)
 
 @rpc("authority", "call_local", "unreliable")
@@ -69,14 +70,13 @@ func update_current_cash(new_cash: int):
 func station_window():
 	var in_cargo_list: ItemList = $In_Node/Cargo_List
 	var out_cargo_list: ItemList = $Out_Node/Cargo_List
-	var names = map.get_cargo_index_to_name()
 	var selected_name = get_selected_in_name()
 	
 	for i in in_cargo_list.item_count:
 		in_cargo_list.remove_item(0)
 	for cargo in current_in_cargo.size():
 		if current_in_cargo[cargo] != 0:
-			var cargo_name: String = names[cargo]
+			var cargo_name: String = terminal_map.get_cargo_name(cargo)
 			in_cargo_list.add_item(cargo_name + ", " + str(current_in_cargo[cargo]))
 			if cargo_name == selected_name:
 				in_cargo_list.select(cargo)
@@ -87,7 +87,7 @@ func station_window():
 		out_cargo_list.remove_item(0)
 	for cargo in current_out_cargo.size():
 		if current_out_cargo[cargo] != 0:
-			var cargo_name: String = names[cargo]
+			var cargo_name: String = terminal_map.get_cargo_name(cargo)
 			out_cargo_list.add_item(cargo_name + ", " + str(current_out_cargo[cargo]))
 			if cargo_name == selected_name:
 				out_cargo_list.select(cargo)
@@ -121,7 +121,7 @@ func get_selected_in_name() -> String:
 
 func _on_out_switch_sides_pressed():
 	var name_item = get_selected_out_name()
-	var names = map.get_cargo_index_to_name()
+	var names = terminal_map.get_cargo_dict()
 	var cargo_index = -1
 	for index in names:
 		if names[index] == name_item:
@@ -131,7 +131,7 @@ func _on_out_switch_sides_pressed():
 
 func _on_in_switch_sides_pressed():
 	var name_item = get_selected_in_name()
-	var names = map.get_cargo_index_to_name()
+	var names = terminal_map.get_cargo_dict()
 	var cargo_index = -1
 	for index in names:
 		if names[index] == name_item:
@@ -141,8 +141,8 @@ func _on_in_switch_sides_pressed():
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_swap_to_out(coords: Vector2i, index: int):
-	map.request_swap_to_out(coords, index)
+	terminal_map.swap_good_to_outgoing_station(coords, index)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_swap_to_in(coords: Vector2i, index: int):
-	map.request_swap_to_in(coords, index)
+	terminal_map.swap_good_to_ingoing_station(coords, index)

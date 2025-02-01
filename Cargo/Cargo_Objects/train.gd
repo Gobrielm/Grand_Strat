@@ -30,7 +30,6 @@ const train_car_scene = preload("res://Cargo/Cargo_Objects/train_car.tscn")
 
 @onready var map: TileMapLayer = get_parent()
 @onready var window: Window = $Train_Window
-var cargo_controller
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	window.hide()
@@ -146,10 +145,9 @@ func is_selecting_route() -> bool:
 	return state_machine.is_selecting_route()
 
 @rpc("authority", "unreliable", "call_local")
-func create(new_location: Vector2i, new_cargo_controller, new_owner: int):
+func create(new_location: Vector2i, new_owner: int):
 	position = map.map_to_local(new_location)
 	location = new_location
-	cargo_controller = new_cargo_controller
 	player_owner = new_owner
 	prep_update_cargo_gui()
 
@@ -309,7 +307,7 @@ func unload_tick(obj: station):
 		done_unloading()
 
 func prep_update_cargo_gui():
-	var cargo_names: Dictionary = cargo_controller.get_cargo_dict()
+	var cargo_names: Dictionary = terminal_map.get_cargo_dict()
 	var cargo_dict: Dictionary = cargo_hold.get_current_hold()
 	update_cargo_gui.rpc(cargo_names, cargo_dict)
 
