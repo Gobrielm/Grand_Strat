@@ -38,16 +38,18 @@ func does_create(type: int) -> bool:
 
 func get_buy_order_total(type: int) -> int:
 	var total = 0
-	for order: trade_order in trade_orders.values():
-		if order.get_type() == type and order.is_buy_order():
-			total += order.get_amount()
+	for order_dict: Dictionary in trade_orders.values():
+		for order in order_dict:
+			if order.get_type() == type and order.is_buy_order():
+				total += order.get_amount()
 	return total
 
 func get_sell_order_total(type: int) -> int:
 	var total = 0
-	for order: trade_order in trade_orders.values():
-		if order.get_type() == type and order.is_sell_order():
-			total += order.get_amount()
+	for order_dict: Dictionary in trade_orders.values():
+		for order: trade_order in order_dict:
+			if order.get_type() == type and order.is_sell_order():
+				total += order.get_amount()
 	return total
 
 func get_monthly_demand(type: int) -> int:
@@ -56,7 +58,10 @@ func get_monthly_demand(type: int) -> int:
 func get_local_prices() -> Dictionary:
 	return local_pricer.local_prices
 
-func trade_cargo(type: int, amount: int) -> int:
+func get_local_price(type: int) -> float:
+	return local_pricer.get_local_price(type)
+
+func buy_cargo(type: int, amount: int) -> int:
 	add_cargo(type, amount)
 	local_pricer.report_change(type, amount)
 	var price = calculate_reward(type, amount)
@@ -64,10 +69,10 @@ func trade_cargo(type: int, amount: int) -> int:
 	return price
 
 func calculate_reward(type: int, amount: int) -> int:
-	return local_pricer.get_local_price(type) * amount
+	return get_local_price(type) * amount
 
 func get_desired_cargo_to_load(type: int) -> int:
-	var amount: int = get_amount_can_buy(local_pricer.get_local_price(type))
+	var amount: int = get_amount_can_buy(get_local_price(type))
 	return min(amount, max_amount - get_cargo_amount(type))
 
 func transfer_cargo(type: int, amount: int) -> int:
@@ -98,7 +103,7 @@ func remove_inputs(batch_size: int):
 func add_outputs(batch_size: int):
 	for index in outputs:
 		var amount = outputs[index] * batch_size
-		amount = create_cargo(index, amount)
+		amount = add_cargo_ignore_accepts(index, amount)
 		local_pricer.report_change(index, amount)
 
 func distribute_cargo():
@@ -128,35 +133,12 @@ func distribute_to_station(_station: station):
 
 func distribute_to_order(_station: station, order: trade_order):
 	var type = order.get_type()
-	var price = local_pricer.get_local_price(type)
-	var amount = min(_station.get_desired_cargo_to_load(type, price), order.get_amount())
+	var price = get_local_price(type)
+	var amount = min(_station.get_desired_cargo_to_load(type, price), order.get_amount(), LOAD_TICK_AMOUNT)
 	amount = transfer_cargo(type, amount)
 	_station.buy_cargo(type, amount, price)
 	add_cash(amount * price)
 	
-
-#func distribute_specific_type(type: int, connected_stations_array: Array):
-	#var price = local_pricer.get_local_price(type)
-	#var amount_to_transfer = min(LOAD_TICK_AMOUNT, get_cargo_amount(type))
-	#var size = connected_stations_array.size()
-	#var index = 0
-	#while amount_to_transfer > 0:
-		#var coords = connected_stations_array[index]
-		#var connected_station: station = terminal_map.get_terminal(coords)
-		#var order: trade_order = trade_orders[coords]
-		#var amount_can_buy = min(connected_station.get_amount_can_buy(price), amount_for_each, connected_station.get_desired_cargo_to_load(type))
-		#if amount_can_buy == 0:
-			#size -= 1
-			#if size == 0:
-				#return
-			#connected_stations_array.pop_at(index)
-			#index = (index) % size
-			#continue
-		#var amount = transfer_cargo(type, amount_can_buy)
-		#amount_to_transfer -= amount
-		#connected_station.buy_cargo(type, amount, price)
-		#add_cash(amount * price)
-		#index = (index + 1) % size
 
 func day_tick():
 	print("Default implementation")

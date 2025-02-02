@@ -1,6 +1,4 @@
-class_name station extends hold
-
-var ingoing_cargo: fixed_hold
+class_name station extends fixed_hold
 
 var connected_terminals: Dictionary = {}
 
@@ -8,36 +6,20 @@ var trade_orders = {}
 
 func _init(new_location: Vector2i, new_owner):
 	super._init(new_location)
-	ingoing_cargo = fixed_hold.new(new_location)
 	player_owner = new_owner
 
-func get_storage_available_for_delievery(type: int) -> int:
-	return ingoing_cargo.get_cargo_amount(type)
-
-func get_ingoing_cargo() -> Dictionary:
-	return ingoing_cargo.get_current_hold()
-
-func get_outgoing_cargo() -> Dictionary:
-	return get_current_hold()
-
 func place_order(type: int, amount: int, buy: bool):
-	if trade_orders.has(type):
-		return
-	if buy:
-		for term in connected_terminals.values():
-			if term is factory_template and term.does_create(type):
-				var order = trade_order.new(type, amount, buy, term.get_location())
-				term.add_order(location, order)
-				trade_orders[order.get_type()] = order
-	else:
-		for term in connected_terminals.values():
-			if term is factory_template and term.does_accept(type):
-				var order = trade_order.new(type, amount, buy, term.get_location())
-				term.add_order(location, order)
-				trade_orders[order.get_type()] = order
+	var fact: factory_template
+	for term in connected_terminals.values():
+		if term is factory_template and ((term.does_create(type) and buy) or (term.does_accept(type) and !buy)):
+			fact = term
+	var order = trade_order.new(type, amount, buy, fact.get_location())
+	fact.add_order(location, order)
+	trade_orders[order.get_type()] = order
 
 func edit_order(type: int, amount: int, buy: bool):
 	if trade_orders.has(type):
+		#Test that order changes on both sides
 		var order = trade_orders[type]
 		order.change_buy(buy)
 		order.change_amount(amount)
@@ -58,9 +40,6 @@ func can_take_type(type: int, term: terminal) -> bool:
 		return term.does_accept(type)
 	return false
 
-func get_desired_cargo(type: int) -> int:
-	return ingoing_cargo.get_desired_cargo(type)
-
 func get_desired_cargo_to_load(type: int, price_per: int) -> int:
 	return min(max_amount - get_cargo_amount(type), get_amount_can_buy(price_per))
 
@@ -68,25 +47,53 @@ func can_afford(price: int) -> bool:
 	return cash >= price
 
 func buy_cargo(type: int, amount: int, price_per: float):
-	add_cargo(type, amount)
+	add_cargo_ignore_accepts(type, amount)
 	remove_cash(round(amount * price_per))
 
-func distribute_cargo():
-	var cash_made = 0
-	for connected_terminal in connected_terminals.values():
-		if connected_terminal is factory or connected_terminal is apex_factory:
-			cash_made += find_transfer_good(connected_terminal)
-	add_cash(cash_made)
+#func distribute_cargo():
+	#var cash_made = 0
+	#for connected_terminal in connected_terminals.values():
+		#if connected_terminal is factory or connected_terminal is apex_factory:
+			#cash_made += find_transfer_good(connected_terminal)
+	#add_cash(cash_made)
+#
+#func find_transfer_good(connected_terminal: terminal) -> int:
+	#var cash_made = 0
+	#var in_storage = get_current_hold()
+	#for cargo in in_storage.size():
+		#if in_storage[cargo] > 0 and connected_terminal.does_accept(cargo):
+			#var amount = transfer_cargo(cargo, LOAD_TICK_AMOUNT)
+			#cash_made += connected_terminal.buy_cargo(cargo, amount)
+			#return cash_made
+	#return cash_made
 
-func find_transfer_good(connected_terminal: terminal) -> int:
-	var cash_made = 0
-	var in_storage = ingoing_cargo.get_current_hold()
-	for cargo in in_storage.size():
-		if in_storage[cargo] > 0 and connected_terminal.does_accept(cargo):
-			var amount = ingoing_cargo.transfer_cargo(cargo, LOAD_TICK_AMOUNT)
-			cash_made += connected_terminal.trade_cargo(cargo, amount)
-			return cash_made
-	return cash_made
+func distribute_cargo():
+	var array = randomize_trade_orders()
+	for order: trade_order in array:
+		complete_order(order)
+
+func randomize_trade_orders() -> Array:
+	var choices: Array = []
+	var toReturn: Array = []
+	for order: trade_order in trade_orders.values():
+		if order.is_sell_order():
+			choices.append(order)
+	while !choices.is_empty():
+		var rand_num = randi_range(0, choices.size() - 1)
+		var choice = choices.pop_at(rand_num)
+		toReturn.append(choice)
+	return toReturn
+
+func complete_order(order: trade_order):
+	var type = order.get_type()
+	var fact: factory_template = terminal_map.get_terminal(order.get_coords_of_factory())
+	var amount = min(fact.get_desired_cargo_to_load(type), order.get_amount(), LOAD_TICK_AMOUNT)
+	amount = transfer_cargo(type, amount)
+	var price = fact.get_local_price(type)
+	fact.buy_cargo(type, amount)
+	add_cash(amount * price)
+
+
 
 func add_connected_terminal(new_terminal: terminal):
 	connected_terminals[new_terminal.get_location()] = new_terminal
@@ -105,30 +112,10 @@ func update_accepts_from_trains():
 func add_accepts(obj):
 	for index in NUMBER_OF_GOODS:
 		if obj.does_accept(index):
-			ingoing_cargo.add_accept(index)
-
-func get_in_accepts() -> Dictionary:
-	return ingoing_cargo.accepts
-
-func does_in_accept(type: int) -> bool:
-	return ingoing_cargo.does_accept(type)
-
-func does_out_accept(type: int) -> bool:
-	return does_accept(type)
+			add_accept(index)
 
 func reset_accepts_train():
-	ingoing_cargo.reset_accepts()
-
-func swap_good_to_ingoing(index: int):
-	if ingoing_cargo.does_accept(index):
-		var amount = get_cargo_amount(index)
-		remove_cargo(index, amount)
-		ingoing_cargo.add_cargo(index, amount)
-
-func swap_good_to_outgoing(index: int):
-	var amount = ingoing_cargo.get_cargo_amount(index)
-	ingoing_cargo.remove_cargo(index, amount)
-	add_cargo(index, amount)
+	reset_accepts()
 
 func day_tick():
 	distribute_cargo()

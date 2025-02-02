@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://tgrwgdaijaeh"]
+[gd_scene load_steps=3 format=3 uid="uid://tgrwgdaijaeh"]
 
 [ext_resource type="Script" path="res://Gui/station_window.gd" id="1_8pdlu"]
-[ext_resource type="Texture2D" uid="uid://cfcpxbgu2gtyd" path="res://Gui/Icons/revert.png" id="1_tnl28"]
 [ext_resource type="PackedScene" uid="uid://ddsk0bc0ixiwt" path="res://Gui/order_screen.tscn" id="3_bfn1f"]
 
 [node name="station_window" type="Window"]
@@ -10,7 +9,7 @@ size = Vector2i(750, 500)
 content_scale_aspect = 1
 script = ExtResource("1_8pdlu")
 
-[node name="Out_Node" type="Control" parent="."]
+[node name="Cargo_Node" type="Control" parent="."]
 layout_mode = 3
 anchor_left = 0.706667
 anchor_top = 0.26
@@ -20,81 +19,30 @@ grow_horizontal = 0
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="ColorRect" type="ColorRect" parent="Out_Node"]
+[node name="ColorRect" type="ColorRect" parent="Cargo_Node"]
 layout_mode = 0
 offset_top = -40.0
 offset_right = 220.0
 offset_bottom = 300.0
 color = Color(0.18359, 0.18359, 0.18359, 1)
 
-[node name="Label" type="Label" parent="Out_Node/ColorRect"]
+[node name="Label" type="Label" parent="Cargo_Node/ColorRect"]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
-text = "Cargo Out:"
+text = "Cargo:"
 
-[node name="Cargo_List" type="ItemList" parent="Out_Node"]
+[node name="Cargo_List" type="ItemList" parent="Cargo_Node"]
 layout_mode = 0
 offset_right = 220.0
 offset_bottom = 300.0
 focus_mode = 0
-
-[node name="Out_Switch_Sides" type="Button" parent="Out_Node"]
-layout_mode = 0
-offset_left = 191.0
-offset_top = -38.0
-offset_right = 249.0
-offset_bottom = 20.0
-scale = Vector2(0.5, 0.5)
-focus_mode = 0
-icon = ExtResource("1_tnl28")
-flat = true
 
 [node name="Name" type="RichTextLabel" parent="."]
 offset_right = 750.0
 offset_bottom = 40.0
 bbcode_enabled = true
 scroll_active = false
-
-[node name="In_Node" type="Control" parent="."]
-layout_mode = 3
-anchor_left = 0.4
-anchor_top = 0.26
-anchor_right = 0.453333
-anchor_bottom = 0.34
-grow_horizontal = 0
-grow_vertical = 2
-metadata/_edit_use_anchors_ = true
-
-[node name="ColorRect" type="ColorRect" parent="In_Node"]
-layout_mode = 0
-offset_top = -40.0
-offset_right = 220.0
-offset_bottom = 300.0
-color = Color(0.18359, 0.18359, 0.18359, 1)
-
-[node name="Label" type="Label" parent="In_Node/ColorRect"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-text = "Cargo In:"
-
-[node name="Cargo_List" type="ItemList" parent="In_Node"]
-layout_mode = 0
-offset_right = 220.0
-offset_bottom = 300.0
-focus_mode = 0
-
-[node name="In_Switch_Sides" type="Button" parent="In_Node"]
-layout_mode = 0
-offset_left = 191.0
-offset_top = -38.0
-offset_right = 249.0
-offset_bottom = 20.0
-scale = Vector2(0.5, 0.5)
-focus_mode = 0
-icon = ExtResource("1_tnl28")
-flat = true
 
 [node name="Cash" type="Label" parent="."]
 offset_right = 40.0
@@ -107,5 +55,3 @@ offset_right = -40.0
 offset_bottom = -37.0
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
-[connection signal="pressed" from="Out_Node/Out_Switch_Sides" to="." method="_on_out_switch_sides_pressed"]
-[connection signal="pressed" from="In_Node/In_Switch_Sides" to="." method="_on_in_switch_sides_pressed"]

@@ -87,20 +87,6 @@ static func remove_order_station(coords: Vector2i, type: int):
 	if is_station(coords):
 		cargo_map_terminals[coords].remove_order(type)
 
-static func get_ingoing_cargo(coords: Vector2i) -> Dictionary:
-	return cargo_map_terminals[coords].get_ingoing_cargo()
-
-static func get_outgoing_cargo(coords: Vector2i) -> Dictionary:
-	return cargo_map_terminals[coords].get_outgoing_cargo()
-
-static func swap_good_to_ingoing_station(coords: Vector2i, good_index: int):
-	if is_station(coords):
-		cargo_map_terminals[coords].swap_good_to_ingoing(good_index)
-
-static func swap_good_to_outgoing_station(coords: Vector2i, good_index: int):
-	if is_station(coords):
-		cargo_map_terminals[coords].swap_good_to_outgoing(good_index)
-
 static func create_cargo_types():
 	cargo_types[0] = "wood"
 	cargo_types[1] = "lumber"

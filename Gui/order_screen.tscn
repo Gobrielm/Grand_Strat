@@ -48,4 +48,4 @@ focus_mode = 0
 [node name="Order_Window" parent="." instance=ExtResource("2_1si1q")]
 
 [connection signal="pressed" from="Add_Order" to="." method="_on_add_order_pressed"]
-[connection signal="selected_good" from="Order_Window" to="." method="_on_order_window_selected_good"]
+[connection signal="placed_order" from="Order_Window" to="." method="_on_order_window_placed_order"]

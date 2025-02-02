@@ -1,6 +1,6 @@
 extends Window
 
-signal selected_good
+signal placed_order
 
 var completed = false
 
@@ -38,4 +38,4 @@ func _on_place_order_pressed():
 	if amount <= 0:
 		return
 	var buy = $Buy_Button.button_pressed
-	selected_good.emit(type, amount, buy)
+	placed_order.emit(type, amount, buy)

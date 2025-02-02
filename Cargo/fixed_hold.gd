@@ -14,7 +14,7 @@ func add_cargo(type: int, amount: int) -> int:
 		return amount_to_add
 	return 0
 
-func create_cargo(type: int, amount: int) -> int:
+func add_cargo_ignore_accepts(type: int, amount: int) -> int:
 	var amount_to_add = min(max_amount - storage[type], amount)
 	storage[type] += amount_to_add
 	return amount_to_add

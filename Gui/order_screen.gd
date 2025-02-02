@@ -22,23 +22,32 @@ func get_selected_item() -> int:
 func _on_add_order_pressed():
 	$Order_Window.popup()
 
-func _on_order_window_selected_good(type: int, amount: int, buy: bool):
+func _on_order_window_placed_order(type: int, amount: int, buy: bool):
 	var location = station_window.get_location()
 	var good_name = terminal_map.get_cargo_name(type)
 	var count = $Cargo_List.item_count
 	for item in count:
 		if $Cargo_List.get_item_text(item).begins_with(good_name):
+			edit_order(item, type, amount, buy)
+			terminal_map.edit_order_station(location, type, amount, buy)
 			return
 	create_order_locally(type, amount, buy)
 	terminal_map.edit_order_station(location, type, amount, buy)
 
+func edit_order(index: int, type: int, amount: int, buy: bool):
+	set_order_icon(index, buy)
+	$Cargo_List.set_item_text(index, terminal_map.get_cargo_name(type) + ": " + str(amount))
+
 func create_order_locally(type: int, amount: int, buy: bool):
 	$Cargo_List.add_item(terminal_map.get_cargo_name(type) + ": " + str(amount))
+	set_order_icon($Cargo_List.item_count - 1, buy)
+
+func set_order_icon(index: int, buy: bool):
 	if buy:
 		$Cargo_List.item_count
-		$Cargo_List.set_item_icon($Cargo_List.item_count - 1, buy_icon)
+		$Cargo_List.set_item_icon(index, buy_icon)
 	else:
-		$Cargo_List.set_item_icon($Cargo_List.item_count - 1, sell_icon)
+		$Cargo_List.set_item_icon(index, sell_icon)
 
 func remove_order(index: int):
 	var text: String = $Cargo_List.get_item_text(index)
