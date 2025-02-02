@@ -29,8 +29,8 @@ func get_change(type: int) -> int:
 func get_local_price(type: int) -> int:
 	return local_prices[type]
 
-func vary_input_price(demand: int, supply: int, type: int):
-	vary_buy_order(demand, supply, type)
+func vary_input_price(demand: int, type: int):
+	vary_buy_order(demand, get_change(type), type)
 	reset_change(type)
 
 func vary_output_price(demand: int, type: int):
@@ -59,9 +59,10 @@ func get_multiple(type: int) -> float:
 	return local_prices[type] /  base_prices[type]
 
 func bump_up_good_price(type: int, percentage_met: float, amount: int):
+	var max_multiple = 1 / percentage_met
 	var multiple = get_multiple(type)
-	if multiple >= percentage_met:
-		multiple = percentage_met
+	if multiple >= max_multiple:
+		multiple = max_multiple
 	elif multiple >= MAX_DIFF:
 		multiple = MAX_DIFF
 	else:

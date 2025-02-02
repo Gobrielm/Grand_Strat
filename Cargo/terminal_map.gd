@@ -79,6 +79,14 @@ static func get_station(coords: Vector2i) -> station:
 		return cargo_map_terminals[coords]
 	return null
 
+static func get_station_orders(coords: Vector2i) -> Dictionary:
+	var toReturn = {}
+	if is_station(coords):
+		var orders = cargo_map_terminals[coords].get_orders()
+		for type in orders:
+			toReturn[type] = orders[type].convert_to_array()
+	return toReturn
+
 static func edit_order_station(coords: Vector2i, type: int, amount: int, buy: bool):
 	if is_station(coords):
 		cargo_map_terminals[coords].edit_order(type, amount, buy)

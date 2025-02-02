@@ -14,4 +14,4 @@ tile_map_data = PackedByteArray("AAD1//r/AAAHAAAAAAD1//v/AAAHAAAAAAD0//z/AAAHAAA
 [node name="main_map" parent="." instance=ExtResource("4_uuc1u")]
 
 [node name="cargo_map" parent="." instance=ExtResource("4_jxo5k")]
-tile_map_data = PackedByteArray("AAD4/wIAAAABAAAAAAA=")
+tile_map_data = PackedByteArray("AAD6//3/AAAAAAAAAAA=")

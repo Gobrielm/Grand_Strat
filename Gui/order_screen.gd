@@ -5,6 +5,8 @@ extends Control
 var buy_icon = preload("res://Gui/Icons/buy.png")
 var sell_icon = preload("res://Gui/Icons/sell.png")
 
+var current_orders: Dictionary
+
 func _input(event):
 	if event.is_action_pressed("delete"):
 		var index = get_selected_item()
@@ -18,6 +20,21 @@ func get_selected_item() -> int:
 		return -1
 	else:
 		return items[0]
+
+func update_orders(new_current_orders: Dictionary):
+	current_orders = {}
+	for type in new_current_orders:
+		current_orders[type] = trade_order.construct_from_array(new_current_orders[type])
+	update_order_screen()
+
+func update_order_screen():
+	clear_orders()
+	for type: int in current_orders:
+		var order: trade_order = current_orders[type]
+		create_order_locally(order.get_type(), order.get_amount(), order.is_buy_order())
+
+func clear_orders():
+	$Cargo_List.clear()
 
 func _on_add_order_pressed():
 	$Order_Window.popup()

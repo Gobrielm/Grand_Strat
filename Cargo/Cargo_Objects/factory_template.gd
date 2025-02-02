@@ -39,7 +39,7 @@ func does_create(type: int) -> bool:
 func get_buy_order_total(type: int) -> int:
 	var total = 0
 	for order_dict: Dictionary in trade_orders.values():
-		for order in order_dict:
+		for order: trade_order in order_dict.values():
 			if order.get_type() == type and order.is_buy_order():
 				total += order.get_amount()
 	return total
@@ -47,7 +47,7 @@ func get_buy_order_total(type: int) -> int:
 func get_sell_order_total(type: int) -> int:
 	var total = 0
 	for order_dict: Dictionary in trade_orders.values():
-		for order: trade_order in order_dict:
+		for order: trade_order in order_dict.values():
 			if order.get_type() == type and order.is_sell_order():
 				total += order.get_amount()
 	return total
@@ -72,6 +72,7 @@ func calculate_reward(type: int, amount: int) -> int:
 	return get_local_price(type) * amount
 
 func get_desired_cargo_to_load(type: int) -> int:
+	var price = get_local_price(type)
 	var amount: int = get_amount_can_buy(get_local_price(type))
 	return min(amount, max_amount - get_cargo_amount(type))
 

@@ -37,3 +37,9 @@ func get_amount() -> int:
 
 func get_coords_of_factory() -> Vector2i:
 	return coords_of_factory
+
+func convert_to_array() -> Array:
+	return [type, amount, buy, coords_of_factory]
+
+static func construct_from_array(array: Array):
+	return trade_order.new(array[0], array[1], array[2], array[3])

@@ -8,6 +8,9 @@ func _init(new_location: Vector2i, new_owner):
 	super._init(new_location)
 	player_owner = new_owner
 
+func get_orders() -> Dictionary:
+	return trade_orders
+
 func place_order(type: int, amount: int, buy: bool):
 	var fact: factory_template
 	for term in connected_terminals.values():
@@ -92,7 +95,6 @@ func complete_order(order: trade_order):
 	var price = fact.get_local_price(type)
 	fact.buy_cargo(type, amount)
 	add_cash(amount * price)
-
 
 
 func add_connected_terminal(new_terminal: terminal):

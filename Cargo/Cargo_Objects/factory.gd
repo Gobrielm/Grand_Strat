@@ -33,6 +33,6 @@ func day_tick():
 
 func month_tick():
 	for type in inputs:
-		local_pricer.vary_input_price(get_monthly_demand(type), get_sell_order_total(type), type)
+		local_pricer.vary_input_price(get_monthly_demand(type), type)
 	for type in outputs:
 		local_pricer.vary_output_price(get_buy_order_total(type), type)

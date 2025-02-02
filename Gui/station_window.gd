@@ -7,6 +7,8 @@ var current_cash: int
 const time_every_update = 1
 var progress: float = 0.0
 
+@onready var order_screen = $Order_Screen
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	hide()
@@ -34,6 +36,7 @@ func refresh_window():
 		request_station_cargo.rpc_id(1, location)
 		request_current_name.rpc_id(1, location)
 		request_current_cash.rpc_id(1, location)
+		request_current_orders.rpc_id(1, location)
 		station_window()
 
 @rpc("any_peer", "call_local", "unreliable")
@@ -51,6 +54,11 @@ func request_current_cash(coords: Vector2i):
 	var current_cash = terminal_map.get_cash_of_firm(coords)
 	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), current_cash)
 
+@rpc("any_peer", "call_local", "unreliable")
+func request_current_orders(coords: Vector2i):
+	var current_orders = terminal_map.get_station_orders(coords)
+	update_current_orders.rpc_id(multiplayer.get_remote_sender_id(), current_orders)
+
 @rpc("authority", "call_local", "unreliable")
 func update_current_cargo(new_cargo_dict: Dictionary):
 	current_cargo = new_cargo_dict
@@ -64,6 +72,10 @@ func update_current_cash(new_cash: int):
 	current_cash = new_cash
 	$Cash.text = "$" + str(current_cash)
 
+@rpc("authority", "call_local", "unreliable")
+func update_current_orders(new_current_orders: Dictionary):
+	order_screen.update_orders(new_current_orders)
+
 func station_window():
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List
 	var selected_name = get_selected_name()
@@ -75,6 +87,7 @@ func station_window():
 			cargo_list.add_item(cargo_name + ", " + str(current_cargo[cargo]))
 			if cargo_name == selected_name:
 				cargo_list.select(cargo)
+
 
 func get_selected_name() -> String:
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List
