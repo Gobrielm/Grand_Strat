@@ -79,9 +79,9 @@ static func get_station(coords: Vector2i) -> station:
 		return cargo_map_terminals[coords]
 	return null
 
-static func add_order_station(coords: Vector2i, type: int, buy: bool):
+static func edit_order_station(coords: Vector2i, type: int, amount: int, buy: bool):
 	if is_station(coords):
-		cargo_map_terminals[coords].place_order(type, buy)
+		cargo_map_terminals[coords].edit_order(type, amount, buy)
 
 static func remove_order_station(coords: Vector2i, type: int):
 	if is_station(coords):

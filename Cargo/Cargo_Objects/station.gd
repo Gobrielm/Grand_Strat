@@ -20,19 +20,19 @@ func get_ingoing_cargo() -> Dictionary:
 func get_outgoing_cargo() -> Dictionary:
 	return get_current_hold()
 
-func place_order(type: int, buy: bool):
+func place_order(type: int, amount: int, buy: bool):
 	if trade_orders.has(type):
 		return
 	if buy:
 		for term in connected_terminals.values():
 			if term is factory_template and term.does_create(type):
-				var order = trade_order.new(type, 1, buy, term.get_location())
+				var order = trade_order.new(type, amount, buy, term.get_location())
 				term.add_order(location, order)
 				trade_orders[order.get_type()] = order
 	else:
 		for term in connected_terminals.values():
 			if term is factory_template and term.does_accept(type):
-				var order = trade_order.new(type, 1, buy, term.get_location())
+				var order = trade_order.new(type, amount, buy, term.get_location())
 				term.add_order(location, order)
 				trade_orders[order.get_type()] = order
 
@@ -41,6 +41,8 @@ func edit_order(type: int, amount: int, buy: bool):
 		var order = trade_orders[type]
 		order.change_buy(buy)
 		order.change_amount(amount)
+	else:
+		place_order(type, amount, buy)
 
 func remove_order(type):
 	if trade_orders.has(type):
