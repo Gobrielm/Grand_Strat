@@ -2,6 +2,7 @@ class_name local_price_controller extends Node
 
 const MAX_DIFF = 1.5
 
+var attempts_to_buy = {}
 var change = {}
 var local_prices = {}
 static var base_prices: Dictionary
@@ -13,6 +14,7 @@ func _init(inputs: Dictionary, outputs: Dictionary):
 	for type in outputs:
 		local_prices[type] = base_prices[type]
 		reset_change(type)
+		reset_attempts(type)
 
 static func set_base_prices(new_base_prices):
 	base_prices = new_base_prices
@@ -20,11 +22,20 @@ static func set_base_prices(new_base_prices):
 func report_change(type: int, amount: int):
 	change[type] += amount
 
+func report_attempt(type: int, amount: int):
+	attempts_to_buy[type] += amount
+
 func reset_change(type: int):
 	change[type] = 0
 
+func reset_attempts(type: int):
+	attempts_to_buy[type] = 0
+
 func get_change(type: int) -> int:
 	return change[type]
+
+func get_attempts(type: int) -> int:
+	return attempts_to_buy[type]
 
 func get_local_price(type: int) -> int:
 	return local_prices[type]
@@ -33,8 +44,9 @@ func vary_input_price(demand: int, type: int):
 	vary_buy_order(demand, get_change(type), type)
 	reset_change(type)
 
-func vary_output_price(demand: int, type: int):
-	vary_sell_order(demand, get_change(type), type)
+func vary_output_price(type: int):
+	vary_sell_order(get_attempts(type), get_change(type), type)
+	reset_attempts(type)
 	reset_change(type)
 
 func vary_buy_order(demand: int, supply: int, type: int):
@@ -47,6 +59,8 @@ func vary_buy_order(demand: int, supply: int, type: int):
 		equalize_good_price(type)
 
 func vary_sell_order(demand: int, supply: int, type: int):
+	print(demand)
+	print(supply)
 	var percentage_being_met = 1 - float(supply - demand) / supply
 	if demand / 1.1 > supply:
 		bump_up_good_price(type, percentage_being_met, 2)

@@ -3,7 +3,7 @@ class_name terminal_map extends Node
 
 static var serviced = {}
 static var cargo_map_terminals = {} #Maps coords -> hold
-static var cargo_types = [
+static var cargo_types: Array = [
 	"clay", "sand", "sulfur", "lead", "iron", "coal", "copper", "zinc",
 	"wood", "salt", "grain", "livestock", "fish", "fruit", "cotton",
 	"silk", "spices", "coffee", "tea", "tobacco", "gold",
@@ -15,7 +15,17 @@ static var cargo_types = [
 	"ammo", "guns", "artillery", "preserved_meat", "canned_food", "rations", "luxury_rations",
 ]
 static var cargo_names_to_types = {}
-static var base_prices = {}
+static var base_prices = {
+	"clay" = 10, "sand" = 10, "sulfur" = 10, "lead" = 10, "iron" = 10, "coal" = 10, "copper" = 10, "zinc" = 10,
+	"wood" = 10, "salt" = 10, "grain" = 10, "livestock" = 10, "fish" = 10, "fruit" = 10, "cotton" = 10,
+	"silk" = 10, "spices" = 10, "coffee" = 10, "tea" = 10, "tobacco" = 10, "gold" = 10,
+	
+	"bricks" = 10, "glass" = 10, "lumber" = 10, "paper" = 10, "tools" = 10, "steel" = 10, "brass" = 10, "dynamite" = 10,
+	"flour" = 10, "fabric" = 10, "liquor" = 10, "bread" = 10, "leather" = 10, "meat" = 10, "clothes" = 10,
+	"wine" = 10, "luxury_clothes" = 10, "cigarettes" = 10, "perserved_fruit" = 10,
+	"furniture" = 10, "wagons" = 10, "boats" = 10, "lanterns" = 10, "trains" = 10,
+	"ammo" = 10, "guns" = 10, "artillery" = 10, "preserved_meat" = 10, "canned_food" = 10, "rations" = 10, "luxury_rations" = 10,
+}
 
 
 static var map: TileMapLayer
@@ -106,36 +116,14 @@ static func remove_order_station(coords: Vector2i, type: int):
 		cargo_map_terminals[coords].remove_order(type)
 
 static func create_cargo_types():
-	for type in cargo_types:
+	for type in cargo_types.size():
 		cargo_names_to_types[cargo_types[type]] = type
 
 static func create_base_prices():
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("lumber")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	base_prices[get_cargo_type("wood")] = 10
-	local_price_controller.set_base_prices(base_prices)
+	var new_base_prices = {}
+	for good_name in base_prices:
+		new_base_prices[cargo_names_to_types[good_name]] = base_prices[good_name]
+	local_price_controller.set_base_prices(new_base_prices)
 	assert(base_prices.size() == cargo_types.size())
 
 static func get_number_of_goods() -> int:
@@ -152,5 +140,5 @@ static func get_cargo_type(cargo_name: String) -> int:
 static func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
 	return get_terminal(coords).get_current_hold()
 
-static func get_cargo_dict() -> Dictionary:
+static func get_cargo_array() -> Array:
 	return cargo_types

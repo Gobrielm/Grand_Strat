@@ -75,7 +75,7 @@ func update_current_prices(new_prices: Dictionary):
 
 func factory_window():
 	var cargo_list: ItemList = $Cargo_Node/Cargo_List
-	var names = terminal_map.get_cargo_dict()
+	var names = terminal_map.get_cargo_array()
 	var selected_name = get_selected_name()
 	
 	for i in cargo_list.item_count:
@@ -90,7 +90,7 @@ func factory_window():
 func display_current_prices():
 	var price_list: ItemList = $Price_Node/Price_List
 	price_list.clear()
-	var names = terminal_map.get_cargo_dict()
+	var names = terminal_map.get_cargo_array()
 	for i in current_prices:
 		price_list.add_item(names[i] + ": " + str(current_prices[i]))
 

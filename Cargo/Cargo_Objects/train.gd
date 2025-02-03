@@ -307,12 +307,12 @@ func unload_tick(obj: station):
 		done_unloading()
 
 func prep_update_cargo_gui():
-	var cargo_names: Dictionary = terminal_map.get_cargo_dict()
+	var cargo_names: Array = terminal_map.get_cargo_array()
 	var cargo_dict: Dictionary = cargo_hold.get_current_hold()
 	update_cargo_gui.rpc(cargo_names, cargo_dict)
 
 @rpc("authority", "unreliable", "call_local")
-func update_cargo_gui(names: Dictionary, amounts: Dictionary):
+func update_cargo_gui(names: Array, amounts: Dictionary):
 	$Train_Window/Goods.clear()
 	for type in amounts:
 		if amounts[type] != 0:

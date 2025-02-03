@@ -15,4 +15,4 @@ func day_tick():
 
 func month_tick():
 	for type in outputs:
-		local_pricer.vary_output_price(get_buy_order_total(type), type)
+		local_pricer.vary_output_price(type)

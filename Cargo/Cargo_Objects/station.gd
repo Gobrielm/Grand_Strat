@@ -117,7 +117,7 @@ func update_accepts_from_trains():
 			add_accepts(obj)
 
 func add_accepts(obj):
-	for index in NUMBER_OF_GOODS:
+	for index in terminal_map.get_number_of_goods():
 		if obj.does_accept(index):
 			add_accept(index)
 

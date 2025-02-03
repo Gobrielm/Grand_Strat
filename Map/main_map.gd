@@ -155,9 +155,6 @@ func get_depot_direction(coords: Vector2i) -> int:
 	return rail_placer.get_depot_direction(coords)
 
 #Cargo
-func get_cargo_array() -> Dictionary:
-	return terminal_map.get_cargo_dict()
-
 func is_depot(coords: Vector2i) -> bool:
 	return tile_info.is_depot(coords)
 

@@ -11,7 +11,7 @@ func _ready():
 func _on_about_to_popup():
 	if !completed:
 		var cargo_list: ItemList = $Control/Cargo_List
-		for type: String in terminal_map.get_cargo_dict().values():
+		for type: String in terminal_map.get_cargo_array():
 			cargo_list.add_item(type)
 		completed = true
 

@@ -17,7 +17,7 @@ func _init(new_location: Vector2i, new_inputs: Dictionary, new_outputs: Dictiona
 	inputs = new_inputs
 	outputs = new_outputs
 	max_batch_size = DEFAULT_BATCH_SIZE
-	for type in inputs.size():
+	for type in inputs:
 		if inputs[type] != 0:
 			add_accept(type)
 	local_pricer = local_price_controller.new(inputs, outputs)
@@ -70,7 +70,7 @@ func get_desired_cargo_to_load(type: int) -> int:
 
 func transfer_cargo(type: int, amount: int) -> int:
 	var new_amount = min(storage[type], amount)
-	remove_cargo(type, amount)
+	remove_cargo(type, new_amount)
 	return new_amount
 
 func create_recipe():
@@ -128,6 +128,7 @@ func distribute_to_order(_station: station, order: trade_order):
 	var type = order.get_type()
 	var price = get_local_price(type)
 	var amount = min(_station.get_desired_cargo_to_load(type, price), order.get_amount(), LOAD_TICK_AMOUNT)
+	local_pricer.report_attempt(type, amount)
 	amount = transfer_cargo(type, amount)
 	_station.buy_cargo(type, amount, price)
 	add_cash(amount * price)
