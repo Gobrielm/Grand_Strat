@@ -2,5 +2,5 @@ extends base_factory
 
 func _init(new_location: Vector2i):
 	var dict = {}
-	dict[2] = 2
+	dict[terminal_map.get_cargo_type("iron")] = 1
 	super._init(new_location, dict)

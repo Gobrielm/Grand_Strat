@@ -7,7 +7,7 @@ var max_amount: int = 50 #Max Amount of cargo the hold can hold
 
 func _init(new_location: Vector2i):
 	super._init(new_location)
-	for i in NUMBER_OF_GOODS:
+	for i in terminal_map.get_number_of_goods():
 		storage[i] = 0
 
 #Return amount added

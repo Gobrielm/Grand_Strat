@@ -3,7 +3,17 @@ class_name terminal_map extends Node
 
 static var serviced = {}
 static var cargo_map_terminals = {} #Maps coords -> hold
-static var cargo_types = {}
+static var cargo_types = [
+	"clay", "sand", "sulfur", "lead", "iron", "coal", "copper", "zinc",
+	"wood", "salt", "grain", "livestock", "fish", "fruit", "cotton",
+	"silk", "spices", "coffee", "tea", "tobacco", "gold",
+	
+	"bricks", "glass", "lumber", "paper", "tools", "steel", "brass", "dynamite",
+	"flour", "fabric", "liquor", "bread", "leather", "meat", "clothes",
+	"wine", "luxury_clothes", "cigarettes", "perserved_fruit",
+	"furniture", "wagons", "boats", "lanterns", "trains",
+	"ammo", "guns", "artillery", "preserved_meat", "canned_food", "rations", "luxury_rations",
+]
 static var cargo_names_to_types = {}
 static var base_prices = {}
 
@@ -96,56 +106,40 @@ static func remove_order_station(coords: Vector2i, type: int):
 		cargo_map_terminals[coords].remove_order(type)
 
 static func create_cargo_types():
-	cargo_types[0] = "wood"
-	cargo_types[1] = "lumber"
-	cargo_types[2] = "iron"
-	cargo_types[3] = "steel"
-	cargo_types[4] = "stone"
-	cargo_types[5] = "grain"
-	cargo_types[6] = "livestock"
-	cargo_types[7] = "wine"
-	cargo_types[8] = "coal"
-	cargo_types[9] = "gold"
-	cargo_types[10] = "silver"
-	cargo_types[11] = "copper"
-	cargo_types[12] = "wool"
-	cargo_types[13] = "silk"
-	cargo_types[14] = "spices"
-	cargo_types[15] = "porcelain"
-	cargo_types[16] = "salt"
-	cargo_types[17] = "sulfur"
-	cargo_types[18] = "lead"
-	cargo_types[19] = "leather"
-	cargo_types[20] = "meat"
 	for type in cargo_types:
 		cargo_names_to_types[cargo_types[type]] = type
 
 static func create_base_prices():
-	base_prices[0] = 10
-	base_prices[1] = 10
-	base_prices[2] = 10
-	base_prices[3] = 10
-	base_prices[4] = 10
-	base_prices[5] = 10
-	base_prices[6] = 10
-	base_prices[7] = 10
-	base_prices[8] = 10
-	base_prices[9] = 10
-	base_prices[10] = 10
-	base_prices[11] = 10
-	base_prices[12] = 10
-	base_prices[13] = 10
-	base_prices[14] = 10
-	base_prices[15] = 10
-	base_prices[16] = 10
-	base_prices[17] = 10
-	base_prices[18] = 10
-	base_prices[19] = 10
-	base_prices[20] = 10
-	terminal.set_base_prices(base_prices)
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("lumber")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
+	base_prices[get_cargo_type("wood")] = 10
 	local_price_controller.set_base_prices(base_prices)
 	assert(base_prices.size() == cargo_types.size())
-	
+
+static func get_number_of_goods() -> int:
+	return cargo_types.size()
 
 static func get_cargo_name(index: int) -> String:
 	return cargo_types[index]

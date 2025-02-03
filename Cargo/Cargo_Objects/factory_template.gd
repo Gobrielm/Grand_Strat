@@ -41,16 +41,8 @@ func get_buy_order_total(type: int) -> int:
 	for order_dict: Dictionary in trade_orders.values():
 		for order: trade_order in order_dict.values():
 			if order.get_type() == type and order.is_buy_order():
-				total += order.get_amount()
-	return total
-
-func get_sell_order_total(type: int) -> int:
-	var total = 0
-	for order_dict: Dictionary in trade_orders.values():
-		for order: trade_order in order_dict.values():
-			if order.get_type() == type and order.is_sell_order():
-				total += order.get_amount()
-	return total
+				total += min(order.get_amount(), outputs[type])
+	return total * DAY_TICKS_PER_MONTH
 
 func get_monthly_demand(type: int) -> int:
 	return inputs[type] * DAY_TICKS_PER_MONTH
