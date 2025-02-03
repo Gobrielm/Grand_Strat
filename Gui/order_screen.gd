@@ -28,10 +28,13 @@ func update_orders(new_current_orders: Dictionary):
 	update_order_screen()
 
 func update_order_screen():
+	var type_selected = get_selected_type()
 	clear_orders()
 	for type: int in current_orders:
 		var order: trade_order = current_orders[type]
 		create_order_locally(order.get_type(), order.get_amount(), order.is_buy_order())
+		if type == type_selected:
+			$Cargo_List.select($Cargo_List.item_count - 1)
 
 func clear_orders():
 	$Cargo_List.clear()
@@ -78,3 +81,15 @@ func remove_order(index: int):
 	var type = terminal_map.get_cargo_type(text)
 	terminal_map.remove_order_station(location, type)
 	$Cargo_List.remove_item(index)
+
+func get_selected_type() -> int:
+	var index = get_selected_item()
+	if index == -1:
+		return -1
+	var text: String = $Cargo_List.get_item_text(index)
+	while text.length() > 0:
+		var arg: String = text.right(1)
+		if !arg.is_valid_int() and !arg == ":" and !arg == " ":
+			break
+		text = text.left(text.length() - 1)
+	return terminal_map.get_cargo_type(text)

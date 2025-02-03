@@ -151,7 +151,9 @@ static func get_cargo_name(index: int) -> String:
 	return cargo_types[index]
 
 static func get_cargo_type(cargo_name: String) -> int:
-	return cargo_names_to_types[cargo_name]
+	if cargo_names_to_types.has(cargo_name):
+		return cargo_names_to_types[cargo_name]
+	return -1
 
 static func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
 	return get_terminal(coords).get_current_hold()

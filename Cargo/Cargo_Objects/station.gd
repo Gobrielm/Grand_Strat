@@ -16,9 +16,13 @@ func place_order(type: int, amount: int, buy: bool):
 	for term in connected_terminals.values():
 		if term is factory_template and ((term.does_create(type) and buy) or (term.does_accept(type) and !buy)):
 			fact = term
-	var order = trade_order.new(type, amount, buy, fact.get_location())
-	fact.add_order(location, order)
-	trade_orders[order.get_type()] = order
+	var order: trade_order
+	if fact != null:
+		order = trade_order.new(type, amount, buy, fact.get_location())
+		fact.add_order(location, order)
+	else:
+		order = trade_order.new(type, amount, buy, location)
+	trade_orders[type] = order
 
 func edit_order(type: int, amount: int, buy: bool):
 	if trade_orders.has(type):
@@ -33,8 +37,9 @@ func remove_order(type):
 	if trade_orders.has(type):
 		var order: trade_order = trade_orders[type]
 		var term_coords = order.get_coords_of_factory()
-		var term = connected_terminals[term_coords]
-		term.remove_order(location, type)
+		if term_coords != location:
+			var term = connected_terminals[term_coords]
+			term.remove_order(location, type)
 		trade_orders.erase(type)
 		order.queue_free()
 
