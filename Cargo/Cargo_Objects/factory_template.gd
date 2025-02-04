@@ -128,7 +128,7 @@ func distribute_to_order(_station: station, order: trade_order):
 	var type = order.get_type()
 	var price = get_local_price(type)
 	var amount = min(_station.get_desired_cargo_to_load(type, price), order.get_amount(), LOAD_TICK_AMOUNT)
-	local_pricer.report_attempt(type, amount)
+	local_pricer.report_attempt(type, min(amount, outputs[type]))
 	amount = transfer_cargo(type, amount)
 	_station.buy_cargo(type, amount, price)
 	add_cash(amount * price)
