@@ -59,7 +59,7 @@ func _ready():
 		for cell in get_used_cells():
 			rail_placer.init_track_connection.rpc(cell)
 		tile_info = load("res://Map/tile_info.gd").new(self)
-		create_client_tile_info.rpc(tile_info.get_cities())
+		create_client_tile_info.rpc(self)
 		var cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
 		add_child(cargo_controller)
 		terminal_map.create(self)

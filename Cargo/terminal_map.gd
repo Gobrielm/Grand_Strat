@@ -10,7 +10,7 @@ static var cargo_types: Array = [
 	
 	"bricks", "glass", "lumber", "paper", "tools", "steel", "brass", "dynamite",
 	"flour", "fabric", "liquor", "bread", "leather", "meat", "clothes",
-	"wine", "luxury_clothes", "cigarettes", "perserved_fruit",
+	"wine", "luxury_clothes", "cigarettes", "perserved_fruit", "porcelain",
 	"furniture", "wagons", "boats", "lanterns", "trains",
 	"ammo", "guns", "artillery", "preserved_meat", "canned_food", "rations", "luxury_rations",
 ]
@@ -22,7 +22,7 @@ static var base_prices = {
 	
 	"bricks" = 10, "glass" = 10, "lumber" = 10, "paper" = 10, "tools" = 10, "steel" = 10, "brass" = 10, "dynamite" = 10,
 	"flour" = 10, "fabric" = 10, "liquor" = 10, "bread" = 10, "leather" = 10, "meat" = 10, "clothes" = 10,
-	"wine" = 10, "luxury_clothes" = 10, "cigarettes" = 10, "perserved_fruit" = 10,
+	"wine" = 10, "luxury_clothes" = 10, "cigarettes" = 10, "perserved_fruit" = 10, "porcelain" = 10,
 	"furniture" = 10, "wagons" = 10, "boats" = 10, "lanterns" = 10, "trains" = 10,
 	"ammo" = 10, "guns" = 10, "artillery" = 10, "preserved_meat" = 10, "canned_food" = 10, "rations" = 10, "luxury_rations" = 10,
 }

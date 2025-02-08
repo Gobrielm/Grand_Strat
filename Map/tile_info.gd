@@ -2,23 +2,12 @@ extends Node
 
 var map: TileMapLayer
 
-var cities = {}
-
 var depots = {}
 
 var holds = {}
 
 func _init(new_map):
 	map = new_map
-	create_cities()
-
-func create_cities():
-	cities[Vector2i(0, -3)] = ["Madrid", 330]
-	cities[Vector2i(-11, 0)] = ["Lisbon", 57]
-	cities[Vector2i(19, -29)] = ["Paris", 210]
-
-func get_cities():
-	return cities
 
 func add_depot(coords: Vector2i, depot: terminal, player_id: int):
 	depots[coords] = [depot, player_id]

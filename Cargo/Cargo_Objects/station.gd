@@ -58,23 +58,6 @@ func buy_cargo(type: int, amount: int, price_per: float):
 	add_cargo_ignore_accepts(type, amount)
 	remove_cash(round(amount * price_per))
 
-#func distribute_cargo():
-	#var cash_made = 0
-	#for connected_terminal in connected_terminals.values():
-		#if connected_terminal is factory or connected_terminal is apex_factory:
-			#cash_made += find_transfer_good(connected_terminal)
-	#add_cash(cash_made)
-#
-#func find_transfer_good(connected_terminal: terminal) -> int:
-	#var cash_made = 0
-	#var in_storage = get_current_hold()
-	#for cargo in in_storage.size():
-		#if in_storage[cargo] > 0 and connected_terminal.does_accept(cargo):
-			#var amount = transfer_cargo(cargo, LOAD_TICK_AMOUNT)
-			#cash_made += connected_terminal.buy_cargo(cargo, amount)
-			#return cash_made
-	#return cash_made
-
 func distribute_cargo():
 	var array = randomize_trade_orders()
 	for order: trade_order in array:
@@ -97,6 +80,7 @@ func complete_order(order: trade_order):
 	var fact: factory_template = terminal_map.get_terminal(order.get_coords_of_factory())
 	var amount = min(fact.get_desired_cargo_to_load(type), order.get_amount(), LOAD_TICK_AMOUNT)
 	amount = transfer_cargo(type, amount)
+	assert(amount > -100000)
 	var price = fact.get_local_price(type)
 	fact.buy_cargo(type, amount)
 	add_cash(amount * price)
