@@ -66,10 +66,13 @@ static func add_connected_terminals(coords: Vector2i, new_terminal: terminal):
 static func is_hold(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is hold
 
+static func is_owned_construction_site(coords: Vector2i) -> bool:
+	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is player_factory and cargo_map_terminals[coords].has_no_recipe()
+
 static func is_factory(coords: Vector2i) -> bool:
 	if cargo_map_terminals.has(coords):
 		var term = cargo_map_terminals[coords]
-		return term is factory or term is apex_factory or term is base_factory
+		return term is factory_template
 	return false
 
 static func get_cash_of_firm(coords: Vector2i) -> int:
