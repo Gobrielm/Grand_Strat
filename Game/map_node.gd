@@ -39,6 +39,8 @@ func _input(event):
 			main_map.record_start_rail()
 		elif state_machine.is_building_units():
 			main_map.create_unit()
+		elif state_machine.is_building_factory():
+			create_factory()
 		elif state_machine.is_selecting_unit() and main_map.is_unit_double_clicked():
 			main_map.show_unit_info_window()
 		else:
@@ -64,6 +66,14 @@ func _input(event):
 		main_map.create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
 		unit_creator_window.popup()
+
+#Factory
+func create_factory():
+	create_factory_server.rpc_id(1, unique_id, get_cell_position())
+
+@rpc("any_peer", "call_local", "unreliable")
+func create_factory_server(building_id: int, coords: Vector2i):
+	cargo_map.create_factory(building_id, coords)
 
 #Tile_Ownership
 func toggle_ownership_view():

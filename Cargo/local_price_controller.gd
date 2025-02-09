@@ -51,6 +51,7 @@ func vary_output_price(type: int):
 
 func vary_buy_order(demand: int, supply: int, type: int):
 	var percentage_being_met = 1 - float(demand - supply) / demand
+	assert(percentage_being_met != -INF)
 	if demand / 1.1 > supply:
 		bump_up_good_price(type, percentage_being_met, 1)
 	elif demand * 1.1 < supply:
@@ -59,9 +60,8 @@ func vary_buy_order(demand: int, supply: int, type: int):
 		equalize_good_price(type)
 
 func vary_sell_order(demand: int, supply: int, type: int):
-	print(demand)
-	print(supply)
 	var percentage_being_met = 1 - float(supply - demand) / supply
+	assert(percentage_being_met != -INF)
 	if demand / 1.1 > supply:
 		bump_up_good_price(type, percentage_being_met, 2)
 	elif demand * 1.1 < supply:

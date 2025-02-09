@@ -1,6 +1,7 @@
 class_name state_machine extends Node
 
-static var building = false
+static var building_rails = false
+static var building_factory = false
 static var building_many_rails = false
 static var hovering_over_gui = false
 static var controlling_camera = false
@@ -10,7 +11,7 @@ static var selecting_route = false
 static var picking_nation = false
 
 static func print_all():
-	print(building)
+	print(building_rails)
 	print(building_many_rails)
 	print(hovering_over_gui)
 	print(controlling_camera)
@@ -25,7 +26,7 @@ static func default():
 	controlling_camera = true
 
 static func all_off():
-	building = false
+	building_rails = false
 	building_many_rails = false
 	hovering_over_gui = false
 	controlling_camera = false
@@ -33,18 +34,20 @@ static func all_off():
 	building_units = false
 	selecting_route = false
 	picking_nation = false
+	building_factory = false
 
 static func gui_button_pressed():
 	all_off()
-	building = true
+	building_rails = true
 
 static func gui_button_unpressed():
-	building = false
+	building_rails = false
 	default()
 
 static func unpress_gui():
-	building = false
+	building_rails = false
 	building_many_rails = false
+	building_factory = false
 	default()
 
 static func many_track_button_toggled():
@@ -56,26 +59,34 @@ static func many_track_button_toggled():
 		default()
 
 static func track_button_toggled():
-	building = !building
-	if building:
+	building_rails = !building_rails
+	if building_rails:
 		all_off()
-		building = true
+		building_rails = true
 	else:
 		default()
 
 static func depot_button_toggled():
-	building = !building
-	if building:
+	building_rails = !building_rails
+	if building_rails:
 		all_off()
-		building = true
+		building_rails = true
 	else:
 		default()
 
 static func station_button_toggled():
-	building = !building
-	if building:
+	building_rails = !building_rails
+	if building_rails:
 		all_off()
-		building = true
+		building_rails = true
+	else:
+		default()
+
+static func factory_button_toggled():
+	building_factory = !building_factory
+	if building_factory:
+		all_off()
+		building_factory = true
 	else:
 		default()
 
@@ -86,7 +97,10 @@ static func is_controlling_camera() -> bool:
 	return controlling_camera
 
 static func is_building() -> bool:
-	return building and !hovering_over_gui
+	return building_rails and !hovering_over_gui
+
+static func is_building_factory() -> bool:
+	return building_factory and !hovering_over_gui
 
 static func is_selecting_unit() -> bool:
 	return unit_selected and !hovering_over_gui

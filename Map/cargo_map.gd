@@ -19,13 +19,14 @@ func get_script_from_atlas(coords: Vector2i):
 		return null
 	return cargo_buildings[coords]
 
+func create_factory(_building_id: int, coords: Vector2i):
+	var new_factory = load("res://Cargo/Cargo_Objects/Specific/Player/generic_factory.gd").new(coords)
+	set_cell(coords, 0, Vector2i(3, 1))
+	terminal_map.create_terminal(new_factory)
+
 func create_atlas_to_building():
 	cargo_buildings = {}
 	cargo_buildings[Vector2i(0, 0)] = load("res://Cargo/Cargo_Objects/Specific/Secondary/lumber_mill.gd")
 	cargo_buildings[Vector2i(1, 0)] = load("res://Cargo/Cargo_Objects/Specific/Primary/woodcutter.gd")
-	cargo_buildings[Vector2i(0, 1)] = load("res://Cargo/Cargo_Objects/Specific/Distributor/town.gd")
+	cargo_buildings[Vector2i(0, 1)] = load("res://Cargo/Cargo_Objects/Specific/Endpoint/town.gd")
 	
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass

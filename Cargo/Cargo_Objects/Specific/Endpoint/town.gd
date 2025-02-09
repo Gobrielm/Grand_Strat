@@ -1,8 +1,8 @@
-extends factory
-
+extends apex_factory
+#TODO: CHANGE TO ENDPINT
 func _init(new_location: Vector2i):
 	var dict = create_inputs()
-	super._init(new_location, dict, dict)
+	super._init(new_location, dict)
 	max_batch_size = 1
 
 func create_inputs() -> Dictionary:
@@ -35,9 +35,9 @@ func remove_input(type: int):
 func withdraw():
 	for type in inputs:
 		if check_input(type):
+			print(type)
 			#TODO: Do something if type is available to be used
 			remove_input(type)
-	
 
 func day_tick():
 	withdraw()
