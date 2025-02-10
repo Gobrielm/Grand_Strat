@@ -67,7 +67,7 @@ static func is_hold(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is hold
 
 static func is_owned_construction_site(coords: Vector2i) -> bool:
-	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is player_factory and cargo_map_terminals[coords].has_no_recipe()
+	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is construction_site
 
 static func is_factory(coords: Vector2i) -> bool:
 	if cargo_map_terminals.has(coords):

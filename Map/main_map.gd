@@ -63,6 +63,7 @@ func _ready():
 		var cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
 		add_child(cargo_controller)
 		terminal_map.create(self)
+		recipe.create_set_recipes()
 		$player_camera/CanvasLayer/Desync_Label.visible = true
 		testing = preload("res://Test/testing.gd").new(self)
 	else:

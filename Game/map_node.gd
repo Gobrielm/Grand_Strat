@@ -19,7 +19,7 @@ func _ready():
 	if unique_id != 1:
 		remove_child(cargo_map)
 		cargo_map.queue_free()
-		cargo_map = load("res://Client_Objects/client_cargo_map.tscn").instantiate() 
+		cargo_map = load("res://Client_Objects/client_cargo_map.tscn").instantiate()
 		add_child(cargo_map)
 		remove_child(tile_ownership)
 		tile_ownership.queue_free()

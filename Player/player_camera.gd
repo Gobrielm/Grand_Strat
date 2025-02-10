@@ -16,21 +16,21 @@ func _process(_delta):
 		state_machine.hovering_over_gui_active()
 	else:
 		state_machine.hovering_over_gui_inactive()
-	if Input.is_action_pressed("pan_left"):
+	if Input.is_action_pressed("pan_left") and state_machine.is_controlling_camera():
 		position.x -= 5 / zoom.x
-	elif Input.is_action_pressed("pan_right"):
+	elif Input.is_action_pressed("pan_right") and state_machine.is_controlling_camera():
 		position.x += 5 / zoom.x
-	elif Input.is_action_pressed("pan_down"):
+	elif Input.is_action_pressed("pan_down") and state_machine.is_controlling_camera():
 		position.y -= 5 / zoom.x
-	elif Input.is_action_pressed("pan_up"):
+	elif Input.is_action_pressed("pan_up") and state_machine.is_controlling_camera():
 		position.y += 5 / zoom.x
-	if Input.is_action_just_released("zoom_in") and zoom.x < 2:
+	if Input.is_action_just_released("zoom_in") and zoom.x < 2 and state_machine.is_controlling_camera():
 		zoom.x += 0.05
 		zoom.y += 0.05
-	elif Input.is_action_just_released("zoom_out") and zoom.x > 0.06:
+	elif Input.is_action_just_released("zoom_out") and zoom.x > 0.06 and state_machine.is_controlling_camera():
 		zoom.x -= 0.05
 		zoom.y -= 0.05
-	elif Input.is_action_pressed("pan_mouse") and last_mouse_position:
+	elif Input.is_action_pressed("pan_mouse") and last_mouse_position and state_machine.is_controlling_camera():
 		var instant_mouse_movement = last_mouse_position - get_viewport().get_mouse_position()
 		position.x += 1 / zoom.x * instant_mouse_movement.x
 		position.y += 1 / zoom.y * instant_mouse_movement.y
