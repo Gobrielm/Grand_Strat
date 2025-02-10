@@ -23,7 +23,6 @@ func open_window(coords: Vector2i):
 func _on_close_requested():
 	hide()
 
-
 @rpc("any_peer", "call_local", "unreliable")
 func request_recipe(coords: Vector2i):
 	var recipe_item: Array = terminal_map.get_construction_site_recipe(coords)

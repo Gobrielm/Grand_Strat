@@ -77,6 +77,8 @@ func randomize_trade_orders() -> Array:
 
 func complete_order(order: trade_order):
 	var type = order.get_type()
+	if order.get_coords_of_factory() == location:
+		return
 	var fact: factory_template = terminal_map.get_terminal(order.get_coords_of_factory())
 	var amount = min(fact.get_desired_cargo_to_load(type), order.get_amount(), LOAD_TICK_AMOUNT)
 	amount = transfer_cargo(type, amount)

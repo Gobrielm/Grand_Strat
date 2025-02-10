@@ -1,11 +1,12 @@
-class_name construction_site extends fixed_hold
+class_name construction_site extends factory_template
 
-var inputs = {}
-var outputs = {}
 var construction_materials = {}
 
 func _init(coords: Vector2i):
-	super._init(coords)
+	super._init(coords, {}, {})
+
+func buy_cargo(type: int, amount: int):
+	add_cargo(type, amount)
 
 #Recipe Stuff
 func set_recipe(selected_recipe: Array):
@@ -33,3 +34,11 @@ func create_construction_materials():
 
 func get_construction_materials() -> Dictionary:
 	return construction_materials
+
+
+func day_tick():
+	pass
+
+func month_tick():
+	pass
+	

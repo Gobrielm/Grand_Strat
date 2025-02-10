@@ -54,6 +54,7 @@ func _ready():
 	hide()
 
 func _on_close_requested():
+	state_machine.unpress_gui()
 	hide()
 
 func _on_search_bar_focus_entered():

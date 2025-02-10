@@ -1,5 +1,6 @@
 class_name state_machine extends Node
 
+static var gui_inputs = false
 static var building_rails = false
 static var building_factory = false
 static var building_many_rails = false
@@ -35,16 +36,21 @@ static func all_off():
 	selecting_route = false
 	picking_nation = false
 	building_factory = false
+	gui_inputs = false
 
 static func gui_button_pressed():
 	all_off()
-	building_rails = true
+	gui_inputs = true
 
 static func gui_button_unpressed():
-	building_rails = false
+	gui_inputs = false
 	default()
 
+static func is_gui_pressed() -> bool:
+	return gui_inputs
+
 static func unpress_gui():
+	gui_inputs = false
 	building_rails = false
 	building_many_rails = false
 	building_factory = false
