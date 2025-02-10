@@ -66,8 +66,34 @@ static func add_connected_terminals(coords: Vector2i, new_terminal: terminal):
 static func is_hold(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is hold
 
+static func get_hold(coords: Vector2i) -> Dictionary:
+	if is_hold(coords):
+		return cargo_map_terminals[coords].get_current_hold()
+	return {}
+
+static func is_owned_recipeless_construction_site(coords: Vector2i) -> bool:
+	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is construction_site and !cargo_map_terminals[coords].has_recipe()
+
 static func is_owned_construction_site(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is construction_site
+
+static func set_construction_site_recipe(coords: Vector2i, selected_recipe: Array):
+	if is_owned_recipeless_construction_site(coords):
+		cargo_map_terminals[coords].set_recipe(selected_recipe)
+
+static func get_construction_site_recipe(coords: Vector2i) -> Array:
+	if is_owned_construction_site(coords):
+		return cargo_map_terminals[coords].get_recipe()
+	return [{}, {}]
+
+static func destory_recipe(coords: Vector2i):
+	if is_owned_construction_site(coords):
+		return cargo_map_terminals[coords].destroy_recipe()
+
+static func get_construction_materials(coords: Vector2i) -> Dictionary:
+	if is_owned_construction_site(coords):
+		return cargo_map_terminals[coords].get_construction_materials()
+	return {}
 
 static func is_factory(coords: Vector2i) -> bool:
 	if cargo_map_terminals.has(coords):

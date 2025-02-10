@@ -1,12 +1,13 @@
-[gd_scene load_steps=3 format=3 uid="uid://d0lpgde4n5egw"]
+[gd_scene load_steps=4 format=3 uid="uid://bipirwbhqdjb2"]
 
-[ext_resource type="Script" path="res://Gui/factory_recipe_gui.gd" id="1_wfojr"]
+[ext_resource type="Script" path="res://Gui/Player_Factory_Gui's/factory_recipe_gui.gd" id="1_wfojr"]
+[ext_resource type="Texture2D" uid="uid://cnt0fnx73uuf8" path="res://Gui/Icons/go.png" id="2_m3ix3"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ia3vv"]
 
-[node name="Factory_Recipe_Gui" type="Window"]
+[node name="factory_recipe_gui" type="Window"]
 position = Vector2i(0, 36)
-size = Vector2i(500, 300)
+size = Vector2i(400, 300)
 script = ExtResource("1_wfojr")
 
 [node name="Control" type="Control" parent="."]
@@ -16,41 +17,36 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ColorRect" type="ColorRect" parent="Control"]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -118.5
-offset_right = 100.0
-offset_bottom = -98.5
+offset_left = -200.0
+offset_right = 200.0
+offset_bottom = 30.0
 grow_horizontal = 2
-grow_vertical = 2
 color = Color(0.111197, 0.111197, 0.111197, 1)
 
 [node name="Recipes" type="ItemList" parent="Control"]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 7
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -100.0
-offset_top = -100.0
-offset_right = 100.0
-offset_bottom = 100.0
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -270.0
+offset_right = 200.0
 grow_horizontal = 2
-grow_vertical = 2
+grow_vertical = 0
 focus_mode = 0
 
 [node name="Search_Bar" type="LineEdit" parent="Control"]
@@ -58,16 +54,32 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -100.0
-offset_top = -103.0
-offset_right = 100.0
-offset_bottom = -73.0
+offset_left = -200.0
+offset_right = 200.0
+offset_bottom = 31.0
 grow_horizontal = 2
 theme_override_styles/focus = SubResource("StyleBoxEmpty_ia3vv")
 placeholder_text = "Filter"
 alignment = 1
 flat = true
 
+[node name="Confirm" type="Button" parent="Control"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -29.0
+offset_top = -29.0
+offset_right = 29.0
+offset_bottom = 29.0
+grow_horizontal = 0
+grow_vertical = 0
+scale = Vector2(0.5, 0.5)
+icon = ExtResource("2_m3ix3")
+
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
 [connection signal="focus_entered" from="Control/Search_Bar" to="." method="_on_search_bar_focus_entered"]
 [connection signal="text_changed" from="Control/Search_Bar" to="." method="_on_search_bar_text_changed"]
+[connection signal="pressed" from="Control/Confirm" to="." method="_on_confirm_pressed"]

@@ -7,7 +7,8 @@ extends Node
 @onready var depot_window = $main_map/depot_window
 @onready var station_window = $main_map/station_window
 @onready var unit_creator_window = $main_map/unit_creator_window
-@onready var factory_recipe_window = $main_map/Factory_Recipe_Gui
+@onready var factory_recipe_window = $main_map/factory_recipe_gui
+@onready var factory_construction_window = $main_map/factory_construction_gui
 @onready var cargo_map = $cargo_map
 
 var unique_id
@@ -51,8 +52,10 @@ func _input(event):
 	elif event.is_action_released("click"):
 		if state_machine.is_controlling_camera() and main_map.is_owned_station(get_cell_position()):
 			station_window.open_window(get_cell_position())
-		elif state_machine.is_controlling_camera() and main_map.is_owned_construction_site(get_cell_position()):
+		elif state_machine.is_controlling_camera() and terminal_map.is_owned_recipeless_construction_site(get_cell_position()):
 			factory_recipe_window.open_window(get_cell_position())
+		elif state_machine.is_controlling_camera() and terminal_map.is_owned_construction_site(get_cell_position()):
+			factory_construction_window.open_window(get_cell_position())
 		elif state_machine.is_controlling_camera() and main_map.is_factory(get_cell_position()):
 			factory_window.open_window(get_cell_position())
 		elif state_machine.is_controlling_camera() and main_map.is_owned_depot(get_cell_position()):

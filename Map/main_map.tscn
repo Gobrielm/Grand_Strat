@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=4 uid="uid://dy24s42glgktx"]
+[gd_scene load_steps=14 format=4 uid="uid://dy24s42glgktx"]
 
 [ext_resource type="Texture2D" uid="uid://bq1dap6gjpxr7" path="res://Map_Icons/7SEYHd.png" id="1_jgce8"]
 [ext_resource type="PackedScene" uid="uid://c6spn0m6m85vs" path="res://Player/player_camera.tscn" id="2_if10o"]
@@ -8,8 +8,9 @@
 [ext_resource type="PackedScene" uid="uid://d2x16vqu0dy7j" path="res://Units/unit_managers/unit_creator_window.tscn" id="9_k4rfp"]
 [ext_resource type="PackedScene" uid="uid://bmywob5ku4c3r" path="res://Gui/factory_window.tscn" id="9_p8wcw"]
 [ext_resource type="PackedScene" uid="uid://tgrwgdaijaeh" path="res://Gui/station_window.tscn" id="9_txwkn"]
-[ext_resource type="PackedScene" uid="uid://d0lpgde4n5egw" path="res://Gui/factory_recipe_gui.tscn" id="10_60crw"]
+[ext_resource type="PackedScene" uid="uid://bipirwbhqdjb2" path="res://Gui/Player_Factory_Gui's/factory_recipe_gui.tscn" id="10_60crw"]
 [ext_resource type="PackedScene" uid="uid://dqvn8y35ax23b" path="res://Units/unit_info_window.tscn" id="10_75rfn"]
+[ext_resource type="PackedScene" uid="uid://l3xw71d3y3e7" path="res://Gui/Player_Factory_Gui's/factory_construction_gui.tscn" id="11_46x22"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tywjw"]
 texture = ExtResource("1_jgce8")
@@ -85,7 +86,9 @@ position = Vector2i(200, 36)
 
 [node name="factory_window" parent="." instance=ExtResource("9_p8wcw")]
 
-[node name="Factory_Recipe_Gui" parent="." instance=ExtResource("10_60crw")]
+[node name="factory_recipe_gui" parent="." instance=ExtResource("10_60crw")]
+
+[node name="factory_construction_gui" parent="." instance=ExtResource("11_46x22")]
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 0.5

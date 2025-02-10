@@ -183,9 +183,6 @@ func get_depot_or_terminal(coords: Vector2i) -> terminal:
 		return new_depot
 	return terminal_map.get_terminal(coords)
 
-func is_owned_construction_site(coords: Vector2i) -> bool:
-	return terminal_map.is_owned_construction_site(coords)
-
 #Trains
 @rpc("any_peer", "reliable", "call_local")
 func create_train(coords: Vector2i):

@@ -2,14 +2,18 @@ extends Window
 
 @onready var recipes: ItemList = $Control/Recipes
 @onready var filter: LineEdit = $Control/Search_Bar
+var current_coords
+var current_recipes
 
 func _input(event):
 	if event.is_action_pressed("deselect"):
 		filter.release_focus()
 		state_machine.unpress_gui()
 
-func open_window(_coords: Vector2i):
+func open_window(coords: Vector2i):
 	popup()
+	current_recipes = null
+	current_coords = coords
 	request_populate_recipes.rpc_id(1)
 
 func _on_search_bar_text_changed(_new_text):
@@ -21,10 +25,11 @@ func request_populate_recipes():
 	populate_recipes.rpc_id(multiplayer.get_remote_sender_id(), recipes)
 
 @rpc("authority", "call_local", "unreliable")
-func populate_recipes(recipes_dict: Array):
+func populate_recipes(recipes_array: Array):
+	current_recipes = recipes_array
 	recipes.clear()
 	var filter_text = filter.text
-	for recipe_item: Array in recipes_dict:
+	for recipe_item: Array in current_recipes:
 		var inputs = recipe_item[0]
 		var outputs = recipe_item[1]
 		for input: String in inputs:
@@ -51,6 +56,16 @@ func _ready():
 func _on_close_requested():
 	hide()
 
-
 func _on_search_bar_focus_entered():
 	state_machine.gui_button_pressed()
+
+func _on_confirm_pressed():
+	var selected_recipes: Array = recipes.get_selected_items()
+	if !selected_recipes.is_empty():
+		var selected_recipe: Array = current_recipes[selected_recipes[0]]
+		request_change_construction_recipe.rpc_id(1, current_coords, selected_recipe)
+		hide()
+
+@rpc("any_peer", "call_local", "reliable")
+func request_change_construction_recipe(coords: Vector2i, selected_recipe: Array):
+	terminal_map.set_construction_site_recipe(coords, selected_recipe)
