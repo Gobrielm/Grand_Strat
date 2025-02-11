@@ -26,11 +26,15 @@ func has_recipe() -> bool:
 
 #Construction_materials
 func create_construction_materials():
-	construction_materials[terminal_map.get_cargo_type("lumber")] = 100
-	construction_materials[terminal_map.get_cargo_type("steel")] = 20
-	construction_materials[terminal_map.get_cargo_type("iron")] = 50
-	construction_materials[terminal_map.get_cargo_type("glass")] = 50
-	construction_materials[terminal_map.get_cargo_type("tools")] = 25
+	create_construction_material(terminal_map.get_cargo_type("lumber"), 100)
+	create_construction_material(terminal_map.get_cargo_type("steel"), 20)
+	create_construction_material(terminal_map.get_cargo_type("iron"), 50)
+	create_construction_material(terminal_map.get_cargo_type("glass"), 50)
+	create_construction_material(terminal_map.get_cargo_type("tools"), 25)
+
+func create_construction_material(type: int, amount: int):
+	add_accept(type)
+	construction_materials[type] = 50
 
 func get_construction_materials() -> Dictionary:
 	return construction_materials
