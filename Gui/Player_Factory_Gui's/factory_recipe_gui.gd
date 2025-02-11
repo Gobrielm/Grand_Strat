@@ -6,9 +6,11 @@ var current_coords
 var current_recipes
 
 func _input(event):
-	if event.is_action_pressed("deselect"):
+	if event.is_action_pressed("click"):
+		if gui_get_hovered_control() != filter:
+			filter.release_focus()
+	elif event.is_action_pressed("deselect"):
 		filter.release_focus()
-		state_machine.unpress_gui()
 
 func open_window(coords: Vector2i):
 	popup()
@@ -70,3 +72,11 @@ func _on_confirm_pressed():
 @rpc("any_peer", "call_local", "reliable")
 func request_change_construction_recipe(coords: Vector2i, selected_recipe: Array):
 	terminal_map.set_construction_site_recipe(coords, selected_recipe)
+
+func _on_search_bar_focus_exited():
+	state_machine.unpress_gui()
+
+func _on_focus_exited():
+	state_machine.unpress_gui()
+	if filter != null:
+		filter.release_focus()
