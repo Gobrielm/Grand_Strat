@@ -327,25 +327,6 @@ func delete_train_car():
 func pathfind_to_next_stop():
 	return create_route_between_start_and_end(location, stops[stop_number])
 
-func create_route_from_start_to_end(start: Vector2i, end: Vector2i) -> Array:
-	var queue = [start]
-	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
-	var order_visited = {} # Vector2i -> Array[First direction is the one reached soonest]
-	var visited = {} # Vector2i -> Array[Bool for each direction]
-	visited[start] = get_train_dir_in_array()
-	while !queue.is_empty():
-		var curr = queue.pop_front()
-		var cell_in_each_direction = get_cells_in_front(curr, visited[start])
-		for dir in 6:
-			var cell = cell_in_each_direction[dir]
-			if cell != null and map.do_tiles_connect(curr, cell) and !check_visited(visited, cell, dir):
-				pass
-				
-		
-	
-	return []
-
-
 func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array:
 	var queue = [start]
 	var tile_to_prev = {} # Vector2i -> Array[Tile for each direction]
@@ -372,18 +353,19 @@ func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array
 	var to_return = [end]
 	var direction = null
 	if found:
-		direction = order[curr][0]
+		direction = order[end][0]
 		curr = tile_to_prev[end][direction]
 		found = false
 		while !found:
-			if direction != null:
-				for dir in order[curr]:
-					if can_direction_reach_dir(direction, dir) and tile_to_prev[curr][dir] != null:
-						curr = tile_to_prev[curr][dir]
-						direction = dir
 			to_return.push_front(curr)
 			if curr == start and can_direction_reach_dir(swap_direction(direction), get_direction()):
 				found = true
+				break
+			for dir in order[curr]:
+				if can_direction_reach_dir(direction, dir) and tile_to_prev[curr][dir] != null:
+					curr = tile_to_prev[curr][dir]
+					direction = dir
+			
 	if found:
 		return to_return
 	return []
