@@ -89,6 +89,7 @@ func complete_order(order: trade_order):
 
 
 func add_connected_terminal(new_terminal: terminal):
+	print("term added")
 	connected_terminals[new_terminal.get_location()] = new_terminal
 	update_accepts_from_trains()
 
@@ -105,6 +106,7 @@ func update_accepts_from_trains():
 func add_accepts(obj):
 	for index in terminal_map.get_number_of_goods():
 		if obj.does_accept(index):
+			print(terminal_map.get_cargo_name(index) + " added")
 			add_accept(index)
 
 func reset_accepts_train():

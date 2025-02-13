@@ -39,3 +39,7 @@ func _on_place_order_pressed():
 		return
 	var buy = $Buy_Button.button_pressed
 	placed_order.emit(type, amount, buy)
+
+
+func _on_close_requested():
+	hide()

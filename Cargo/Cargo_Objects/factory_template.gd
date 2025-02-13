@@ -67,7 +67,7 @@ func get_desired_cargo_to_load(type: int) -> int:
 	var price = get_local_price(type)
 	assert(price > 0)
 	var amount: int = get_amount_can_buy(get_local_price(type))
-	return min(amount, max_amount - get_cargo_amount(type))
+	return min(amount, max_amount - get_cargo_amount(type), 0)
 
 func transfer_cargo(type: int, amount: int) -> int:
 	var new_amount = min(storage[type], amount)

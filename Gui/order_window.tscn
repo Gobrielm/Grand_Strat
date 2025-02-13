@@ -106,6 +106,7 @@ grow_vertical = 0
 icon = ExtResource("2_anp4o")
 
 [connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
 [connection signal="item_selected" from="Control/Cargo_List" to="." method="_on_cargo_list_item_selected"]
 [connection signal="pressed" from="Buy_Button" to="." method="_on_buy_button_pressed"]
 [connection signal="pressed" from="Sell_Button" to="." method="_on_sell_button_pressed"]
