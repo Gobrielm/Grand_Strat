@@ -249,7 +249,7 @@ func interact_stations():
 	load_train()
 
 func load_train():
-	if loading and map.is_hold(location) and ticker > 1:
+	if loading and terminal_map.is_hold(location) and ticker > 1:
 		load_tick()
 		prep_update_cargo_gui()
 		if cargo_hold.is_full():
@@ -257,17 +257,18 @@ func load_train():
 
 func load_tick():
 	var amount_loaded = 0
-	var obj: terminal = map.get_depot_or_terminal(location)
+	var obj: station = terminal_map.get_station(location)
 	var current_hold = obj.get_current_hold()
 	if hold_is_empty(current_hold):
 		done_loading()
 	for type in current_hold:
-		var amount = min(LOAD_TICK_AMOUNT - amount_loaded, current_hold[type])
-		var amount_actually_loaded = cargo_hold.add_cargo(type, amount)
-		amount_loaded += amount_actually_loaded
-		obj.remove_cargo(type, amount_actually_loaded)
-		if amount_loaded == LOAD_TICK_AMOUNT:
-			break
+		if !obj.does_accept(type):
+			var amount = min(LOAD_TICK_AMOUNT - amount_loaded, current_hold[type])
+			var amount_actually_loaded = cargo_hold.add_cargo(type, amount)
+			amount_loaded += amount_actually_loaded
+			obj.remove_cargo(type, amount_actually_loaded)
+			if amount_loaded == LOAD_TICK_AMOUNT:
+				break
 
 func hold_is_empty(toCheck: Dictionary):
 	for value in toCheck.values():
