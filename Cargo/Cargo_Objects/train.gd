@@ -83,7 +83,8 @@ func checkpoint_reached():
 			drive_train_to_route()
 
 func drive_train_to_route():
-	var direction = Vector2(map.map_to_local(route[0]) - map.map_to_local(location)).normalized()
+	var direction = Vector2(map.map_to_local(route[0]) - position).normalized()
+	#map.map_to_local(location)
 	acceleration_direction = direction
 
 func check_near_next_stop():
@@ -227,7 +228,6 @@ func start_train():
 	near_stop = false
 	velocity = Vector2(0, 0)
 	route = pathfind_to_next_stop()
-	#route = pathfind_to_next_vertex()
 	stopped = false
 	if route.is_empty() and stops.size() > 1:
 		increment_stop()
@@ -326,7 +326,7 @@ func delete_train_car():
 	cargo_hold.change_max_storage(0, -TRAIN_CAR_SIZE)
 
 func pathfind_to_next_stop():
-	return create_route_between_start_and_end(location, stops[stop_number])
+	return create_route_between_start_and_end(map.local_to_map(position), stops[stop_number])
 
 func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array:
 	var queue = [start]
@@ -361,6 +361,7 @@ func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array
 			to_return.push_front(curr)
 			if curr == start and can_direction_reach_dir(swap_direction(direction), get_direction()):
 				found = true
+				to_return.pop_front()
 				break
 			for dir in order[curr]:
 				if can_direction_reach_dir(direction, dir) and tile_to_prev[curr][dir] != null:
