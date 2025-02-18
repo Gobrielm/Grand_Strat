@@ -74,6 +74,14 @@ func place_tile(coords: Vector2i, new_orientation: int, new_type: int):
 	rail_layer.set_cell(coords, 0, Vector2i(new_orientation, new_type))
 	add_track_connection(coords, new_orientation)
 
+func place_road_depot(coords: Vector2i, player_id):
+	for i in 6:
+		if is_already_built(coords, i):
+			return
+	var rail_layer: TileMapLayer = get_rail_layer(0)
+	rail_layer.set_cell(coords, 0, Vector2i(0, 3))
+	terminal_map.create_road_depot(coords, player_id)
+
 func is_already_built(coords: Vector2i, new_orientation: int) -> bool:
 	var rail_layer: TileMapLayer = get_rail_layer(new_orientation)
 	return rail_layer.get_cell_atlas_coords(coords).x == new_orientation

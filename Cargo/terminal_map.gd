@@ -29,6 +29,7 @@ static var base_prices = {
 
 
 static var map: TileMapLayer
+static var cargo_map: TileMapLayer
 static var tile_info
 
 static func _on_day_tick_timeout():
@@ -46,6 +47,9 @@ static func create(_map: TileMapLayer):
 	tile_info = map.get_tile_data()
 	create_cargo_types()
 	create_base_prices()
+
+static func assign_cargo_map(_cargo_map: TileMapLayer):
+	cargo_map = _cargo_map
 
 static func create_station(coords: Vector2i, new_owner: int):
 	var new_station = station.new(coords, new_owner)
@@ -109,6 +113,36 @@ static func get_cash_of_firm(coords: Vector2i) -> int:
 		if firm_inst is firm:
 			return firm_inst.get_cash()
 	return 0
+
+static func transform_construction_site_to_factory(coords: Vector2i):
+	var old_site: construction_site = cargo_map_terminals[coords]
+	var obj_recipe: Array = old_site.get_recipe()
+	cargo_map_terminals[coords] = player_factory.new(coords, obj_recipe[0], obj_recipe[1])
+	old_site.queue_free()
+	cargo_map.transform_construction_site_to_factory(coords)
+
+static func create_road_depot(coords: Vector2i, player_id):
+	if !cargo_map_terminals.has(coords):
+		var supply_map = create_supplied_tiles(coords)
+		cargo_map_terminals[coords] = road_depot.new(coords, player_id, supply_map)
+		
+
+static func create_supplied_tiles(center: Vector2i):
+	var toReturn = {}
+	toReturn[center] = 5
+	var visited = {}
+	visited[center] = 0
+	var queue = []
+	queue.push_back(center)
+	while !queue.is_empty():
+		var curr = queue.pop_front()
+		var tiles = map.get_surrounding_cells(curr)
+		for tile in tiles:
+			if !visited.has(tile) and toReturn[curr] > 0:
+				visited[tile] = 0
+				queue.push_back(tile)
+				toReturn[tile] = toReturn[curr] - 1
+	return toReturn
 
 static func get_local_prices(coords: Vector2i) -> Dictionary:
 	if cargo_map_terminals.has(coords):

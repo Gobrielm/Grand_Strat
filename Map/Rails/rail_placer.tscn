@@ -26,6 +26,7 @@ texture_region_size = Vector2i(128, 128)
 3:2/0 = 0
 4:2/0 = 0
 5:2/0 = 0
+0:3/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_68oqx"]
 tile_shape = 3

@@ -10,6 +10,7 @@ static var unit_selected = false
 static var building_units = false
 static var selecting_route = false
 static var picking_nation = false
+static var building_road_depot = false
 
 static func print_all():
 	print(building_rails)
@@ -37,6 +38,7 @@ static func all_off():
 	picking_nation = false
 	building_factory = false
 	gui_inputs = false
+	building_road_depot = false
 
 static func gui_button_pressed():
 	all_off()
@@ -160,3 +162,14 @@ static func hovering_over_gui_inactive():
 
 static func is_hovering_over_gui() -> bool:
 	return hovering_over_gui
+
+static func is_building_road_depot() -> bool:
+	return building_road_depot
+
+static func building_road_depot_toggled():
+	building_road_depot = !building_road_depot
+	if building_road_depot:
+		all_off()
+		building_road_depot = true
+	else:
+		default()

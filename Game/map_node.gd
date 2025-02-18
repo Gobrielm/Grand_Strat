@@ -27,6 +27,8 @@ func _ready():
 		tile_ownership = load("res://Client_Objects/client_tile_ownership.tscn").instantiate()
 		tile_ownership.name = "tile_ownership"
 		add_child(tile_ownership)
+	else:
+		terminal_map.assign_cargo_map(cargo_map)
 	enable_nation_picker()
 
 func _input(event):
@@ -43,6 +45,8 @@ func _input(event):
 			main_map.create_unit()
 		elif state_machine.is_building_factory():
 			create_factory()
+		elif state_machine.is_building_road_depot():
+			main_map.place_road_depot()
 		elif state_machine.is_selecting_unit() and main_map.is_unit_double_clicked():
 			main_map.show_unit_info_window()
 		else:

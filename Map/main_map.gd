@@ -155,6 +155,10 @@ func record_hover_click():
 func get_depot_direction(coords: Vector2i) -> int:
 	return rail_placer.get_depot_direction(coords)
 
+func place_road_depot():
+	if !state_machine.is_hovering_over_gui():
+		rail_placer.place_road_depot(get_cell_position(), unique_id)
+
 #Cargo
 func is_depot(coords: Vector2i) -> bool:
 	return tile_info.is_depot(coords)
