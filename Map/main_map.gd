@@ -176,7 +176,7 @@ func is_factory(coords: Vector2i) -> bool:
 	return terminal_map.is_factory(coords)
 
 func is_owned_station(coords: Vector2i) -> bool:
-	return terminal_map.is_station(coords) and tile_info.is_owned_hold(coords, unique_id)
+	return terminal_map.is_station(coords)
 
 func is_location_valid_stop(coords: Vector2i) -> bool:
 	return tile_info.is_hold(coords) or tile_info.is_depot(coords)

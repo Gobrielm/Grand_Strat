@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://tnoxqdodqljc"]
+[gd_scene load_steps=5 format=3 uid="uid://tnoxqdodqljc"]
 
 [ext_resource type="Texture2D" uid="uid://bq1dap6gjpxr7" path="res://Map_Icons/7SEYHd.png" id="1_4oxvk"]
+[ext_resource type="Script" path="res://Map/new_map.gd" id="2_58jqt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hcekt"]
 texture = ExtResource("1_4oxvk")
@@ -33,8 +34,12 @@ texture_region_size = Vector2i(128, 192)
 5:3/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_3ky58"]
+tile_shape = 3
+tile_offset_axis = 1
 tile_size = Vector2i(127, 110)
 sources/0 = SubResource("TileSetAtlasSource_hcekt")
 
 [node name="New_Map" type="TileMapLayer"]
+y_sort_enabled = true
 tile_set = SubResource("TileSet_3ky58")
+script = ExtResource("2_58jqt")

@@ -10,6 +10,7 @@ extends Node
 @onready var factory_recipe_window = $main_map/factory_recipe_gui
 @onready var factory_construction_window = $main_map/factory_construction_gui
 @onready var cargo_map = $cargo_map
+@onready var other_map = $New_Map
 
 var unique_id
 

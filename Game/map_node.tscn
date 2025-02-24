@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=4 uid="uid://dlmwgwie45non"]
+[gd_scene load_steps=6 format=4 uid="uid://dlmwgwie45non"]
 
 [ext_resource type="Script" path="res://Game/map_node.gd" id="1_4blso"]
 [ext_resource type="PackedScene" uid="uid://dbdsinyte2gu1" path="res://Map/tile_ownership.tscn" id="3_3b3ai"]
 [ext_resource type="PackedScene" uid="uid://dkoyapss2hyif" path="res://Map/cargo_map.tscn" id="4_jxo5k"]
 [ext_resource type="PackedScene" uid="uid://dy24s42glgktx" path="res://Map/main_map.tscn" id="4_uuc1u"]
+[ext_resource type="PackedScene" uid="uid://tnoxqdodqljc" path="res://Map/new_map.tscn" id="5_b2ph1"]
 
 [node name="map_node" type="Node"]
 script = ExtResource("1_4blso")
@@ -15,3 +16,5 @@ tile_map_data = PackedByteArray("AAD1//r/AAAHAAAAAAD1//v/AAAHAAAAAAD0//z/AAAHAAA
 
 [node name="cargo_map" parent="." instance=ExtResource("4_jxo5k")]
 tile_map_data = PackedByteArray("AAD6//3/AAAAAAAAAAD4/wIAAAABAAAAAAAAAP3/AAAAAAEAAAA=")
+
+[node name="New_Map" parent="." instance=ExtResource("5_b2ph1")]
