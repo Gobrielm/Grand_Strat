@@ -32,7 +32,16 @@ func _ready():
 	double_parse()
 	triple_parse()
 	forest_parse()
-	
+	save()
+
+func save():
+	var file = FileAccess.open("res://idk.txt", FileAccess.WRITE)
+	var data: PackedByteArray = self.tile_map_data
+	if file:
+		var encoded_string: String = data.hex_encode()
+		print(encoded_string.length())
+		file.store_string(encoded_string)  # Save it as a string
+		file.close()
 
 func double_parse():
 	for tile in get_used_cells_by_id(0, Vector2i(7, 0)):
@@ -51,15 +60,18 @@ func triple_parse():
 		convert_surrounded_shallow_to_deep(tile)
 
 func forest_parse():
-	var im: Image = Image.load_from_file("res://Map/forestry.png")
+	var im_forest: Image = Image.load_from_file("res://Map/forestry.png")
+	var im_rain: Image = Image.load_from_file("res://Map/rainfall.png")
+	var im_temp: Image = Image.load_from_file("res://Map/temp.png")
+	var im_deserts: Image = Image.load_from_file("res://Map/deserts.png")
 	var real_x = 0
 	var real_y = 0
-	for x in im.get_width():
-		for y in im.get_height():
+	for x in im_forest.get_width():
+		for y in im_forest.get_height():
 			if x % 3 == 0 or y % 7 == 0 or y % 7 == 1 or y % 7 == 2:
 				continue
 			
-			var color: Color = im.get_pixel(x, y)
+			var color: Color = im_forest.get_pixel(x, y)
 			var tile: Vector2i = Vector2i(real_x, real_y)
 			var atlas: Vector2i = get_cell_atlas_coords(tile)
 			
@@ -72,15 +84,17 @@ func forest_parse():
 						set_cell(tile, 0, Vector2i(1, 0))
 				elif atlas == Vector2i(3, 0):
 					set_cell(tile, 0, Vector2i(4, 0))
-			rainfall_parse(color, tile)
-			
+			rainfall_parse(im_rain.get_pixel(x, y), tile)
+			temp_parse(im_temp.get_pixel(x, y), tile)
+			desert_parse(im_deserts.get_pixel(x, y), tile)
+			random_parse(tile)
 			real_y += 1
 		if x % 3 != 0:
 			real_x += 1
 			real_y = 0
 
 func rainfall_parse(color: Color, coords: Vector2i):
-	if color.r > (color.g + color.b - 0.1):
+	if color.r > (color.g + color.b):
 		var atlas = get_cell_atlas_coords(coords)
 		if atlas == Vector2i(0, 0):
 			set_cell(coords, 0, Vector2i(6, 1))
@@ -89,22 +103,62 @@ func rainfall_parse(color: Color, coords: Vector2i):
 		elif atlas == Vector2i(3, 0):
 			set_cell(coords, 0, Vector2i(5, 1))
 
+func temp_parse(color: Color, coords: Vector2i):
+	var atlas = get_cell_atlas_coords(coords)
+	if color.r > 0.9:
+		convert_tile_tundra(coords)
+
+func desert_parse(color: Color, coords: Vector2i):
+	if color.r > 0.8:
+		convert_tile_desert(coords)
+
+func random_parse(coords: Vector2i):
+	var atlas = get_cell_atlas_coords(coords)
+	if atlas == Vector2i(0, 0):
+		if randi() % 12 == 0:
+			set_cell(coords, 0, Vector2i(1, 0))
+		elif randi() % 24 == 0:
+			set_cell(coords, 0, Vector2i(6, 1))
+		elif randi() % 24 == 0:
+			set_cell(coords, 0, Vector2i(3, 0))
+	elif atlas == Vector2i(6, 1):
+		if randi() % 24 == 0:
+			set_cell(coords, 0, Vector2i(4, 1))
+		elif randi() % 48 == 0:
+			set_cell(coords, 0, Vector2i(0, 0))
+		elif randi() % 48 == 0:
+			set_cell(coords, 0, Vector2i(5, 1))
+
 func convert_tile_tundra(coords: Vector2i):
 	var atlas = get_cell_atlas_coords(coords)
 	if atlas.x >= 0 and atlas.x <= 4:
 		set_cell(coords, 0, Vector2i(atlas.x, 2))
+	elif atlas == Vector2i(6, 1):
+		set_cell(coords, 0, Vector2i(0, 2))
+	elif atlas == Vector2i(5, 1):
+		set_cell(coords, 0, Vector2i(3, 2))
+	elif atlas == Vector2i(4, 1):
+		set_cell(coords, 0, Vector2i(1, 2))
 
 func convert_tile_desert(coords: Vector2i):
 	var atlas = get_cell_atlas_coords(coords)
-	if atlas.x == 0:
+	if atlas.y == 0:
+		if atlas.x == 0:
+			if randi() % 2 == 0:
+				set_cell(coords, 0, Vector2i(0, 3))
+			else:
+				set_cell(coords, 0, Vector2i(2, 3))
+		elif atlas.x == 3:
+			set_cell(coords, 0, Vector2i(1, 3))
+		elif atlas.x == 5:
+			set_cell(coords, 0, Vector2i(3, 3))
+	elif atlas == Vector2i(6, 1):
 		if randi() % 2 == 0:
 			set_cell(coords, 0, Vector2i(0, 3))
 		else:
 			set_cell(coords, 0, Vector2i(2, 3))
-	elif atlas.x == 3:
+	elif atlas == Vector2i(5, 1):
 		set_cell(coords, 0, Vector2i(1, 3))
-	elif atlas.x == 5:
-		set_cell(coords, 0, Vector2i(3, 3))
 
 func is_mountainous(r: float, g: float, b: float, l: float) -> bool:
 	return two_floats_are_within_amount(g, b) and r > 0.2
