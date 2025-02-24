@@ -32,16 +32,19 @@ func _ready():
 	double_parse()
 	triple_parse()
 	forest_parse()
-	save()
+	#save()
 
 func save():
-	var file = FileAccess.open("res://idk.txt", FileAccess.WRITE)
-	var data: PackedByteArray = self.tile_map_data
-	if file:
-		var encoded_string: String = data.hex_encode()
-		print(encoded_string.length())
-		file.store_string(encoded_string)  # Save it as a string
-		file.close()
+	var scene: PackedScene = PackedScene.new()
+	var result = scene.pack(self)
+	if result == OK:
+		var file = "res://idk1.tscn"
+		if FileAccess.file_exists(file):
+			print("Tried to override existing file")
+			assert(false)
+		var error = ResourceSaver.save(scene, file)
+		if error != OK:
+			push_error("An error occurred while saving the scene to disk.")
 
 func double_parse():
 	for tile in get_used_cells_by_id(0, Vector2i(7, 0)):
