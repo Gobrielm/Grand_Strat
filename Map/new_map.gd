@@ -3,7 +3,7 @@ extends TileMapLayer
 var visited = {}
 
 func _ready():
-	var im: Image = Image.load_from_file("res://Map/map.png")
+	var im: Image = Image.load_from_file("res://Map/Map_Images/map.png")
 	var real_x = 0
 	var real_y = 0
 	for x in im.get_width():
@@ -63,10 +63,10 @@ func triple_parse():
 		convert_surrounded_shallow_to_deep(tile)
 
 func forest_parse():
-	var im_forest: Image = Image.load_from_file("res://Map/forestry.png")
-	var im_rain: Image = Image.load_from_file("res://Map/rainfall.png")
-	var im_temp: Image = Image.load_from_file("res://Map/temp.png")
-	var im_deserts: Image = Image.load_from_file("res://Map/deserts.png")
+	var im_forest: Image = Image.load_from_file("res://Map/Map_Images/forestry.png")
+	var im_rain: Image = Image.load_from_file("res://Map/Map_Images/rainfall.png")
+	var im_temp: Image = Image.load_from_file("res://Map/Map_Images/temp.png")
+	var im_deserts: Image = Image.load_from_file("res://Map/Map_Images/deserts.png")
 	var real_x = 0
 	var real_y = 0
 	for x in im_forest.get_width():
