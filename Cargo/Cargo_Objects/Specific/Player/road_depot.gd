@@ -2,8 +2,8 @@ class_name road_depot extends station
 
 var supplied_tiles = {}
 
-func _init(coords: Vector2i, new_owner, new_supply_map: Dictionary):
-	super._init(coords, new_owner)
+func _init(coords: Vector2i, _player_owner: int, new_supply_map: Dictionary):
+	super._init(coords, _player_owner)
 	supplied_tiles = new_supply_map
 
 func get_supply(coords: Vector2i) -> int:

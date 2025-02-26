@@ -5,8 +5,8 @@ var map: TileMapLayer
 const train_scene = preload("res://Cargo/Cargo_Objects/train.tscn")
 
 
-func _init(new_location: Vector2i, new_map):
-	location = new_location
+func _init(new_location: Vector2i, _owner: int, new_map):
+	super._init(new_location, _owner)
 	map = new_map
 
 func get_depot_name() -> String:

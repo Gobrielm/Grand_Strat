@@ -3,8 +3,8 @@ class_name construction_site extends factory_template
 var construction_materials = {}
 var max_amounts = {}
 
-func _init(coords: Vector2i):
-	super._init(coords, {}, {})
+func _init(coords: Vector2i, _player_owner: int):
+	super._init(coords, _player_owner, {}, {})
 	max_amount = 0
 
 func buy_cargo(type: int, amount: int):

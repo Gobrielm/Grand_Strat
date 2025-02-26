@@ -10,7 +10,7 @@ var train_car
 var near_stop: bool = false
 var acceleration_direction: Vector2
 var velocity: Vector2
-var cargo_hold: hold = hold.new(location)
+var cargo_hold: hold = hold.new(location, player_owner)
 var loading: bool = false
 var unloading: bool = false
 var ticker: float = 0

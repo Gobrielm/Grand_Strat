@@ -4,8 +4,8 @@ const INITIAL_CASH = 1000
 
 var cash: int
 
-func _init(new_location: Vector2i):
-	location = new_location
+func _init(new_location: Vector2i, _player_owner: int):
+	super._init(new_location, _player_owner)
 	cash = INITIAL_CASH
 
 func get_amount_can_buy(amount_per: int) -> int:

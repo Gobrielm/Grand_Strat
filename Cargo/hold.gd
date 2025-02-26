@@ -5,8 +5,8 @@ const LOAD_TICK_AMOUNT = 5
 var storage: Dictionary = {} #Cargo the hold has
 var max_amount: int = 50 #Max Amount of cargo the hold can hold
 
-func _init(new_location: Vector2i):
-	super._init(new_location)
+func _init(new_location: Vector2i, _player_owner: int):
+	super._init(new_location, _player_owner)
 	for i in terminal_map.get_number_of_goods():
 		storage[i] = 0
 

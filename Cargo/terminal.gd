@@ -3,6 +3,10 @@ class_name terminal extends Node
 var location: Vector2i
 var player_owner: int
 
+func _init(_location: Vector2i, _player_owner: int):
+	location = _location
+	player_owner = _player_owner
+
 func get_location() -> Vector2i:
 	return location
 

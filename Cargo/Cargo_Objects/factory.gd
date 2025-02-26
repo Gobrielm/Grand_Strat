@@ -1,7 +1,7 @@
 class_name factory extends factory_template
 
-func _init(new_location: Vector2i, new_inputs: Dictionary, new_outputs: Dictionary):
-	super._init(new_location, new_inputs, new_outputs)
+func _init(new_location: Vector2i, _player_owner: int, new_inputs: Dictionary, new_outputs: Dictionary):
+	super._init(new_location, _player_owner, new_inputs, new_outputs)
 
 func check_recipe() -> bool:
 	return check_inputs() and check_outputs()

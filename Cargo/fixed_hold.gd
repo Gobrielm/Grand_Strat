@@ -2,8 +2,8 @@ class_name fixed_hold extends hold
 
 var accepts: Dictionary #Cargo the hold accepts
 
-func _init(new_location: Vector2i):
-	super._init(new_location)
+func _init(new_location: Vector2i, _player_owner: int):
+	super._init(new_location, _player_owner)
 	accepts = {}
 
 #Return amount added

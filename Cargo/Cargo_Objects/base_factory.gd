@@ -1,7 +1,7 @@
 class_name base_factory extends factory_template
 
-func _init(new_location: Vector2i, new_outputs: Dictionary):
-	super._init(new_location, {}, new_outputs)
+func _init(new_location: Vector2i, _player_owner: int, new_outputs: Dictionary):
+	super._init(new_location, _player_owner, {}, new_outputs)
 	max_batch_size = 1
 	local_pricer = local_price_controller.new({}, outputs)
 

@@ -12,8 +12,8 @@ var local_pricer: local_price_controller
 
 const DEFAULT_BATCH_SIZE = 1
 
-func _init(new_location: Vector2i, new_inputs: Dictionary, new_outputs: Dictionary):
-	super._init(new_location)
+func _init(new_location: Vector2i, _player_owner: int, new_inputs: Dictionary, new_outputs: Dictionary):
+	super._init(new_location, _player_owner)
 	inputs = new_inputs
 	outputs = new_outputs
 	max_batch_size = DEFAULT_BATCH_SIZE

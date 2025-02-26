@@ -4,9 +4,8 @@ var connected_terminals: Dictionary = {}
 
 var trade_orders = {}
 
-func _init(new_location: Vector2i, new_owner):
-	super._init(new_location)
-	player_owner = new_owner
+func _init(new_location: Vector2i, _player_owner: int):
+	super._init(new_location, _player_owner)
 
 func get_orders() -> Dictionary:
 	return trade_orders

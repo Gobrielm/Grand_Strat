@@ -117,7 +117,7 @@ static func get_cash_of_firm(coords: Vector2i) -> int:
 static func transform_construction_site_to_factory(coords: Vector2i):
 	var old_site: construction_site = cargo_map_terminals[coords]
 	var obj_recipe: Array = old_site.get_recipe()
-	cargo_map_terminals[coords] = player_factory.new(coords, obj_recipe[0], obj_recipe[1])
+	cargo_map_terminals[coords] = player_factory.new(coords, old_site.get_player_owner(), obj_recipe[0], obj_recipe[1])
 	old_site.queue_free()
 	cargo_map.transform_construction_site_to_factory(coords)
 

@@ -385,7 +385,7 @@ func set_cell_rail_placer_server(coords: Vector2i, orientation: int, type: int, 
 
 @rpc("authority", "call_local", "unreliable")
 func encode_depot(coords: Vector2i, new_owner: int):
-	tile_info.add_depot(coords, depot.new(coords, self), new_owner)
+	tile_info.add_depot(coords, depot.new(coords, new_owner, self), new_owner)
 @rpc("authority", "call_remote", "unreliable")
 func encode_depot_client(coords: Vector2i, depot_name: String, new_owner: int):
 	tile_info.add_depot(coords, depot_name, new_owner)

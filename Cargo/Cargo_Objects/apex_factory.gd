@@ -1,7 +1,7 @@
 class_name apex_factory extends factory_template
 
-func _init(new_location: Vector2i, new_inputs: Dictionary):
-	super._init(new_location, new_inputs, {})
+func _init(new_location: Vector2i, _player_owner: int, new_inputs: Dictionary):
+	super._init(new_location, _player_owner, new_inputs, {})
 	local_pricer = local_price_controller.new(inputs, {})
 
 func withdraw():
