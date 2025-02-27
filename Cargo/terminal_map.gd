@@ -1,6 +1,8 @@
 class_name terminal_map extends Node
 #Represents Singleton
 
+static var amount_of_primary_goods
+
 static var serviced = {}
 static var cargo_map_terminals = {} #Maps coords -> hold
 static var cargo_types: Array = [
@@ -32,6 +34,11 @@ static var map: TileMapLayer
 static var cargo_map: TileMapLayer
 static var tile_info
 
+static func _static_init():
+	create_cargo_types()
+	create_base_prices()
+	create_amount_of_primary_goods()
+
 static func _on_day_tick_timeout():
 	for obj: terminal in cargo_map_terminals.values():
 		if obj.has_method("day_tick"):
@@ -45,8 +52,12 @@ static func _on_month_tick_timeout():
 static func create(_map: TileMapLayer):
 	map = _map
 	tile_info = map.get_tile_data()
-	create_cargo_types()
-	create_base_prices()
+
+static func create_amount_of_primary_goods():
+	for i in cargo_types.size():
+		var cargo_name = cargo_types[i]
+		if cargo_name == "gold":
+			amount_of_primary_goods = i + 1
 
 static func assign_cargo_map(_cargo_map: TileMapLayer):
 	cargo_map = _cargo_map
@@ -207,3 +218,6 @@ static func get_cargo_array_at_location(coords: Vector2i) -> Dictionary:
 
 static func get_cargo_array() -> Array:
 	return cargo_types
+
+static func is_cargo_primary(cargo_type: int) -> bool:
+	return cargo_type < amount_of_primary_goods

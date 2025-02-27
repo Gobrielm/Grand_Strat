@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dkoyapss2hyif"]
+[gd_scene load_steps=6 format=3 uid="uid://dkoyapss2hyif"]
 
 [ext_resource type="Texture2D" uid="uid://dr53rged12e1u" path="res://Map_Icons/cargo_set.png" id="1_innrs"]
 [ext_resource type="Script" path="res://Map/cargo_map.gd" id="2_nrxwi"]
+[ext_resource type="PackedScene" uid="uid://d28r1d3b5w6hq" path="res://Map/Cargo_Maps/cargo_values.tscn" id="3_uyn2n"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c5pk0"]
 texture = ExtResource("1_innrs")
@@ -14,6 +15,7 @@ texture_region_size = Vector2i(128, 192)
 2:1/0 = 0
 3:1/0 = 0
 4:1/0 = 0
+3:0/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_toufl"]
 tile_shape = 3
@@ -26,3 +28,5 @@ z_as_relative = false
 y_sort_enabled = true
 tile_set = SubResource("TileSet_toufl")
 script = ExtResource("2_nrxwi")
+
+[node name="cargo_values" parent="." instance=ExtResource("3_uyn2n")]
