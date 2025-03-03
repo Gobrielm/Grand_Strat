@@ -72,6 +72,7 @@ func _ready():
 		add_child(unit_map)
 		for tile in get_used_cells():
 			visible_tiles.append(tile)
+	
 
 #Constants
 @rpc("authority", "call_remote", "reliable")

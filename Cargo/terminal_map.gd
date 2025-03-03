@@ -221,3 +221,7 @@ static func get_cargo_array() -> Array:
 
 static func is_cargo_primary(cargo_type: int) -> bool:
 	return cargo_type < amount_of_primary_goods
+
+static func get_available_primary_recipes(coords: Vector2i) -> Array:
+	return cargo_map.get_available_primary_recipes(coords)
+	

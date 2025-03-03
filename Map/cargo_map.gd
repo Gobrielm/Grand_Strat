@@ -1,6 +1,7 @@
 extends TileMapLayer
 
 var cargo_buildings: Dictionary
+@onready var cargo_values = $cargo_values
 
 func _ready():
 	create_atlas_to_building()
@@ -33,3 +34,8 @@ func create_atlas_to_building():
 	cargo_buildings[Vector2i(1, 0)] = load("res://Cargo/Cargo_Objects/Specific/Primary/woodcutter.gd")
 	cargo_buildings[Vector2i(0, 1)] = load("res://Cargo/Cargo_Objects/Specific/Endpoint/town.gd")
 	
+func get_available_primary_recipes(coords: Vector2i) -> Array:
+	return cargo_values.get_available_primary_recipes(coords)
+
+func place_resources(map: TileMapLayer):
+	cargo_values.place_resources(map)

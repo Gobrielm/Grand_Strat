@@ -30,6 +30,7 @@ func _ready():
 	else:
 		terminal_map.assign_cargo_map(cargo_map)
 	enable_nation_picker()
+	cargo_map.place_resources(main_map)
 
 func _input(event):
 	main_map.update_hover()

@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://iatfblcckp0p"]
+
+[node name="Window" type="Window"]
+initial_position = 1
+size = Vector2i(500, 400)
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -200.0
+offset_right = 250.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Biome" type="Label" parent="Control"]
+layout_mode = 1
+offset_right = 64.0
+offset_bottom = 23.0
+text = "Grasslands"
+
+[node name="Coords" type="Label" parent="Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -130.0
+offset_right = -93.0
+offset_bottom = 23.0
+grow_horizontal = 2
+text = "(3, 5)"
+
+[node name="Cargo_Section" type="Panel" parent="Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -150.0
+offset_bottom = 200.0
+grow_horizontal = 0
+
+[node name="Fertility" type="Label" parent="Control/Cargo_Section"]
+layout_mode = 1
+offset_right = 43.0
+offset_bottom = 23.0
+text = "Fertility: 100"
+
+[node name="Resource" type="Label" parent="Control/Cargo_Section"]
+layout_mode = 1
+offset_top = 23.0
+offset_right = 43.0
+offset_bottom = 46.0
+text = "Resource: Coal"
+
+[node name="Resource2" type="Label" parent="Control/Cargo_Section"]
+offset_top = 23.0
+offset_right = 43.0
+offset_bottom = 46.0
+text = "Resource: Coal"
