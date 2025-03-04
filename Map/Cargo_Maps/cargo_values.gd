@@ -76,3 +76,47 @@ func is_tile_river(map: TileMapLayer, coords: Vector2i) -> bool:
 		if !is_tile_water(map, cell):
 			count += 1
 	return count > 3
+
+#func create_continents(map: TileMapLayer):
+	#var file = FileAccess.open("res://Map/Map_Info/North_America.txt", FileAccess.WRITE)
+	#for tile in $Layer1Sand.get_used_cells():
+		#if !is_tile_water(map, tile):
+			#save_to_file(file, str(tile) + '.')
+	#file.close()
+	#file = FileAccess.open("res://Map/Map_Info/South_America.txt", FileAccess.WRITE)
+	#for tile in $Layer2Sulfur.get_used_cells():
+		#if !is_tile_water(map, tile):
+			#save_to_file(file, str(tile) + '.')
+	#file.close()
+	#file = FileAccess.open("res://Map/Map_Info/Europe.txt", FileAccess.WRITE)
+	#for tile in $Layer3Lead.get_used_cells():
+		#if !is_tile_water(map, tile):
+			#save_to_file(file, str(tile) + '.')
+	#file.close()
+	#file = FileAccess.open("res://Map/Map_Info/Africa.txt", FileAccess.WRITE)
+	#for tile in $Layer4Iron.get_used_cells():
+		#if !is_tile_water(map, tile):
+			#save_to_file(file, str(tile) + '.')
+	#file.close()
+	#file = FileAccess.open("res://Map/Map_Info/Asia.txt", FileAccess.WRITE)
+	#for tile in $Layer5Coal.get_used_cells():
+		#if !is_tile_water(map, tile):
+			#save_to_file(file, str(tile) + '.')
+	#file.close()
+	#file = FileAccess.open("res://Map/Map_Info/Australia.txt", FileAccess.WRITE)
+	#for tile in $Layer6Copper.get_used_cells():
+		#if !is_tile_water(map, tile):
+			#save_to_file(file, str(tile) + '.')
+	#file.close()
+	#file = FileAccess.open("res://Map/Map_Info/Australia.txt", FileAccess.READ)
+	#try_to_read(file)
+#
+#func save_to_file(file, content: String):
+	#file.store_string(content)
+	#
+#
+#func try_to_read(file: FileAccess):
+	#var packedString = file.get_csv_line('.')
+	#print(packedString[0])
+	#print(packedString[999])
+	#
