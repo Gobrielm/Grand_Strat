@@ -1,7 +1,10 @@
 extends Node2D
 
+var map: TileMapLayer
+
 const TILES_PER_ROW = 8
 const MAX_CLAY = 5000
+const MAX_SULFUR = 5000
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(type, coords) > 0
@@ -32,24 +35,32 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 			toReturn.append([{}, dict])
 	return toReturn
 
-func place_resources(map: TileMapLayer):
-	autoplace_clay(map)
+func place_resources(_map: TileMapLayer):
+	map = _map
+	autoplace_clay()
+	autoplace_sulfur()
 
-func autoplace_clay(map: TileMapLayer):
+func autoplace_clay():
+	autoplace_resource(get_tiles_for_clay(), $Layer0Clay, MAX_CLAY)
+
+func autoplace_sulfur():
+	autoplace_resource(get_tiles_for_sulfur(), $Layer2Sulfur, MAX_SULFUR)
+
+func autoplace_resource(tiles: Array, layer: TileMapLayer, max: int):
 	var count = 0
-	for cell: Vector2i in get_tiles_for_clay(map):
+	for cell: Vector2i in tiles:
 		var mag = randi() % 10
-		$Layer0Clay.set_cell(cell, 1, get_atlas_for_magnitude(mag))
+		layer.set_cell(cell, 1, get_atlas_for_magnitude(mag))
 		count += mag
-		if count > MAX_CLAY:
+		if count > max:
 			return
 
-func get_tiles_for_clay(map: TileMapLayer) -> Array:
+func get_tiles_for_clay() -> Array:
 	var toReturn = []
 	for tile in map.get_used_cells_by_id(0, Vector2i(6, 0)):
-		if is_tile_river(map, tile):
+		if is_tile_river(tile):
 			for cell: Vector2i in map.get_surrounding_cells(tile):
-				if !is_tile_water(map, cell):
+				if !is_tile_water(cell):
 					toReturn.append(cell)
 	for tile in map.get_used_cells_by_id(0, Vector2i(5, 0)):
 		for cell in map.get_surrounding_cells(tile):
@@ -59,7 +70,28 @@ func get_tiles_for_clay(map: TileMapLayer) -> Array:
 	toReturn.shuffle()
 	return toReturn
 
-func is_tile_water(map: TileMapLayer, coords: Vector2i) -> bool:
+func get_tiles_for_sulfur() -> Array:
+	var toReturn = []
+	var im_volcanoes: Image = Image.load_from_file("res://Map/Map_Images/volcanos.png")
+	var real_x = -610
+	var real_y = -244
+	for x in im_volcanoes.get_width():
+		for y in im_volcanoes.get_height():
+			if x % 3 == 0 or y % 7 == 0 or y % 7 == 1 or y % 7 == 2:
+				continue
+			var color: Color = im_volcanoes.get_pixel(x, y)
+			var tile: Vector2i = Vector2i(real_x, real_y)
+			
+			if color.r > (color.b + color.g + 0.5) and !is_tile_water(tile):
+				toReturn.push_back(tile)
+			real_y += 1
+		if x % 3 != 0:
+			real_x += 1
+			real_y = -244
+	toReturn.shuffle()
+	return toReturn
+
+func is_tile_water(coords: Vector2i) -> bool:
 	var atlas = map.get_cell_atlas_coords(coords)
 	return atlas == Vector2i(6, 0) or atlas == Vector2i(7, 0)
 
@@ -70,14 +102,14 @@ func get_tile_elevation(atlas: Vector2i) -> int:
 		return 1
 	return 0
 
-func is_tile_river(map: TileMapLayer, coords: Vector2i) -> bool:
+func is_tile_river(coords: Vector2i) -> bool:
 	var count = 0
 	for cell in map.get_surrounding_cells(coords):
-		if !is_tile_water(map, cell):
+		if !is_tile_water(cell):
 			count += 1
 	return count > 3
 
-#func create_continents(map: TileMapLayer):
+#func create_continents():
 	#var file = FileAccess.open("res://Map/Map_Info/North_America.txt", FileAccess.WRITE)
 	#for tile in $Layer1Sand.get_used_cells():
 		#if !is_tile_water(map, tile):

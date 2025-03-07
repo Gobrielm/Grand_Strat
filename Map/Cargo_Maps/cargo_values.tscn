@@ -39,6 +39,7 @@ sources/1 = SubResource("TileSetAtlasSource_v58i0")
 script = ExtResource("2_hxp8l")
 
 [node name="Layer0Clay" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer1Sand" type="TileMapLayer" parent="."]
