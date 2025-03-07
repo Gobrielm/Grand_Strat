@@ -53,6 +53,7 @@ tile_set = SubResource("TileSet_wpjjg")
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer4Iron" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer5Coal" type="TileMapLayer" parent="."]

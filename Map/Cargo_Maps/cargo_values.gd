@@ -6,6 +6,7 @@ const TILES_PER_ROW = 8
 const MAX_CLAY = 5000
 const MAX_SULFUR = 5000
 const MAX_IRON = 5000
+const MAX_COAL = 5000
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(type, coords) > 0
@@ -42,6 +43,7 @@ func place_resources(_map: TileMapLayer):
 	autoplace_resource(get_tiles_for_clay(), $Layer0Clay, MAX_CLAY)
 	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_SULFUR)
 	autoplace_resource(resource_array[4], $Layer4Iron, MAX_IRON)
+	autoplace_resource(resource_array[5], $Layer5Coal, MAX_COAL)
 
 
 func autoplace_resource(tiles: Array, layer: TileMapLayer, max: int):
@@ -74,25 +76,33 @@ func get_tiles_for_resources() -> Array:
 		toReturn.push_back([])
 	var im_volcanoes: Image = Image.load_from_file("res://Map/Map_Images/volcanos.png")
 	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
+	var im_coal: Image = Image.load_from_file("res://Map/Map_Images/coal.png")
 	var real_x = -610
 	var real_y = -244
 	for x in im_volcanoes.get_width():
 		for y in im_volcanoes.get_height():
 			if x % 3 == 0 or y % 7 <= 2:
 				continue
-			var color2: Color = im_volcanoes.get_pixel(x, y)
-			var color4: Color = im_iron.get_pixel(x, y)
+			var color: Color = im_volcanoes.get_pixel(x, y)
 			var tile: Vector2i = Vector2i(real_x, real_y)
 			
-			if color2.r > (color2.b + color2.g + 0.5) and !is_tile_water(tile):
+			if color.r > (color.b + color.g + 0.5) and !is_tile_water(tile):
 				toReturn[2].push_back(tile)
-				
-			if color4.r > (color4.b + color4.g) or color4.b > (color4.r + color4.g) and !is_tile_water(tile):
+			
+			color = im_iron.get_pixel(x, y)
+			
+			if color.r > (color.b + color.g) or color.b > (color.r + color.g) and !is_tile_water(tile):
 				toReturn[4].push_back(tile)
+			
+			color = im_coal.get_pixel(x, y)
+			if color.r > 0.75 and color.r > (color.b + color.g - 0.3) and !is_tile_water(tile):
+				toReturn[5].push_back(tile)
+			
 			real_y += 1
 		if x % 3 != 0:
 			real_x += 1
 			real_y = -244
+	print(toReturn[5].size())
 	for i in terminal_map.amount_of_primary_goods:
 		toReturn[i].shuffle()
 	return toReturn
