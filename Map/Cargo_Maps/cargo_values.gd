@@ -5,6 +5,7 @@ var map: TileMapLayer
 const TILES_PER_ROW = 8
 const MAX_CLAY = 5000
 const MAX_SULFUR = 5000
+const MAX_IRON = 5000
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(type, coords) > 0
@@ -37,14 +38,11 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 
 func place_resources(_map: TileMapLayer):
 	map = _map
-	autoplace_clay()
-	autoplace_sulfur()
-
-func autoplace_clay():
+	var resource_array: Array = get_tiles_for_resources()
 	autoplace_resource(get_tiles_for_clay(), $Layer0Clay, MAX_CLAY)
+	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_SULFUR)
+	autoplace_resource(resource_array[4], $Layer4Iron, MAX_IRON)
 
-func autoplace_sulfur():
-	autoplace_resource(get_tiles_for_sulfur(), $Layer2Sulfur, MAX_SULFUR)
 
 func autoplace_resource(tiles: Array, layer: TileMapLayer, max: int):
 	var count = 0
@@ -70,25 +68,33 @@ func get_tiles_for_clay() -> Array:
 	toReturn.shuffle()
 	return toReturn
 
-func get_tiles_for_sulfur() -> Array:
+func get_tiles_for_resources() -> Array:
 	var toReturn = []
+	for i in terminal_map.amount_of_primary_goods:
+		toReturn.push_back([])
 	var im_volcanoes: Image = Image.load_from_file("res://Map/Map_Images/volcanos.png")
+	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
 	var real_x = -610
 	var real_y = -244
 	for x in im_volcanoes.get_width():
 		for y in im_volcanoes.get_height():
-			if x % 3 == 0 or y % 7 == 0 or y % 7 == 1 or y % 7 == 2:
+			if x % 3 == 0 or y % 7 <= 2:
 				continue
-			var color: Color = im_volcanoes.get_pixel(x, y)
+			var color2: Color = im_volcanoes.get_pixel(x, y)
+			var color4: Color = im_iron.get_pixel(x, y)
 			var tile: Vector2i = Vector2i(real_x, real_y)
 			
-			if color.r > (color.b + color.g + 0.5) and !is_tile_water(tile):
-				toReturn.push_back(tile)
+			if color2.r > (color2.b + color2.g + 0.5) and !is_tile_water(tile):
+				toReturn[2].push_back(tile)
+				
+			if color4.r > (color4.b + color4.g) or color4.b > (color4.r + color4.g) and !is_tile_water(tile):
+				toReturn[4].push_back(tile)
 			real_y += 1
 		if x % 3 != 0:
 			real_x += 1
 			real_y = -244
-	toReturn.shuffle()
+	for i in terminal_map.amount_of_primary_goods:
+		toReturn[i].shuffle()
 	return toReturn
 
 func is_tile_water(coords: Vector2i) -> bool:

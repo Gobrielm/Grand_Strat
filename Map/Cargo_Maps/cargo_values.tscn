@@ -46,6 +46,7 @@ tile_set = SubResource("TileSet_wpjjg")
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer2Sulfur" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer3Lead" type="TileMapLayer" parent="."]
