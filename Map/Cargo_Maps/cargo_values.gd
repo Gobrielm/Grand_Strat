@@ -3,11 +3,9 @@ extends Node2D
 var map: TileMapLayer
 
 const TILES_PER_ROW = 8
-const MAX_CLAY = 5000
-const MAX_SULFUR = 5000
-const MAX_IRON = 5000
-const MAX_COAL = 5000
-const MAX_COPPER = 5000
+const MAX_RESOURCES = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000
+, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000
+, 5000, 5000]
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(type, coords) > 0
@@ -41,17 +39,21 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 func place_resources(_map: TileMapLayer):
 	map = _map
 	var resource_array: Array = get_tiles_for_resources()
-	autoplace_resource(get_tiles_for_clay(), $Layer0Clay, MAX_CLAY)
-	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_SULFUR)
-	autoplace_resource(resource_array[4], $Layer4Iron, MAX_IRON)
-	autoplace_resource(resource_array[5], $Layer5Coal, MAX_COAL)
-	autoplace_resource(resource_array[6], $Layer6Copper, MAX_COPPER)
+	autoplace_resource(get_tiles_for_clay(), $Layer0Clay, MAX_RESOURCES[0])
+	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_RESOURCES[2])
+	autoplace_resource(resource_array[3], $Layer3Lead, MAX_RESOURCES[3])
+	autoplace_resource(resource_array[4], $Layer4Iron, MAX_RESOURCES[4])
+	autoplace_resource(resource_array[5], $Layer5Coal, MAX_RESOURCES[5])
+	autoplace_resource(resource_array[6], $Layer6Copper, MAX_RESOURCES[6])
+	
+	autoplace_resource(resource_array[14], $Layer14Cotton, MAX_RESOURCES[14])
+	autoplace_resource(resource_array[15], $Layer15Silk, MAX_RESOURCES[15])
 
 
 func autoplace_resource(tiles: Array, layer: TileMapLayer, max: int):
 	var count = 0
 	for cell: Vector2i in tiles:
-		var mag = randi() % 10
+		var mag = randi() % 8 + 2
 		layer.set_cell(cell, 1, get_atlas_for_magnitude(mag))
 		count += mag
 		if count > max:
@@ -77,23 +79,30 @@ func get_tiles_for_resources() -> Array:
 	for i in terminal_map.amount_of_primary_goods:
 		toReturn.push_back([])
 	var im_volcanoes: Image = Image.load_from_file("res://Map/Map_Images/volcanos.png")
+	var im_lead: Image = Image.load_from_file("res://Map/Map_Images/lead.png")
 	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
 	var im_coal: Image = Image.load_from_file("res://Map/Map_Images/coal.png")
 	var im_copper: Image = Image.load_from_file("res://Map/Map_Images/copper.png")
+	var im_cotton: Image = Image.load_from_file("res://Map/Map_Images/cotton.png")
+	var im_silk: Image = Image.load_from_file("res://Map/Map_Images/silk.png")
 	var real_x = -610
 	var real_y = -244
 	for x in im_volcanoes.get_width():
 		for y in im_volcanoes.get_height():
 			if x % 3 == 0 or y % 7 <= 2:
 				continue
-			var color: Color = im_volcanoes.get_pixel(x, y)
+			
 			var tile: Vector2i = Vector2i(real_x, real_y)
 			
+			var color: Color = im_volcanoes.get_pixel(x, y)
 			if color.r > (color.b + color.g + 0.5) and !is_tile_water(tile):
 				toReturn[2].push_back(tile)
 			
-			color = im_iron.get_pixel(x, y)
+			color = im_lead.get_pixel(x, y)
+			if color.r > (color.b + color.g - 0.45) and color.r > 0.6 and !is_tile_water(tile):
+				toReturn[3].push_back(tile)
 			
+			color = im_iron.get_pixel(x, y)
 			if color.r > (color.b + color.g) or color.b > (color.r + color.g) and !is_tile_water(tile):
 				toReturn[4].push_back(tile)
 			
@@ -107,6 +116,17 @@ func get_tiles_for_resources() -> Array:
 				toReturn[6].push_back(tile)
 			elif 0.01 < color.get_luminance() and color.get_luminance() < 0.65 and !is_tile_water(tile):
 				toReturn[6].push_back(tile)
+			
+			color = im_cotton.get_pixel(x, y)
+			if color.r > 0.75 and color.r > (color.b + 0.1) and !is_tile_water(tile):
+				toReturn[14].push_back(tile)
+			
+			color = im_silk.get_pixel(x, y)
+			if 1.3 < (color.b + color.g) and color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
+				if randi() % 5 == 0:
+					toReturn[15].push_back(tile)
+			elif color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
+				toReturn[15].push_back(tile)
 			
 			real_y += 1
 		if x % 3 != 0:

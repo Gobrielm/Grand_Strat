@@ -36,6 +36,7 @@ tile_size = Vector2i(127, 110)
 sources/1 = SubResource("TileSetAtlasSource_v58i0")
 
 [node name="cargo_values" type="Node2D"]
+modulate = Color(1, 0, 1, 1)
 script = ExtResource("2_hxp8l")
 
 [node name="Layer0Clay" type="TileMapLayer" parent="."]
@@ -50,6 +51,7 @@ visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer3Lead" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer4Iron" type="TileMapLayer" parent="."]
@@ -61,6 +63,7 @@ visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer6Copper" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer7Zinc" type="TileMapLayer" parent="."]
@@ -85,6 +88,7 @@ tile_set = SubResource("TileSet_wpjjg")
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer14Cotton" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer15Silk" type="TileMapLayer" parent="."]
