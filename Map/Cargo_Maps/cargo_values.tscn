@@ -57,6 +57,7 @@ visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer5Coal" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer6Copper" type="TileMapLayer" parent="."]

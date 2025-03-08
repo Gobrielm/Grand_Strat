@@ -7,6 +7,7 @@ const MAX_CLAY = 5000
 const MAX_SULFUR = 5000
 const MAX_IRON = 5000
 const MAX_COAL = 5000
+const MAX_COPPER = 5000
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(type, coords) > 0
@@ -44,6 +45,7 @@ func place_resources(_map: TileMapLayer):
 	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_SULFUR)
 	autoplace_resource(resource_array[4], $Layer4Iron, MAX_IRON)
 	autoplace_resource(resource_array[5], $Layer5Coal, MAX_COAL)
+	autoplace_resource(resource_array[6], $Layer6Copper, MAX_COPPER)
 
 
 func autoplace_resource(tiles: Array, layer: TileMapLayer, max: int):
@@ -77,6 +79,7 @@ func get_tiles_for_resources() -> Array:
 	var im_volcanoes: Image = Image.load_from_file("res://Map/Map_Images/volcanos.png")
 	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
 	var im_coal: Image = Image.load_from_file("res://Map/Map_Images/coal.png")
+	var im_copper: Image = Image.load_from_file("res://Map/Map_Images/copper.png")
 	var real_x = -610
 	var real_y = -244
 	for x in im_volcanoes.get_width():
@@ -98,11 +101,17 @@ func get_tiles_for_resources() -> Array:
 			if color.r > 0.75 and color.r > (color.b + color.g - 0.3) and !is_tile_water(tile):
 				toReturn[5].push_back(tile)
 			
+			color = im_copper.get_pixel(x, y)
+			
+			if color.b > (color.r + color.g - 0.4) and color.b > (color.r + 0.05) and !is_tile_water(tile):
+				toReturn[6].push_back(tile)
+			elif 0.01 < color.get_luminance() and color.get_luminance() < 0.65 and !is_tile_water(tile):
+				toReturn[6].push_back(tile)
+			
 			real_y += 1
 		if x % 3 != 0:
 			real_x += 1
 			real_y = -244
-	print(toReturn[5].size())
 	for i in terminal_map.amount_of_primary_goods:
 		toReturn[i].shuffle()
 	return toReturn
