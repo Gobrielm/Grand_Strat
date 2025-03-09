@@ -96,12 +96,15 @@ visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer16Spices" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer17Coffee" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer18Tea" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer19Tobacco" type="TileMapLayer" parent="."]

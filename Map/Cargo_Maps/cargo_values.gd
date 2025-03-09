@@ -48,9 +48,9 @@ func place_resources(_map: TileMapLayer):
 	
 	autoplace_resource(resource_array[14], $Layer14Cotton, MAX_RESOURCES[14])
 	autoplace_resource(resource_array[15], $Layer15Silk, MAX_RESOURCES[15])
-	
+	autoplace_resource(resource_array[16], $Layer16Spices, MAX_RESOURCES[16])
 	autoplace_resource(resource_array[17], $Layer17Coffee, MAX_RESOURCES[17])
-	
+	autoplace_resource(resource_array[18], $Layer18Tea, MAX_RESOURCES[18])
 	autoplace_resource(resource_array[19], $Layer19Tobacco, MAX_RESOURCES[19])
 	autoplace_resource(resource_array[20], $Layer20Gold, MAX_RESOURCES[20])
 
@@ -90,7 +90,9 @@ func get_tiles_for_resources() -> Array:
 	var im_copper: Image = Image.load_from_file("res://Map/Map_Images/copper.png")
 	var im_cotton: Image = Image.load_from_file("res://Map/Map_Images/cotton.png")
 	var im_silk: Image = Image.load_from_file("res://Map/Map_Images/silk.png")
+	var im_spices: Image = Image.load_from_file("res://Map/Map_Images/spices.png")
 	var im_coffee: Image = Image.load_from_file("res://Map/Map_Images/coffee.png")
+	var im_tea: Image = Image.load_from_file("res://Map/Map_Images/tea.png")
 	var im_tobacco: Image = Image.load_from_file("res://Map/Map_Images/tobacco.png")
 	var im_gold: Image = Image.load_from_file("res://Map/Map_Images/gold.png")
 	var real_x = -610
@@ -136,12 +138,23 @@ func get_tiles_for_resources() -> Array:
 			elif color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
 				toReturn[15].push_back(tile)
 			
+			color = im_spices.get_pixel(x, y)
+			if color.r > 0.75 and !is_tile_water(tile):
+				toReturn[16].push_back(tile)
+			
 			color = im_coffee.get_pixel(x, y)
 			if color.r > 0.9 and 0.9 > color.b and 0.9 > color.g and !is_tile_water(tile):
 				if 0.7 > color.b and 0.7 > color.g:
 					toReturn[17].push_back(tile)
 				elif randi() % 5 == 0:
 					toReturn[17].push_back(tile)
+			
+			color = im_tea.get_pixel(x, y)
+			if !is_color_whitish(color) and !is_tile_water(tile):
+				if 0.7 > color.b and 0.7 > color.g:
+					toReturn[18].push_back(tile)
+				elif randi() % 5 == 0:
+					toReturn[18].push_back(tile)
 			
 			color = im_tobacco.get_pixel(x, y)
 			if 1.3 < (color.b + color.g) and color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
@@ -184,6 +197,9 @@ func is_tile_river(coords: Vector2i) -> bool:
 		if !is_tile_water(cell):
 			count += 1
 	return count > 3
+
+func is_color_whitish(color: Color) -> bool:
+	return abs(color.r - color.b) < 0.1 and abs(color.g - color.b) < 0.1 and abs(color.r - color.g) < 0.1
 
 #func create_continents():
 	#var file = FileAccess.open("res://Map/Map_Info/North_America.txt", FileAccess.WRITE)
