@@ -44,6 +44,7 @@ visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer1Sand" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer2Sulfur" type="TileMapLayer" parent="."]
@@ -74,6 +75,7 @@ visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer9Salt" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer10Grain" type="TileMapLayer" parent="."]

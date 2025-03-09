@@ -40,7 +40,7 @@ func place_resources(_map: TileMapLayer):
 	map = _map
 	var resource_array: Array = get_tiles_for_resources()
 	autoplace_resource(resource_array[0], $Layer0Clay, MAX_RESOURCES[0])
-	
+	autoplace_resource(resource_array[1], $Layer1Sand, MAX_RESOURCES[1])
 	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_RESOURCES[2])
 	autoplace_resource(resource_array[3], $Layer3Lead, MAX_RESOURCES[3])
 	autoplace_resource(resource_array[4], $Layer4Iron, MAX_RESOURCES[4])
@@ -48,7 +48,7 @@ func place_resources(_map: TileMapLayer):
 	autoplace_resource(resource_array[6], $Layer6Copper, MAX_RESOURCES[6])
 	
 	autoplace_resource(resource_array[8], $Layer8Wood, MAX_RESOURCES[8])
-	
+	autoplace_resource(resource_array[9], $Layer9Salt, MAX_RESOURCES[9])
 	autoplace_resource(resource_array[10], $Layer10Grain, MAX_RESOURCES[10])
 	autoplace_resource(resource_array[11], $Layer11Livestock, MAX_RESOURCES[11])
 	autoplace_resource(resource_array[12], $Layer12Fish, MAX_RESOURCES[12])
@@ -95,6 +95,7 @@ func get_tiles_for_resources() -> Array:
 	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
 	var im_coal: Image = Image.load_from_file("res://Map/Map_Images/coal.png")
 	var im_copper: Image = Image.load_from_file("res://Map/Map_Images/copper.png")
+	var im_salt: Image = Image.load_from_file("res://Map/Map_Images/salt.png")
 	var im_cotton: Image = Image.load_from_file("res://Map/Map_Images/cotton.png")
 	var im_silk: Image = Image.load_from_file("res://Map/Map_Images/silk.png")
 	var im_spices: Image = Image.load_from_file("res://Map/Map_Images/spices.png")
@@ -133,11 +134,17 @@ func get_tiles_for_resources() -> Array:
 				toReturn[5][tile] = 1
 			
 			color = im_copper.get_pixel(x, y)
-			
 			if color.b > (color.r + color.g - 0.4) and color.b > (color.r + 0.05) and !is_tile_water(tile):
 				toReturn[6][tile] = 1
 			elif 0.01 < color.get_luminance() and color.get_luminance() < 0.65 and !is_tile_water(tile):
 				toReturn[6][tile] = 1
+			
+			color = im_salt.get_pixel(x, y)
+			if color.r > 0.7 and !is_tile_water(tile):
+				if color.r > 0.9:
+					toReturn[9][tile] = 3
+				elif randi() % 5 == 0:
+					toReturn[9][tile] = 1
 			
 			color = im_cotton.get_pixel(x, y)
 			if color.r > 0.75 and color.r > (color.b + 0.1) and !is_tile_water(tile):
@@ -206,9 +213,23 @@ func add_basic_resource(resource_array: Array , tile: Vector2i):
 			resource_array[10][tile] = 3
 			resource_array[11][tile] = 3
 	
+	if is_desert(atlas) and is_tile_within_4_tiles_of_water(tile):
+		resource_array[1][tile] = 1
+	
 	if is_coastal(tile):
 		resource_array[12][tile] = 1
-	
+		resource_array[1][tile] = 2
+	elif is_tile_near_water(tile):
+		resource_array[1][tile] = 2
+
+func is_tile_near_water(coords: Vector2i) -> bool:
+	if is_tile_water(coords):
+		return false
+	for tile in map.get_surrounding_cells(coords):
+		if is_tile_water(tile):
+			return true
+	return false
+
 func is_coastal(coords: Vector2i) -> bool:
 	if is_tile_water(coords):
 		return false
@@ -232,6 +253,25 @@ func is_dense_forest(atlas: Vector2i) -> bool:
 
 func is_plains(atlas: Vector2i) -> bool:
 	return (is_lush_plains(atlas) or atlas == Vector2i(6, 1))
+
+func is_desert(atlas: Vector2i) -> bool:
+	return atlas.y == 3
+
+func is_tile_within_4_tiles_of_water(coords: Vector2i) -> bool:
+	var visited = {}
+	var queue = [coords]
+	visited[coords] = 0
+	while (!queue.is_empty()):
+		var curr = queue.pop_front()
+		if is_tile_water(curr):
+			return true
+		for tile in map.get_surrounding_cells(curr):
+			if !visited.has(tile):
+				visited[tile] = visited[curr] + 1
+				if visited[tile] < 5:
+					queue.push_back(tile)
+	return false
+	
 
 func is_lush_plains(atlas: Vector2i) -> bool:
 	return atlas == Vector2i(0, 0)
