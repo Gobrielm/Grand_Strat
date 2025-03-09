@@ -70,21 +70,26 @@ tile_set = SubResource("TileSet_wpjjg")
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer8Wood" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer9Salt" type="TileMapLayer" parent="."]
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer10Grain" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer11Livestock" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer12Fish" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer13Fruit" type="TileMapLayer" parent="."]
+visible = false
 tile_set = SubResource("TileSet_wpjjg")
 
 [node name="Layer14Cotton" type="TileMapLayer" parent="."]

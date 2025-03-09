@@ -3,8 +3,8 @@ extends Node2D
 var map: TileMapLayer
 
 const TILES_PER_ROW = 8
-const MAX_RESOURCES = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000
-, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, 50000
+const MAX_RESOURCES = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, -1, 5000
+, -1, -1, -1, -1, 5000, 5000, 5000, 5000, 5000, 50000
 , 1000]
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
@@ -39,13 +39,20 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 func place_resources(_map: TileMapLayer):
 	map = _map
 	var resource_array: Array = get_tiles_for_resources()
-	autoplace_resource(get_tiles_for_clay(), $Layer0Clay, MAX_RESOURCES[0])
+	autoplace_resource(resource_array[0], $Layer0Clay, MAX_RESOURCES[0])
+	
 	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_RESOURCES[2])
 	autoplace_resource(resource_array[3], $Layer3Lead, MAX_RESOURCES[3])
 	autoplace_resource(resource_array[4], $Layer4Iron, MAX_RESOURCES[4])
 	autoplace_resource(resource_array[5], $Layer5Coal, MAX_RESOURCES[5])
 	autoplace_resource(resource_array[6], $Layer6Copper, MAX_RESOURCES[6])
 	
+	autoplace_resource(resource_array[8], $Layer8Wood, MAX_RESOURCES[8])
+	
+	autoplace_resource(resource_array[10], $Layer10Grain, MAX_RESOURCES[10])
+	autoplace_resource(resource_array[11], $Layer11Livestock, MAX_RESOURCES[11])
+	autoplace_resource(resource_array[12], $Layer12Fish, MAX_RESOURCES[12])
+	autoplace_resource(resource_array[13], $Layer13Fruit, MAX_RESOURCES[13])
 	autoplace_resource(resource_array[14], $Layer14Cotton, MAX_RESOURCES[14])
 	autoplace_resource(resource_array[15], $Layer15Silk, MAX_RESOURCES[15])
 	autoplace_resource(resource_array[16], $Layer16Spices, MAX_RESOURCES[16])
@@ -54,35 +61,35 @@ func place_resources(_map: TileMapLayer):
 	autoplace_resource(resource_array[19], $Layer19Tobacco, MAX_RESOURCES[19])
 	autoplace_resource(resource_array[20], $Layer20Gold, MAX_RESOURCES[20])
 
-
-func autoplace_resource(tiles: Array, layer: TileMapLayer, max: int):
+func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
+	var array: Array = tiles.keys()
+	array.shuffle()
 	var count = 0
-	for cell: Vector2i in tiles:
-		var mag = randi() % 8 + 2
+	for cell: Vector2i in array:
+		var mag = randi() % 4 + tiles[cell]
 		layer.set_cell(cell, 1, get_atlas_for_magnitude(mag))
 		count += mag
-		if count > max:
+		if count > max and max != -1:
 			return
 
-func get_tiles_for_clay() -> Array:
-	var toReturn = []
+func get_tiles_for_clay() -> Dictionary:
+	var toReturn = {}
 	for tile in map.get_used_cells_by_id(0, Vector2i(6, 0)):
 		if is_tile_river(tile):
 			for cell: Vector2i in map.get_surrounding_cells(tile):
 				if !is_tile_water(cell):
-					toReturn.append(cell)
+					toReturn[cell] = 1
 	for tile in map.get_used_cells_by_id(0, Vector2i(5, 0)):
 		for cell in map.get_surrounding_cells(tile):
 			if get_tile_elevation(map.get_cell_atlas_coords(cell)) == 0:
-				toReturn.append(cell)
+				toReturn[cell] = 1
 	
-	toReturn.shuffle()
 	return toReturn
 
 func get_tiles_for_resources() -> Array:
 	var toReturn = []
 	for i in terminal_map.amount_of_primary_goods:
-		toReturn.push_back([])
+		toReturn.push_back({})
 	var im_volcanoes: Image = Image.load_from_file("res://Map/Map_Images/volcanos.png")
 	var im_lead: Image = Image.load_from_file("res://Map/Map_Images/lead.png")
 	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
@@ -95,6 +102,9 @@ func get_tiles_for_resources() -> Array:
 	var im_tea: Image = Image.load_from_file("res://Map/Map_Images/tea.png")
 	var im_tobacco: Image = Image.load_from_file("res://Map/Map_Images/tobacco.png")
 	var im_gold: Image = Image.load_from_file("res://Map/Map_Images/gold.png")
+	
+	toReturn[0] = get_tiles_for_clay()
+	
 	var real_x = -610
 	var real_y = -244
 	for x in im_volcanoes.get_width():
@@ -108,95 +118,117 @@ func get_tiles_for_resources() -> Array:
 			
 			var color: Color = im_volcanoes.get_pixel(x, y)
 			if color.r > (color.b + color.g + 0.5) and !is_tile_water(tile):
-				toReturn[2].push_back(tile)
+				toReturn[2][tile] = 1
 			
 			color = im_lead.get_pixel(x, y)
 			if color.r > (color.b + color.g - 0.45) and color.r > 0.6 and !is_tile_water(tile):
-				toReturn[3].push_back(tile)
+				toReturn[3][tile] = 1
 			
 			color = im_iron.get_pixel(x, y)
 			if color.r > (color.b + color.g) or color.b > (color.r + color.g) and !is_tile_water(tile):
-				toReturn[4].push_back(tile)
+				toReturn[4][tile] = 1
 			
 			color = im_coal.get_pixel(x, y)
 			if color.r > 0.75 and color.r > (color.b + color.g - 0.3) and !is_tile_water(tile):
-				toReturn[5].push_back(tile)
+				toReturn[5][tile] = 1
 			
 			color = im_copper.get_pixel(x, y)
 			
 			if color.b > (color.r + color.g - 0.4) and color.b > (color.r + 0.05) and !is_tile_water(tile):
-				toReturn[6].push_back(tile)
+				toReturn[6][tile] = 1
 			elif 0.01 < color.get_luminance() and color.get_luminance() < 0.65 and !is_tile_water(tile):
-				toReturn[6].push_back(tile)
+				toReturn[6][tile] = 1
 			
 			color = im_cotton.get_pixel(x, y)
 			if color.r > 0.75 and color.r > (color.b + 0.1) and !is_tile_water(tile):
-				toReturn[14].push_back(tile)
+				toReturn[14][tile] = 1
 			
 			color = im_silk.get_pixel(x, y)
 			if 1.3 < (color.b + color.g) and color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
 				if randi() % 5 == 0:
-					toReturn[15].push_back(tile)
+					toReturn[15][tile] = 1
 			elif color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
-				toReturn[15].push_back(tile)
+				toReturn[15][tile] = 1
 			
 			color = im_spices.get_pixel(x, y)
 			if color.r > 0.75 and !is_tile_water(tile):
-				toReturn[16].push_back(tile)
+				toReturn[16][tile] = 1
 			
 			color = im_coffee.get_pixel(x, y)
 			if color.r > 0.9 and 0.9 > color.b and 0.9 > color.g and !is_tile_water(tile):
 				if 0.7 > color.b and 0.7 > color.g:
-					toReturn[17].push_back(tile)
+					toReturn[17][tile] = 1
 				elif randi() % 5 == 0:
-					toReturn[17].push_back(tile)
+					toReturn[17][tile] = 1
 			
 			color = im_tea.get_pixel(x, y)
 			if !is_color_whitish(color) and !is_tile_water(tile):
 				if 0.7 > color.b and 0.7 > color.g:
-					toReturn[18].push_back(tile)
+					toReturn[18][tile] = 1
 				elif randi() % 5 == 0:
-					toReturn[18].push_back(tile)
+					toReturn[18][tile] = 1
 			
 			color = im_tobacco.get_pixel(x, y)
 			if 1.3 < (color.b + color.g) and color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
 				if randi() % 5 == 0:
-					toReturn[19].push_back(tile)
+					toReturn[19][tile] = 1
 			elif color.r > 0.75 and color.r > (color.b + 0.1) and !is_tile_water(tile):
-				toReturn[19].push_back(tile)
+				toReturn[19][tile] = 1
 			
 			
 			color = im_gold.get_pixel(x, y)
 			if 1.3 < (color.b + color.g) and color.r > 0.75 and color.r > (color.b + 0.07) and !is_tile_water(tile):
 				if randi() % 5 == 0:
-					toReturn[20].push_back(tile)
+					toReturn[20][tile] = 1
 			elif color.r > 0.75 and color.r > (color.b + 0.1) and !is_tile_water(tile):
-				toReturn[20].push_back(tile)
+				toReturn[20][tile] = 1
 			
 			
 			real_y += 1
 		if x % 3 != 0:
 			real_x += 1
 			real_y = -244
-	for i in terminal_map.amount_of_primary_goods:
-		toReturn[i].shuffle()
 	return toReturn
 
-#Resource_array is array[good_index] -> array
+#Resource_array is array[good_index] -> dict
 func add_basic_resource(resource_array: Array , tile: Vector2i):
 	var atlas = map.get_cell_atlas_coords(tile)
 	if is_forested(atlas):
-		resource_array[8].push_back(tile)
-	elif is_plains(atlas):
-		resource_array[10].push_back(tile)
-		resource_array[11].push_back(tile)
+		if atlas == Vector2i(1, 0):
+			resource_array[13][tile] = 1
+		resource_array[8][tile] = 1
+		if is_dense_forest(atlas):
+			resource_array[8][tile] = 3
+	elif is_plains(atlas) or atlas == Vector2i(3, 0):
+		resource_array[10][tile] = 1
+		resource_array[11][tile] = 1
+		if is_lush_plains(atlas):
+			resource_array[10][tile] = 3
+			resource_array[11][tile] = 3
 	
-	if is_lush_plains(atlas):
-		resource_array[13].push_back(tile)
+	if is_coastal(tile):
+		resource_array[12][tile] = 1
 	
+func is_coastal(coords: Vector2i) -> bool:
+	if is_tile_water(coords):
+		return false
+	for tile in map.get_surrounding_cells(coords):
+		if is_tile_water(tile) and is_tile_surrounded_by_water(tile):
+			return true
+	return false
+
+func is_tile_surrounded_by_water(coords: Vector2i) -> bool:
+	var count: int = 0
+	for tile in map.get_surrounding_cells(coords):
+		if is_tile_water(tile):
+			count += 1
+	return count >= 3
 
 func is_forested(atlas: Vector2i) -> bool:
-	return (atlas.y == 0 or atlas.y == 2) and (atlas.x == 1 or atlas.x == 2 or atlas.x == 4)
+	return ((atlas.y == 0 or atlas.y == 2) and (atlas.x == 1 or atlas.x == 2 or atlas.x == 4)) or atlas == Vector2i(4, 1)
+
+func is_dense_forest(atlas: Vector2i) -> bool:
+	return atlas.x == 2 and (atlas.y == 0 or atlas.y == 2)
 
 func is_plains(atlas: Vector2i) -> bool:
 	return (is_lush_plains(atlas) or atlas == Vector2i(6, 1))
