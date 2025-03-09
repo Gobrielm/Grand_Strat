@@ -104,6 +104,8 @@ func get_tiles_for_resources() -> Array:
 			
 			var tile: Vector2i = Vector2i(real_x, real_y)
 			
+			add_basic_resource(toReturn, tile)
+			
 			var color: Color = im_volcanoes.get_pixel(x, y)
 			if color.r > (color.b + color.g + 0.5) and !is_tile_water(tile):
 				toReturn[2].push_back(tile)
@@ -179,6 +181,28 @@ func get_tiles_for_resources() -> Array:
 	for i in terminal_map.amount_of_primary_goods:
 		toReturn[i].shuffle()
 	return toReturn
+
+#Resource_array is array[good_index] -> array
+func add_basic_resource(resource_array: Array , tile: Vector2i):
+	var atlas = map.get_cell_atlas_coords(tile)
+	if is_forested(atlas):
+		resource_array[8].push_back(tile)
+	elif is_plains(atlas):
+		resource_array[10].push_back(tile)
+		resource_array[11].push_back(tile)
+	
+	if is_lush_plains(atlas):
+		resource_array[13].push_back(tile)
+	
+
+func is_forested(atlas: Vector2i) -> bool:
+	return (atlas.y == 0 or atlas.y == 2) and (atlas.x == 1 or atlas.x == 2 or atlas.x == 4)
+
+func is_plains(atlas: Vector2i) -> bool:
+	return (is_lush_plains(atlas) or atlas == Vector2i(6, 1))
+
+func is_lush_plains(atlas: Vector2i) -> bool:
+	return atlas == Vector2i(0, 0)
 
 func is_tile_water(coords: Vector2i) -> bool:
 	var atlas = map.get_cell_atlas_coords(coords)
