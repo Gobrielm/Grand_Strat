@@ -39,27 +39,8 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 func place_resources(_map: TileMapLayer):
 	map = _map
 	var resource_array: Array = get_tiles_for_resources()
-	autoplace_resource(resource_array[0], $Layer0Clay, MAX_RESOURCES[0])
-	autoplace_resource(resource_array[1], $Layer1Sand, MAX_RESOURCES[1])
-	autoplace_resource(resource_array[2], $Layer2Sulfur, MAX_RESOURCES[2])
-	autoplace_resource(resource_array[3], $Layer3Lead, MAX_RESOURCES[3])
-	autoplace_resource(resource_array[4], $Layer4Iron, MAX_RESOURCES[4])
-	autoplace_resource(resource_array[5], $Layer5Coal, MAX_RESOURCES[5])
-	autoplace_resource(resource_array[6], $Layer6Copper, MAX_RESOURCES[6])
-	
-	autoplace_resource(resource_array[8], $Layer8Wood, MAX_RESOURCES[8])
-	autoplace_resource(resource_array[9], $Layer9Salt, MAX_RESOURCES[9])
-	autoplace_resource(resource_array[10], $Layer10Grain, MAX_RESOURCES[10])
-	autoplace_resource(resource_array[11], $Layer11Livestock, MAX_RESOURCES[11])
-	autoplace_resource(resource_array[12], $Layer12Fish, MAX_RESOURCES[12])
-	autoplace_resource(resource_array[13], $Layer13Fruit, MAX_RESOURCES[13])
-	autoplace_resource(resource_array[14], $Layer14Cotton, MAX_RESOURCES[14])
-	autoplace_resource(resource_array[15], $Layer15Silk, MAX_RESOURCES[15])
-	autoplace_resource(resource_array[16], $Layer16Spices, MAX_RESOURCES[16])
-	autoplace_resource(resource_array[17], $Layer17Coffee, MAX_RESOURCES[17])
-	autoplace_resource(resource_array[18], $Layer18Tea, MAX_RESOURCES[18])
-	autoplace_resource(resource_array[19], $Layer19Tobacco, MAX_RESOURCES[19])
-	autoplace_resource(resource_array[20], $Layer20Gold, MAX_RESOURCES[20])
+	for i in get_child_count():
+		autoplace_resource(resource_array[i], get_child(i), MAX_RESOURCES[i])
 
 func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
 	var array: Array = tiles.keys()
@@ -95,6 +76,7 @@ func get_tiles_for_resources() -> Array:
 	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
 	var im_coal: Image = Image.load_from_file("res://Map/Map_Images/coal.png")
 	var im_copper: Image = Image.load_from_file("res://Map/Map_Images/copper.png")
+	var im_zinc: Image = Image.load_from_file("res://Map/Map_Images/zinc.png")
 	var im_salt: Image = Image.load_from_file("res://Map/Map_Images/salt.png")
 	var im_cotton: Image = Image.load_from_file("res://Map/Map_Images/cotton.png")
 	var im_silk: Image = Image.load_from_file("res://Map/Map_Images/silk.png")
@@ -138,6 +120,10 @@ func get_tiles_for_resources() -> Array:
 				toReturn[6][tile] = 1
 			elif 0.01 < color.get_luminance() and color.get_luminance() < 0.65 and !is_tile_water(tile):
 				toReturn[6][tile] = 1
+			
+			color = im_zinc.get_pixel(x, y)
+			if color.g > (color.r + color.b) and !is_tile_water(tile):
+				toReturn[7][tile] = 1
 			
 			color = im_salt.get_pixel(x, y)
 			if color.r > 0.7 and !is_tile_water(tile):
