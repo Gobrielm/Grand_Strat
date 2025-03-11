@@ -32,8 +32,10 @@ func process():
 	save_state()
 
 func save_state():
-	var file := FileAccess.open(statesOutput, FileAccess.WRITE)
-	file.seek_end()
+	var file := FileAccess.open(statesOutput, FileAccess.READ)
+	var string: String = file.get_as_text()
+	file.close()
+	file = FileAccess.open(statesOutput, FileAccess.WRITE)
 	var string_array: PackedStringArray = []
 	for tile: Vector2i in tile_ownership.get_owned_tiles(id):
 		var amount = rail_placer.get_track_connection_count(tile)
@@ -41,12 +43,17 @@ func save_state():
 	for tile: Vector2i in tile_ownership.get_owned_tiles(id):
 		var amount = -terminal_map.get_town_fulfillment(tile)
 		string_array.append(str(amount))
+	file.store_string(string)
 	file.store_csv_line(string_array)
 	file.close()
 	
+	file = FileAccess.open(rewardOutput, FileAccess.READ)
+	string = file.get_as_text()
+	file.close()
+	
 	file = FileAccess.open(rewardOutput, FileAccess.WRITE)
-	file.seek_end()
 	string_array = [str(get_reward())]
+	file.store_string(string)
 	file.store_csv_line(string_array)
 	file.close()
 	
