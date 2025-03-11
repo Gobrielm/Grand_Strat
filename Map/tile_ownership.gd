@@ -41,6 +41,12 @@ func is_owned(player_id: int, coords: Vector2i) -> bool:
 	var color = get_cell_atlas_coords(coords)
 	return id_to_atlas.has(player_id) and id_to_atlas[player_id] == color
 
+func get_owned_tiles(player_id: int) -> Array:
+	if !id_to_atlas.has(player_id):
+		return []
+	var color: Vector2i = id_to_atlas[player_id]
+	return get_used_cells_by_id(1, color)
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	pass

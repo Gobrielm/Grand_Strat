@@ -136,7 +136,6 @@ static func create_road_depot(coords: Vector2i, player_id):
 	if !cargo_map_terminals.has(coords):
 		var supply_map = create_supplied_tiles(coords)
 		cargo_map_terminals[coords] = road_depot.new(coords, player_id, supply_map)
-		
 
 static func create_supplied_tiles(center: Vector2i):
 	var toReturn = {}
@@ -225,3 +224,8 @@ static func is_cargo_primary(cargo_type: int) -> bool:
 static func get_available_primary_recipes(coords: Vector2i) -> Array:
 	return cargo_map.get_available_primary_recipes(coords)
 	
+static func get_town_fulfillment(coords: Vector2i) -> float:
+	var term = get_terminal(coords)
+	if term != null and term is apex_factory:
+		return term.get_fulfillment()
+	return 0.0

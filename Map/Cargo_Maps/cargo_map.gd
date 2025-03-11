@@ -28,6 +28,12 @@ func create_factory(_player_id: int, coords: Vector2i):
 	set_cell(coords, 0, Vector2i(3, 1))
 	terminal_map.create_terminal(new_factory)
 
+func create_town(coords: Vector2i):
+	#TODO: CHECK TILE OWNERSHIP FOR TOWN
+	var new_town = load("res://Cargo/Cargo_Objects/Specific/Endpoint/town.gd").new(coords, 1)
+	set_cell(coords, 0, Vector2i(0, 1))
+	terminal_map.create_terminal(new_town)
+
 func create_atlas_to_building():
 	cargo_buildings = {}
 	cargo_buildings[Vector2i(0, 0)] = load("res://Cargo/Cargo_Objects/Specific/Secondary/lumber_mill.gd")

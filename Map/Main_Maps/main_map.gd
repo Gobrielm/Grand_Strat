@@ -61,6 +61,7 @@ func _ready():
 		tile_info = load("res://Map/tile_info.gd").new(self)
 		create_client_tile_info.rpc(self)
 		var cargo_controller = load("res://Cargo/cargo_controller.tscn").instantiate()
+		cargo_controller.assign_map_node(map_node)
 		add_child(cargo_controller)
 		terminal_map.create(self)
 		recipe.create_set_recipes()

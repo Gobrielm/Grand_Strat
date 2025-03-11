@@ -12,7 +12,7 @@ extends Node
 @onready var cargo_map = $cargo_map
 
 var unique_id
-
+var ai
 
 func _ready():
 	randomize()
@@ -31,6 +31,7 @@ func _ready():
 		terminal_map.assign_cargo_map(cargo_map)
 	enable_nation_picker()
 	cargo_map.place_resources(main_map)
+	ai = load("res://AI/economy_ai.gd").new(main_map, tile_ownership)
 
 func _input(event):
 	main_map.update_hover()
@@ -77,6 +78,15 @@ func _input(event):
 		main_map.create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
 		unit_creator_window.popup()
+
+func _on_day_tick_timeout():
+	pass
+
+func _on_month_tick_timeout():
+	pass
+
+func _on_ai_timer_timeout():
+	ai.process()
 
 #Factory
 func create_factory():

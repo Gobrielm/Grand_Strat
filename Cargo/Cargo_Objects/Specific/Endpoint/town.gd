@@ -1,5 +1,5 @@
 extends apex_factory
-#CHANGE TO ENDPOINT
+
 func _init(new_location: Vector2i, _player_id: int):
 	var dict = create_inputs()
 	super._init(new_location, _player_id, dict)
@@ -31,6 +31,13 @@ func check_input(type: int) -> bool:
 
 func remove_input(type: int):
 	remove_cargo(type, inputs[type])
+
+func get_fulfillment() -> float:
+	var total := 0
+	for type: int in inputs:
+		var fulfillment: float = local_pricer.get_change(type) / inputs[type]
+		total += fulfillment
+	return total
 
 func withdraw():
 	for type in inputs:

@@ -141,8 +141,13 @@ func get_depot_direction(coords: Vector2i) -> int:
 		if atlas.y == 1:
 			return atlas.x
 	return -1
-
-
+func get_track_connection_count(coords: Vector2i) -> int:
+	var count := 0
+	for dir in get_track_connections(coords):
+		if dir:
+			count += 1
+	return count
+	
 func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i, bordering_to_coord1: Array) -> bool:
 	var track_connections1 = get_track_connections(coord1)
 	var track_connections2 = get_track_connections(coord2)
