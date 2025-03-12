@@ -10,6 +10,12 @@ const MAX_RESOURCES = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, -1, 5000
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(type, coords) > 0
 
+func get_layer(type: int) -> TileMapLayer:
+	var cargo_name = get_good_name_uppercase(type)
+	var layer: TileMapLayer = get_node("Layer" + str(type) + cargo_name)
+	assert(layer != null)
+	return layer
+
 func get_tile_magnitude(type: int, coords: Vector2i) -> int:
 	var cargo_name = get_good_name_uppercase(type)
 	var layer: TileMapLayer = get_node("Layer" + str(type) + cargo_name)

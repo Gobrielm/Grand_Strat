@@ -86,7 +86,8 @@ func _on_month_tick_timeout():
 	pass
 
 func _on_ai_timer_timeout():
-	ai.process()
+	pass
+	#ai.process()
 
 #Factory
 func create_factory():
