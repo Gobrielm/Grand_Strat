@@ -8,7 +8,6 @@ const CARGO_TYPE = 0
 var available_tiles = []
 
 #Q - Table
-var q_table = {}  # Stores Q-values as a dictionary { "state_action": value }
 var alpha = 0.1    # Learning rate
 var gamma = 0.9    # Discount factor
 var epsilon = 0.1  # Exploration rate
@@ -21,16 +20,15 @@ var cargo_values = cargo_map.cargo_values
 var rail_placer
 var cargo_layer: TileMapLayer
 
+#Just to test system
+var num_mines = 0
+
 #Set of Actions
 enum ai_actions {
 	PLACE_RAIL,
 	PLACE_FACTORY,
 	PLACE_STATION
 }
-
-#Files
-var statesOutput := "res://AI/AI_Data/state_outputs.csv"
-var rewardOutput := "res://AI/AI_Data/rewards.csv"
 
 func _init(_world_map: TileMapLayer, _tile_ownership: TileMapLayer): 
 	world_map = _world_map
@@ -42,8 +40,7 @@ func _init(_world_map: TileMapLayer, _tile_ownership: TileMapLayer):
 		if terminal_map.get_terminal(tile) is apex_factory:
 			build_town(tile)
 	cargo_layer = cargo_values.get_layer(CARGO_TYPE)
-	var thread := Thread.new()
-	thread.start(train.bind(5000))
+
 
 func create_available_tiles():
 	for tile in tile_ownership.get_owned_tiles(id):
@@ -53,70 +50,47 @@ func create_available_tiles():
 func build_town(coords: Vector2i):
 	map[coords] = 2
 
-#func process():
-	#choose_action()
+func process():
+	var thread := Thread.new()
+	thread.start(run_ai_cycle.bind())
 
-func train(num_episodes):
+func run_ai_cycle():
 	var start: float = Time.get_ticks_msec()
-	for episode in range(1, num_episodes):
-		var state = get_state()
-		var actions = get_valid_actions()
-		if actions.is_empty() or get_town_state() > 14:
-			return
-		var action = choose_action(state, actions)
-		var reward = get_reward()
-		take_action(action)
-		var next_state = get_state()
-		var next_actions = get_valid_actions()
+	var action_type = get_type_of_action()
+	
+	var actions = get_valid_actions(action_type)
+	var state = get_state()
+	if actions.is_empty() or get_town_state() > 14:
+		return
+	var action = choose_action(state, actions)
+	var reward = get_reward()
+	take_action(action)
 		
-		update_q_value(state, action, reward, next_state, next_actions)
-		state = next_state
-		print(str(episode))
-		if episode == 20:
-			var end: float = Time.get_ticks_msec()
-			print(str((end - start) / 1000 / 20) + " Seconds passed for each episode")
+	
+	var end: float = Time.get_ticks_msec()
+	print(str((end - start) / 1000) + " Seconds passed for one cycle")
 
 func choose_action(state: Array, actions: Array):
 	if randf() < epsilon:  # Explore
 		return actions[randi() % actions.size()]
-		
-	# Exploit (pick best action from Q-table)
-	var best_action = actions[0]
-	var max_q_value = -INF
-	
-	for action in actions:
-		var state_action = str(state) + "|" + str(action)
-		if q_table.has(state_action) and q_table[state_action] > max_q_value:
-			max_q_value = q_table[state_action]
-			best_action = action
-		
-		return best_action
+	return actions[0]
 
-func update_q_value(state, action, reward, next_state, next_actions):
-	var state_action = str(state) + "|" + str(action)
-	
-	# Initialize Q-value if not in table
-	if not q_table.has(state_action):
-		q_table[state_action] = 0
-		
-	# Find max future reward
-	var max_future_q = -INF
-	for next_action in next_actions:
-		var next_state_action = str(next_state) + "|" + str(next_action)
-		if q_table.has(next_state_action):
-			max_future_q = max(max_future_q, q_table[next_state_action])
-	
-	if max_future_q == -INF:
-		max_future_q = 0  # No future action known yet
-		
-	# Update Q-value
-	q_table[state_action] = q_table[state_action] + alpha * (reward + gamma * max_future_q - q_table[state_action])
+func get_type_of_action():
+	if get_town_state() < 15 and num_mines == 0:
+		#Build mine
+		return 1
+	elif num_mines > 0:
+		#Build rail
+		return 2
+	#Do Nothing
+	return 0
 
-func get_valid_actions() -> Array:
+
+func get_valid_actions(action_type) -> Array:
 	var toReturn = []
 	for tile in available_tiles:
-		var actions = get_encoded_action(tile)
-		for action in actions:
+		var action = get_encoded_action(tile, action_type)
+		if !action.is_empty():
 			toReturn.append(action)
 	return toReturn
 
@@ -126,13 +100,16 @@ func get_magnitude(coords: Vector2i) -> int:
 		return 0
 	return atlas.y * 8 + atlas.x
 
-func get_encoded_action(coords: Vector2i) -> Array:
-	if map.has(coords):
+func get_encoded_action(coords: Vector2i, action_type) -> Array:
+	if map.has(coords) or action_type == 0:
+		#Return nothing
 		return []
 	
-	if get_magnitude(coords) > 0:
-		return [[coords.x, coords.y, 2], [coords.x, coords.y, 1]]
-	return [[coords.x, coords.y, 1]]
+	if get_magnitude(coords) > 0 and action_type == 1:
+		#Returning mine
+		return [coords.x, coords.y, 2]
+	#Retutning rail
+	return [coords.x, coords.y, 1]
 
 func get_state() -> Array:
 	var toReturn := []

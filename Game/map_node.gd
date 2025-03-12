@@ -31,7 +31,7 @@ func _ready():
 		terminal_map.assign_cargo_map(cargo_map)
 	enable_nation_picker()
 	cargo_map.place_resources(main_map)
-	ai = load("res://AI/economy_ai.gd").new(main_map, tile_ownership)
+	#ai = load("res://AI/economy_ai.gd").new(main_map, tile_ownership)
 
 func _input(event):
 	main_map.update_hover()
@@ -96,6 +96,9 @@ func create_factory():
 @rpc("any_peer", "call_local", "unreliable")
 func create_factory_server(building_id: int, coords: Vector2i):
 	cargo_map.create_factory(building_id, coords)
+
+func open_resource_map(type: int):
+	cargo_map.open_resource_map(type)
 
 #Tile_Ownership
 func toggle_ownership_view():

@@ -45,3 +45,6 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 
 func place_resources(map: TileMapLayer):
 	cargo_values.place_resources(map)
+
+func open_resource_map(type: int):
+	cargo_values.open_resource_map(type)

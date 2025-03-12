@@ -2,7 +2,7 @@ extends Node2D
 
 var map: TileMapLayer
 
-const TILES_PER_ROW = 8
+const TILES_PER_ROW := 8
 const MAX_RESOURCES = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, -1, 5000
 , -1, -1, -1, -1, 5000, 5000, 5000, 5000, 5000, 50000
 , 1000]
@@ -16,6 +16,13 @@ func get_layer(type: int) -> TileMapLayer:
 	assert(layer != null)
 	return layer
 
+func open_resource_map(type: int):
+	get_layer(type).visible = true
+
+func close_all_layers():
+	for i in terminal_map.amount_of_primary_goods:
+		get_layer(i).visible = false
+
 func get_tile_magnitude(type: int, coords: Vector2i) -> int:
 	var cargo_name = get_good_name_uppercase(type)
 	var layer: TileMapLayer = get_node("Layer" + str(type) + cargo_name)
@@ -26,7 +33,7 @@ func get_tile_magnitude(type: int, coords: Vector2i) -> int:
 	return atlas.y * TILES_PER_ROW + atlas.x
 
 func get_atlas_for_magnitude(num: int) -> Vector2i:
-	return Vector2i(num % TILES_PER_ROW, floor(num / TILES_PER_ROW))
+	return Vector2i(num % TILES_PER_ROW, num / TILES_PER_ROW)
 	
 func get_good_name_uppercase(type: int) -> String:
 	var cargo_name: String = terminal_map.get_cargo_name(type)
