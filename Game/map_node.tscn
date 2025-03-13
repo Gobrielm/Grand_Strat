@@ -20,6 +20,25 @@ tile_map_data = PackedByteArray("AABxAI7/AAAAAAEAAAB4AJv/AAAAAAEAAACAAI//AAAAAAE
 wait_time = 0.05
 autostart = true
 
+[node name="TextureRect" type="TextureRect" parent="."]
+anchors_preset = -1
+anchor_left = 59.874
+anchor_top = 3.261
+anchor_right = 59.874
+anchor_bottom = 3.261
+offset_left = -5052.85
+offset_top = -28034.1
+offset_right = 4729.15
+offset_bottom = 29163.9
+
+[node name="SubViewport" type="SubViewport" parent="."]
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 4
+
+[node name="Camera2D" type="Camera2D" parent="SubViewport"]
+zoom = Vector2(0.01, 0.01)
+
 [connection signal="timeout" from="ai_timer" to="." method="_on_ai_timer_timeout"]
 
 [editable path="cargo_map"]

@@ -61,7 +61,7 @@ func buy_cargo(type: int, amount: int) -> int:
 	return price
 
 func calculate_reward(type: int, amount: int) -> int:
-	return get_local_price(type) * amount
+	return floor(get_local_price(type) * float(amount))
 
 func get_desired_cargo_to_load(type: int) -> int:
 	var price = get_local_price(type)

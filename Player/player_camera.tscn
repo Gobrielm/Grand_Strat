@@ -1,9 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://c6spn0m6m85vs"]
+[gd_scene load_steps=9 format=3 uid="uid://c6spn0m6m85vs"]
 
 [ext_resource type="Script" path="res://Player/player_camera.gd" id="1_7vtmc"]
 [ext_resource type="PackedScene" uid="uid://pbahdxufv0k5" path="res://Gui/Building_Buttons/track_button.tscn" id="2_f342f"]
 [ext_resource type="PackedScene" uid="uid://dv4710kbsjsqm" path="res://Gui/Building_Buttons/station_button.tscn" id="3_qhawj"]
-[ext_resource type="Texture2D" uid="uid://b02j10d0auchi" path="res://Gui/Icons/go_back.png" id="4_t2r7r"]
 [ext_resource type="Script" path="res://Player/start_or_ready.gd" id="5_c6rps"]
 [ext_resource type="Script" path="res://Gui/Building_Buttons/station_button.gd" id="5_x18jc"]
 [ext_resource type="PackedScene" uid="uid://ctitj2crm0uil" path="res://Gui/Mapmodes/map_modes.tscn" id="6_6d4dc"]
@@ -16,6 +15,8 @@ height = 50
 noise = SubResource("FastNoiseLite_lfvmj")
 
 [node name="player_camera" type="Camera2D"]
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
 script = ExtResource("1_7vtmc")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
@@ -104,18 +105,6 @@ offset_right = 36.232
 offset_bottom = 32.824
 text = "0"
 
-[node name="toggle_ownership" type="Button" parent="CanvasLayer"]
-anchors_preset = -1
-anchor_left = -0.145
-anchor_right = -0.145
-offset_left = 0.0400085
-offset_top = 3.0
-offset_right = 58.04
-offset_bottom = 61.0
-focus_mode = 0
-icon = ExtResource("4_t2r7r")
-flat = true
-
 [node name="map_modes" parent="CanvasLayer" instance=ExtResource("6_6d4dc")]
 anchors_preset = -1
 anchor_left = -0.868
@@ -149,5 +138,4 @@ script = ExtResource("5_c6rps")
 [connection signal="pressed" from="CanvasLayer/factory_button" to="." method="_on_factory_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/road_depot_button" to="." method="_on_road_depot_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/road_depot_button" to="CanvasLayer/road_depot_button" method="_on_pressed"]
-[connection signal="pressed" from="CanvasLayer/toggle_ownership" to="." method="_on_toggle_ownership_pressed"]
 [connection signal="pressed" from="nation_picker/start_or_ready" to="." method="_on_start_or_ready_pressed"]

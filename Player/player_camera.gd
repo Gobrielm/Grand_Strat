@@ -88,8 +88,6 @@ func _on_single_track_button_pressed():
 func _on_factory_button_pressed():
 	state_machine.factory_button_toggled()
 
-func _on_toggle_ownership_pressed():
-	map.get_parent().toggle_ownership_view()
 
 func _on_start_or_ready_pressed():
 	map.get_parent().disable_nation_picker()

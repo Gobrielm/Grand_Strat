@@ -8,7 +8,7 @@ func _init(new_location: Vector2i, _player_owner: int):
 	super._init(new_location, _player_owner)
 	cash = INITIAL_CASH
 
-func get_amount_can_buy(amount_per: int) -> int:
+func get_amount_can_buy(amount_per: float) -> int:
 	return floor(float(cash) / amount_per)
 
 func add_cash(amount: int):

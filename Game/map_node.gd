@@ -86,6 +86,10 @@ func _on_month_tick_timeout():
 	pass
 
 func _on_ai_timer_timeout():
+	var img = $SubViewport/Camera2D.get_viewport().get_texture().get_image()
+	var tex = ImageTexture.create_from_image(img)
+	
+	$TextureRect.texture = tex
 	pass
 	#ai.process()
 
@@ -98,9 +102,6 @@ func create_factory_server(building_id: int, coords: Vector2i):
 	cargo_map.create_factory(building_id, coords)
 
 #Tile_Ownership
-func toggle_ownership_view():
-	tile_ownership.visible = !tile_ownership.visible
-
 func is_owned(player_id: int, coords: Vector2i) -> bool:
 	return tile_ownership.is_owned(player_id, coords)
 
@@ -120,3 +121,8 @@ func pick_nation():
 #Map Commands
 func get_cell_position() -> Vector2i:
 	return main_map.get_cell_position()
+
+#BackBuff
+func idk():
+	pass
+	$BackBufferCopy

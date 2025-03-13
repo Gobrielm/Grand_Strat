@@ -3,7 +3,8 @@ extends Control
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	press_button($diplomatic)
+
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -18,15 +19,19 @@ func is_gui_hovered() -> bool:
 
 
 func _on_cargo_pressed():
+	close_other_mapmodes()
 	unpress_other_buttons()
 	$Resource_Window.popup()
 	press_button($cargo)
 
 func _on_diplomatic_pressed():
+	close_other_mapmodes()
+	Utils.tile_ownership.visible = true
 	unpress_other_buttons()
 	press_button($diplomatic)
 
 func _on_strat_pressed():
+	close_other_mapmodes()
 	unpress_other_buttons()
 	press_button($strat)
 
@@ -41,11 +46,13 @@ func press_button(button: Button):
 		button.modulate = Color(1, 1, 1, 1)
 	else:
 		button.modulate = Color(1, 0.75, 1, 1)
-		
 
 func unpress_button(button: Button):
 	button.modulate = Color(1, 1, 1, 1)
 
+func close_other_mapmodes():
+	Utils.tile_ownership.visible = false
+	Utils.cargo_values.close_all_layers()
 
 func _on_resource_window_resource_window_picked(type: int):
 	Utils.cargo_values.open_resource_map(type)

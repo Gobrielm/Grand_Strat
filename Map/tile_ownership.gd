@@ -3,6 +3,9 @@ extends TileMapLayer
 var id_to_atlas: Dictionary = {}
 var colors_owned: Dictionary = {}
 
+func _ready():
+	Utils.assign_tile_ownership(self)
+
 @rpc("authority", "call_local", "reliable")
 func refresh_tile_ownership(resource: Dictionary):
 	pass
