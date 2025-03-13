@@ -7,6 +7,9 @@ const MAX_RESOURCES = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, -1, 5000
 , -1, -1, -1, -1, 5000, 5000, 5000, 5000, 5000, 50000
 , 1000]
 
+func _ready():
+	Utils.assign_cargo_values(self)
+
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(type, coords) > 0
 

@@ -48,5 +48,4 @@ func unpress_button(button: Button):
 
 
 func _on_resource_window_resource_window_picked(type: int):
-	#map_node.open_resource_map(type)
-	pass
+	Utils.cargo_values.open_resource_map(type)

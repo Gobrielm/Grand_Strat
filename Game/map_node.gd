@@ -97,9 +97,6 @@ func create_factory():
 func create_factory_server(building_id: int, coords: Vector2i):
 	cargo_map.create_factory(building_id, coords)
 
-func open_resource_map(type: int):
-	cargo_map.open_resource_map(type)
-
 #Tile_Ownership
 func toggle_ownership_view():
 	tile_ownership.visible = !tile_ownership.visible
