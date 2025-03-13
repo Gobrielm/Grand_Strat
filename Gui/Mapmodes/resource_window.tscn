@@ -1,11 +1,10 @@
 [gd_scene load_steps=2 format=3 uid="uid://dycu0hxqcqbt"]
 
-[ext_resource type="Script" path="res://Gui/resource_window.gd" id="1_x21q4"]
+[ext_resource type="Script" path="res://Gui/Mapmodes/resource_window.gd" id="1_x21q4"]
 
 [node name="Resource_Window" type="Window"]
 initial_position = 1
 size = Vector2i(300, 300)
-visible = false
 script = ExtResource("1_x21q4")
 
 [node name="ItemList" type="ItemList" parent="."]
@@ -35,3 +34,4 @@ item_19/text = "tobacco"
 item_20/text = "gold"
 
 [connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="item_selected" from="ItemList" to="." method="_on_item_list_item_selected"]

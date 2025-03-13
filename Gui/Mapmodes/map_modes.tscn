@@ -1,18 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://ctitj2crm0uil"]
+[gd_scene load_steps=3 format=3 uid="uid://ctitj2crm0uil"]
 
 [ext_resource type="Script" path="res://Gui/Mapmodes/map_modes.gd" id="1_nt0ct"]
+[ext_resource type="PackedScene" uid="uid://dycu0hxqcqbt" path="res://Gui/Mapmodes/resource_window.tscn" id="2_ed5lp"]
 
 [node name="map_modes" type="Control"]
 layout_mode = 3
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -400.0
-offset_top = -100.0
-grow_horizontal = 0
-grow_vertical = 0
+anchors_preset = 0
+offset_right = 400.0
+offset_bottom = 100.0
 script = ExtResource("1_nt0ct")
 
 [node name="background" type="ColorRect" parent="."]
@@ -41,6 +36,7 @@ offset_left = -27.0
 offset_top = -15.5
 offset_right = 27.0
 offset_bottom = 15.5
+focus_mode = 0
 text = "Cargo"
 
 [node name="diplomatic" type="Button" parent="."]
@@ -54,6 +50,7 @@ offset_left = -23.6
 offset_top = -15.5
 offset_right = 23.4
 offset_bottom = 15.5
+focus_mode = 0
 text = "diplo"
 
 [node name="strat" type="Button" parent="."]
@@ -67,5 +64,14 @@ offset_left = -22.6
 offset_top = -15.5
 offset_right = 22.4
 offset_bottom = 15.5
+focus_mode = 0
 text = "strat
 "
+
+[node name="Resource_Window" parent="." instance=ExtResource("2_ed5lp")]
+visible = false
+
+[connection signal="pressed" from="cargo" to="." method="_on_cargo_pressed"]
+[connection signal="pressed" from="diplomatic" to="." method="_on_diplomatic_pressed"]
+[connection signal="pressed" from="strat" to="." method="_on_strat_pressed"]
+[connection signal="resource_window_picked" from="Resource_Window" to="." method="_on_resource_window_resource_window_picked"]

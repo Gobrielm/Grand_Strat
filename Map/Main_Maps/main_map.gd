@@ -189,9 +189,6 @@ func get_depot_or_terminal(coords: Vector2i) -> terminal:
 		return new_depot
 	return terminal_map.get_terminal(coords)
 
-func _on_resource_window_resource_window_picked(type: int):
-	map_node.open_resource_map(type)
-
 #Trains
 @rpc("any_peer", "reliable", "call_local")
 func create_train(coords: Vector2i):
