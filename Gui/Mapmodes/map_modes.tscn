@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://ctitj2crm0uil"]
 
-[ext_resource type="Script" path="res://Gui/Mapmodes/map_modes.gd" id="1_nt0ct"]
+[ext_resource type="Script" uid="uid://bmwh24odl8wsv" path="res://Gui/Mapmodes/map_modes.gd" id="1_nt0ct"]
 [ext_resource type="PackedScene" uid="uid://dycu0hxqcqbt" path="res://Gui/Mapmodes/resource_window.tscn" id="2_ed5lp"]
 
 [node name="map_modes" type="Control"]

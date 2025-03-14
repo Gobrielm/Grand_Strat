@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://l3xw71d3y3e7"]
 
 [ext_resource type="Texture2D" uid="uid://cfcpxbgu2gtyd" path="res://Gui/Icons/revert.png" id="1_pj0e2"]
-[ext_resource type="Script" path="res://Gui/Player_Factory_Gui's/factory_construction_gui.gd" id="1_pl2le"]
+[ext_resource type="Script" uid="uid://bd6datscynm4u" path="res://Gui/Player_Factory_Gui's/factory_construction_gui.gd" id="1_pl2le"]
 
 [node name="factory_construction_gui" type="Window"]
 position = Vector2i(0, 36)

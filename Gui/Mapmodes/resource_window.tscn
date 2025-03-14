@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dycu0hxqcqbt"]
 
-[ext_resource type="Script" path="res://Gui/Mapmodes/resource_window.gd" id="1_x21q4"]
+[ext_resource type="Script" uid="uid://dyevpoepi7of8" path="res://Gui/Mapmodes/resource_window.gd" id="1_x21q4"]
 
 [node name="Resource_Window" type="Window"]
 initial_position = 1

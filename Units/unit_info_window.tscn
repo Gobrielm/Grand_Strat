@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dqvn8y35ax23b"]
 
-[ext_resource type="Script" path="res://Units/unit_info_window.gd" id="1_g6u0w"]
+[ext_resource type="Script" uid="uid://b83e3r3ow62k8" path="res://Units/unit_info_window.gd" id="1_g6u0w"]
 
 [node name="unit_info_window" type="Window"]
 size = Vector2i(500, 500)

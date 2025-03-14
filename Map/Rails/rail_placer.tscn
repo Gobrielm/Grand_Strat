@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://denddx5f87r3r"]
 
-[ext_resource type="Script" path="res://Map/Rails/rail_placer.gd" id="1_ccjj1"]
+[ext_resource type="Script" uid="uid://bn6av3arbrb00" path="res://Map/Rails/rail_placer.gd" id="1_ccjj1"]
 [ext_resource type="Texture2D" uid="uid://c30xe7s7jgq5i" path="res://Map_Icons/small_train_set.png" id="2_e7qd2"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vcvju"]

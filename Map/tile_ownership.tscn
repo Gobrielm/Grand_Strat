@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://c8np01jiqqnap" path="res://Map_Icons/country_tags.png" id="1_gly6g"]
 [ext_resource type="Texture2D" uid="uid://nj5pmhhaxfvi" path="res://Map_Icons/selected_country_tags.png" id="2_axpk4"]
-[ext_resource type="Script" path="res://Map/tile_ownership.gd" id="2_u7g4r"]
+[ext_resource type="Script" uid="uid://dlhrk64frkfev" path="res://Map/tile_ownership.gd" id="2_u7g4r"]
 [ext_resource type="AudioStream" uid="uid://hjwuqfregp64" path="res://Sounds/mixkit-negative-tone-interface-tap-2569.wav" id="3_vhjh6"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tabeg"]

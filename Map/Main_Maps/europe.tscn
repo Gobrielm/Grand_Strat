@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=4 uid="uid://dkr2k004plk0a"]
 
 [ext_resource type="Texture2D" uid="uid://bq1dap6gjpxr7" path="res://Map_Icons/7SEYHd.png" id="1_idysq"]
-[ext_resource type="Script" path="res://Map/Main_Maps/main_map.gd" id="2_os223"]
+[ext_resource type="Script" uid="uid://xip1aplnqbgb" path="res://Map/Main_Maps/main_map.gd" id="2_os223"]
 [ext_resource type="PackedScene" uid="uid://c6spn0m6m85vs" path="res://Player/player_camera.tscn" id="3_0haru"]
 [ext_resource type="PackedScene" uid="uid://denddx5f87r3r" path="res://Map/Rails/rail_placer.tscn" id="4_xigxy"]
 [ext_resource type="PackedScene" uid="uid://d2x16vqu0dy7j" path="res://Units/unit_managers/unit_creator_window.tscn" id="5_xl4ii"]

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dv4710kbsjsqm"]
 
 [ext_resource type="Texture2D" uid="uid://dud5y2t4ftp2y" path="res://Gui/Icons/station.png" id="1_p8hyx"]
-[ext_resource type="Script" path="res://Gui/Building_Buttons/station_button.gd" id="2_2ngu2"]
+[ext_resource type="Script" uid="uid://b0d6nkxwvec3r" path="res://Gui/Building_Buttons/station_button.gd" id="2_2ngu2"]
 
 [node name="station_button" type="Button"]
 anchors_preset = -1

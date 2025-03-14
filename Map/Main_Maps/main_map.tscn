@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://bq1dap6gjpxr7" path="res://Map_Icons/7SEYHd.png" id="1_jgce8"]
 [ext_resource type="PackedScene" uid="uid://c6spn0m6m85vs" path="res://Player/player_camera.tscn" id="2_if10o"]
-[ext_resource type="Script" path="res://Map/Main_Maps/main_map.gd" id="3_oilk6"]
+[ext_resource type="Script" uid="uid://xip1aplnqbgb" path="res://Map/Main_Maps/main_map.gd" id="3_oilk6"]
 [ext_resource type="PackedScene" uid="uid://denddx5f87r3r" path="res://Map/Rails/rail_placer.tscn" id="6_4lcrx"]
 [ext_resource type="PackedScene" uid="uid://bsap4yl65x1wd" path="res://Gui/Train_Gui/depot_window.tscn" id="8_mxbp3"]
 [ext_resource type="PackedScene" uid="uid://d2x16vqu0dy7j" path="res://Units/unit_managers/unit_creator_window.tscn" id="9_k4rfp"]

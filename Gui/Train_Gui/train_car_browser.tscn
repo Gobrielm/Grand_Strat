@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bxw4u1guk62r1"]
 
-[ext_resource type="Script" path="res://Gui/Train_Gui/train_car_browser.gd" id="1_fmkpv"]
+[ext_resource type="Script" uid="uid://jg316w0jr6of" path="res://Gui/Train_Gui/train_car_browser.gd" id="1_fmkpv"]
 [ext_resource type="Texture2D" uid="uid://dbdjkc3txkt6y" path="res://Gui/Icons/add.png" id="2_r0anj"]
 
 [node name="train_car_browser" type="Window"]

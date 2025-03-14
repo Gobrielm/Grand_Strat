@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=3 uid="uid://du4xxwp8ky6v6"]
 
 [ext_resource type="Texture2D" uid="uid://cu6gtw4s5yi8j" path="res://Map_Icons/unit_models.png" id="1_sa2cv"]
-[ext_resource type="Script" path="res://Map/unit_map.gd" id="2_cuon8"]
+[ext_resource type="Script" uid="uid://dvp7l2bp0drna" path="res://Map/unit_map.gd" id="2_cuon8"]
 [ext_resource type="AudioStream" uid="uid://bmoxstbk6x7w" path="res://Sounds/pick-92276.mp3" id="3_ods04"]
 [ext_resource type="AudioStream" uid="uid://closnylfsplm2" path="res://Sounds/interface-124464.mp3" id="4_dn7ni"]
 

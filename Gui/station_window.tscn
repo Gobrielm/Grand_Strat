@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://tgrwgdaijaeh"]
 
-[ext_resource type="Script" path="res://Gui/station_window.gd" id="1_8pdlu"]
+[ext_resource type="Script" uid="uid://c5alndvpirx2x" path="res://Gui/station_window.gd" id="1_8pdlu"]
 [ext_resource type="PackedScene" uid="uid://ddsk0bc0ixiwt" path="res://Gui/order_screen.tscn" id="3_bfn1f"]
 
 [node name="station_window" type="Window"]

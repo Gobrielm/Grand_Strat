@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://iatfblcckp0p"]
 
-[ext_resource type="Script" path="res://Gui/tile_window.gd" id="1_lgrtb"]
+[ext_resource type="Script" uid="uid://b0mk2u44nv4j7" path="res://Gui/tile_window.gd" id="1_lgrtb"]
 
 [node name="tile_window" type="Window"]
 initial_position = 1

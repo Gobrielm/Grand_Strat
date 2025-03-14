@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bmywob5ku4c3r"]
 
-[ext_resource type="Script" path="res://Gui/factory_window.gd" id="1_rucvl"]
+[ext_resource type="Script" uid="uid://yegm8nhcoeqc" path="res://Gui/factory_window.gd" id="1_rucvl"]
 
 [node name="factory_window" type="Window"]
 initial_position = 1

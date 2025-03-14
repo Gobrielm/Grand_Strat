@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bipirwbhqdjb2"]
 
-[ext_resource type="Script" path="res://Gui/Player_Factory_Gui's/factory_recipe_gui.gd" id="1_wfojr"]
+[ext_resource type="Script" uid="uid://u1cjyumvamqp" path="res://Gui/Player_Factory_Gui's/factory_recipe_gui.gd" id="1_wfojr"]
 [ext_resource type="Texture2D" uid="uid://cnt0fnx73uuf8" path="res://Gui/Icons/go.png" id="2_m3ix3"]
 [ext_resource type="Texture2D" uid="uid://cfcpxbgu2gtyd" path="res://Gui/Icons/revert.png" id="3_yopma"]
 
