@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dbdsinyte2gu1" path="res://Map/tile_ownership.tscn" id="3_3b3ai"]
 [ext_resource type="PackedScene" uid="uid://dkoyapss2hyif" path="res://Map/Cargo_Maps/cargo_map.tscn" id="4_jxo5k"]
 
-[node name="map_node" type="Node"]
+[node name="map_node" type="CanvasGroup"]
 script = ExtResource("1_4blso")
 
 [node name="main_map" parent="." instance=ExtResource("2_6stc2")]
@@ -19,25 +19,6 @@ tile_map_data = PackedByteArray("AABxAI7/AAAAAAEAAAB4AJv/AAAAAAEAAACAAI//AAAAAAE
 [node name="ai_timer" type="Timer" parent="."]
 wait_time = 0.05
 autostart = true
-
-[node name="TextureRect" type="TextureRect" parent="."]
-anchors_preset = -1
-anchor_left = 59.874
-anchor_top = 3.261
-anchor_right = 59.874
-anchor_bottom = 3.261
-offset_left = -5052.85
-offset_top = -28034.1
-offset_right = 4729.15
-offset_bottom = 29163.9
-
-[node name="SubViewport" type="SubViewport" parent="."]
-transparent_bg = true
-handle_input_locally = false
-render_target_update_mode = 4
-
-[node name="Camera2D" type="Camera2D" parent="SubViewport"]
-zoom = Vector2(0.01, 0.01)
 
 [connection signal="timeout" from="ai_timer" to="." method="_on_ai_timer_timeout"]
 

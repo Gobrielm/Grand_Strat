@@ -86,10 +86,6 @@ func _on_month_tick_timeout():
 	pass
 
 func _on_ai_timer_timeout():
-	var img = $SubViewport/Camera2D.get_viewport().get_texture().get_image()
-	var tex = ImageTexture.create_from_image(img)
-	
-	$TextureRect.texture = tex
 	pass
 	#ai.process()
 
