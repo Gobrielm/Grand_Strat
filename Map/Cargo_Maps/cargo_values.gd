@@ -19,6 +19,14 @@ func get_layer(type: int) -> TileMapLayer:
 	assert(layer != null)
 	return layer
 
+func get_available_resources(coords: Vector2i) -> Dictionary:
+	var toReturn := {}
+	for type in get_child_count():
+		var mag := get_tile_magnitude(type, coords)
+		if mag > 0:
+			toReturn[type] = mag
+	return toReturn
+
 func open_resource_map(type: int):
 	get_layer(type).visible = true
 
@@ -87,20 +95,20 @@ func get_tiles_for_resources() -> Array:
 	var toReturn = []
 	for i in terminal_map.amount_of_primary_goods:
 		toReturn.push_back({})
-	var im_volcanoes: Image = Image.load_from_file("res://Map/Map_Images/volcanos.png")
-	var im_lead: Image = Image.load_from_file("res://Map/Map_Images/lead.png")
-	var im_iron: Image = Image.load_from_file("res://Map/Map_Images/iron.png")
-	var im_coal: Image = Image.load_from_file("res://Map/Map_Images/coal.png")
-	var im_copper: Image = Image.load_from_file("res://Map/Map_Images/copper.png")
-	var im_zinc: Image = Image.load_from_file("res://Map/Map_Images/zinc.png")
-	var im_salt: Image = Image.load_from_file("res://Map/Map_Images/salt.png")
-	var im_cotton: Image = Image.load_from_file("res://Map/Map_Images/cotton.png")
-	var im_silk: Image = Image.load_from_file("res://Map/Map_Images/silk.png")
-	var im_spices: Image = Image.load_from_file("res://Map/Map_Images/spices.png")
-	var im_coffee: Image = Image.load_from_file("res://Map/Map_Images/coffee.png")
-	var im_tea: Image = Image.load_from_file("res://Map/Map_Images/tea.png")
-	var im_tobacco: Image = Image.load_from_file("res://Map/Map_Images/tobacco.png")
-	var im_gold: Image = Image.load_from_file("res://Map/Map_Images/gold.png")
+	var im_volcanoes: Image = load("res://Map/Map_Images/volcanos.png").get_image()
+	var im_lead: Image = load("res://Map/Map_Images/lead.png").get_image()
+	var im_iron: Image = load("res://Map/Map_Images/iron.png").get_image()
+	var im_coal: Image = load("res://Map/Map_Images/coal.png").get_image()
+	var im_copper: Image = load("res://Map/Map_Images/copper.png").get_image()
+	var im_zinc: Image = load("res://Map/Map_Images/zinc.png").get_image()
+	var im_salt: Image = load("res://Map/Map_Images/salt.png").get_image()
+	var im_cotton: Image = load("res://Map/Map_Images/cotton.png").get_image()
+	var im_silk: Image = load("res://Map/Map_Images/silk.png").get_image()
+	var im_spices: Image = load("res://Map/Map_Images/spices.png").get_image()
+	var im_coffee: Image = load("res://Map/Map_Images/coffee.png").get_image()
+	var im_tea: Image = load("res://Map/Map_Images/tea.png").get_image()
+	var im_tobacco: Image = load("res://Map/Map_Images/tobacco.png").get_image()
+	var im_gold: Image = load("res://Map/Map_Images/gold.png").get_image()
 	
 	toReturn[0] = get_tiles_for_clay()
 	

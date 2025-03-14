@@ -59,6 +59,9 @@ static func create_amount_of_primary_goods():
 		if cargo_name == "gold":
 			amount_of_primary_goods = i + 1
 
+static func get_available_resources(coords: Vector2i) -> Dictionary:
+	return cargo_map.cargo_values.get_available_resources(coords)
+
 static func assign_cargo_map(_cargo_map: TileMapLayer):
 	cargo_map = _cargo_map
 

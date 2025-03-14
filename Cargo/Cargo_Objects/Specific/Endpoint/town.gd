@@ -33,7 +33,7 @@ func remove_input(type: int):
 	remove_cargo(type, inputs[type])
 
 func get_fulfillment() -> float:
-	var total := 0
+	var total := 0.0
 	for type: int in inputs:
 		var fulfillment: float = local_pricer.get_change(type) / inputs[type]
 		total += fulfillment

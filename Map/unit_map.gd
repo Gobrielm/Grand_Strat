@@ -562,6 +562,6 @@ func manpower_and_morale_tick(unit: base_unit):
 		var manpower_used = unit.add_manpower(amount / 2)
 		var cost = round(manpower_used * 0.3)
 		map.remove_money(player_id, cost)
-		unit.add_morale(10 / 2)
+		unit.add_morale(5)
 	else:
 		unit.remove_morale(10)

@@ -432,7 +432,10 @@ func do_tiles_connect(coord1: Vector2i, coord2: Vector2i) -> bool:
 	return rail_placer.are_tiles_connected_by_rail(coord1, coord2, get_surrounding_cells(coord1))
 
 func open_tile_window(coords: Vector2i):
-	tile_window.open_window(coords)
+	if !is_water(coords):
+		tile_window.open_window(coords)
+	else:
+		tile_window.hide()
 
 #Rail General
 @rpc("authority", "call_local", "unreliable")
