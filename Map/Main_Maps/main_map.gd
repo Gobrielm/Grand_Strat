@@ -8,6 +8,7 @@ var unique_id
 @onready var depot_button = $player_camera/CanvasLayer/depot_button
 @onready var single_track_button = $player_camera/CanvasLayer/single_track_button
 @onready var unit_creator_window = $unit_creator_window
+@onready var tile_window := $tile_window
 @onready var game = get_parent().get_parent()
 @onready var rail_placer = $Rail_Placer
 @onready var map_node = get_parent()
@@ -312,6 +313,73 @@ func get_mouse_local_to_camera():
 	var final = -camera_middle + centered_at_top_left
 	return final / camera.zoom
 
+func get_biome_name(coords: Vector2i) -> String:
+	var biome_name := ""
+	if is_desert(coords):
+		biome_name += "Desert "
+	elif is_tundra(coords):
+		biome_name += "Tundra "
+	elif is_dry(coords):
+		biome_name += "Grasslands "
+	elif is_water(coords):
+		biome_name += "Ocean"
+	else:
+		biome_name += "Meadow "
+	
+	if is_forested(coords):
+		biome_name += "Forest "
+	
+	if is_hilly(coords):
+		biome_name += "Hills"
+	elif is_mountainous(coords):
+		if is_desert(coords):
+			biome_name = "Desert Mountains"
+		else:
+			biome_name = "Mountains"
+	return biome_name
+
+func is_forested(coords: Vector2i) -> bool:
+	var atlas = get_cell_atlas_coords(coords)
+	if (atlas.y >= 0 and atlas.y <= 2) and (atlas.x == 1 or atlas.x == 2 or atlas.x == 4):
+		return true
+	return false
+
+func is_hilly(coords: Vector2i) -> bool:
+	var atlas = get_cell_atlas_coords(coords)
+	if (atlas == Vector2i(3, 0) or atlas == Vector2i(4, 0) or atlas == Vector2i(5, 1) or atlas == Vector2i(3, 2) or atlas == Vector2i(4, 2) or atlas == Vector2i(1, 3)):
+		return true
+	return false
+
+func is_mountainous(coords: Vector2i) -> bool:
+	var atlas = get_cell_atlas_coords(coords)
+	if (atlas == Vector2i(5, 0) or atlas == Vector2i(3, 3)):
+		return true
+	return false
+
+func is_desert(coords: Vector2i) -> bool:
+	var atlas = get_cell_atlas_coords(coords)
+	if (atlas.y == 3):
+		return true
+	return false
+
+func is_tundra(coords: Vector2i) -> bool:
+	var atlas = get_cell_atlas_coords(coords)
+	if (atlas.y == 2):
+		return true
+	return false
+
+func is_water(coords: Vector2i) -> bool:
+	var atlas = get_cell_atlas_coords(coords)
+	if (atlas.y == 0 and atlas.x >= 6):
+		return true
+	return false
+
+func is_dry(coords: Vector2i) -> bool:
+	var atlas = get_cell_atlas_coords(coords)
+	if (atlas.y == 1):
+		return true
+	return false
+
 #Tile Effects
 func highlight_cell(coords: Vector2i):
 	clear_highlights()
@@ -362,8 +430,11 @@ func request_tile_data(coordinates: Vector2i) -> TileData:
 
 func do_tiles_connect(coord1: Vector2i, coord2: Vector2i) -> bool:
 	return rail_placer.are_tiles_connected_by_rail(coord1, coord2, get_surrounding_cells(coord1))
-#Rail General
 
+func open_tile_window(coords: Vector2i):
+	tile_window.open_window(coords)
+
+#Rail General
 @rpc("authority", "call_local", "unreliable")
 func place_tile(coords: Vector2i, orientation: int, type: int, _new_owner: int):
 	rail_placer.place_tile(coords, orientation, type)

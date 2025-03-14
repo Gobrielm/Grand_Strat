@@ -28,6 +28,7 @@ func _ready():
 		tile_ownership.name = "tile_ownership"
 		add_child(tile_ownership)
 	else:
+		Utils.assign_world_map(main_map)
 		terminal_map.assign_cargo_map(cargo_map)
 	enable_nation_picker()
 	cargo_map.place_resources(main_map)
@@ -55,6 +56,8 @@ func _input(event):
 			if state_machine.is_selecting_unit():
 				state_machine.unclick_unit()
 			main_map.unit_map.select_unit(get_cell_position(), unique_id)
+			if !state_machine.is_selecting_unit():
+				main_map.open_tile_window(get_cell_position())
 	elif event.is_action_released("click"):
 		if state_machine.is_controlling_camera() and main_map.is_owned_station(get_cell_position()):
 			station_window.open_window(get_cell_position())

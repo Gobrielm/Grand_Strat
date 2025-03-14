@@ -1,8 +1,11 @@
-[gd_scene format=3 uid="uid://iatfblcckp0p"]
+[gd_scene load_steps=2 format=3 uid="uid://iatfblcckp0p"]
 
-[node name="Window" type="Window"]
+[ext_resource type="Script" path="res://Gui/tile_window.gd" id="1_lgrtb"]
+
+[node name="tile_window" type="Window"]
 initial_position = 1
 size = Vector2i(500, 400)
+script = ExtResource("1_lgrtb")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -26,39 +29,27 @@ text = "Grasslands"
 
 [node name="Coords" type="Label" parent="Control"]
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -130.0
-offset_right = -93.0
-offset_bottom = 23.0
-grow_horizontal = 2
+offset_top = 30.0
+offset_right = 37.0
+offset_bottom = 53.0
 text = "(3, 5)"
 
-[node name="Cargo_Section" type="Panel" parent="Control"]
+[node name="ItemList" type="ItemList" parent="Control"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -150.0
-offset_bottom = 200.0
+offset_left = -200.0
+offset_bottom = 250.0
 grow_horizontal = 0
 
-[node name="Fertility" type="Label" parent="Control/Cargo_Section"]
+[node name="Label" type="Label" parent="Control"]
 layout_mode = 1
-offset_right = 43.0
+offset_left = 300.0
+offset_right = 428.0
 offset_bottom = 23.0
-text = "Fertility: 100"
+text = "Available Goods:"
 
-[node name="Resource" type="Label" parent="Control/Cargo_Section"]
-layout_mode = 1
-offset_top = 23.0
-offset_right = 43.0
-offset_bottom = 46.0
-text = "Resource: Coal"
-
-[node name="Resource2" type="Label" parent="Control/Cargo_Section"]
-offset_top = 23.0
-offset_right = 43.0
-offset_bottom = 46.0
-text = "Resource: Coal"
+[connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
+[connection signal="focus_exited" from="." to="." method="_on_focus_exited"]
