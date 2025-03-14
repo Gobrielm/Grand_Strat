@@ -61,10 +61,21 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 	return toReturn
 
 func place_resources(_map: TileMapLayer):
+	
 	map = _map
 	var resource_array: Array = get_tiles_for_resources()
+	var start: float = Time.get_ticks_msec()
+	var threads := []
 	for i in get_child_count():
-		autoplace_resource(resource_array[i], get_child(i), MAX_RESOURCES[i])
+		var thread = Thread.new()
+		threads.append(thread)
+		thread.start(autoplace_resource.bind(resource_array[i], get_child(i), MAX_RESOURCES[i]))
+		#autoplace_resource(resource_array[i], get_child(i), MAX_RESOURCES[i])
+	for thread: Thread in threads:
+		thread.wait_to_finish()
+	var end: float = Time.get_ticks_msec()
+	print(str((end - start) / 1000) + " Seconds passed")
+	
 
 func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
 	var array: Array = tiles.keys()
@@ -72,7 +83,8 @@ func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
 	var count = 0
 	for cell: Vector2i in array:
 		var mag = randi() % 4 + tiles[cell]
-		layer.set_cell(cell, 1, get_atlas_for_magnitude(mag))
+		layer.call_deferred_thread_group("set_cell", cell, 1, get_atlas_for_magnitude(mag))
+		#layer.set_cell(cell, 1, get_atlas_for_magnitude(mag))
 		count += mag
 		if count > max and max != -1:
 			return
