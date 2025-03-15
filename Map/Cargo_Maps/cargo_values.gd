@@ -61,10 +61,11 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 	return toReturn
 
 func place_resources(_map: TileMapLayer):
-	
+	var start: float = Time.get_ticks_msec()
 	map = _map
 	var resource_array: Array = get_tiles_for_resources()
-	var start: float = Time.get_ticks_msec()
+	var end: float = Time.get_ticks_msec()
+	print(str((end - start) / 1000) + " Seconds passed")
 	var threads := []
 	for i in get_child_count():
 		var thread = Thread.new()
@@ -73,8 +74,7 @@ func place_resources(_map: TileMapLayer):
 		#autoplace_resource(resource_array[i], get_child(i), MAX_RESOURCES[i])
 	for thread: Thread in threads:
 		thread.wait_to_finish()
-	var end: float = Time.get_ticks_msec()
-	print(str((end - start) / 1000) + " Seconds passed")
+	
 	
 
 func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
@@ -124,12 +124,10 @@ func get_tiles_for_resources() -> Array:
 	
 	toReturn[0] = get_tiles_for_clay()
 	
-	var real_x = -610
-	var real_y = -244
-	for x in im_volcanoes.get_width():
-		for y in im_volcanoes.get_height():
-			if x % 3 == 0 or y % 7 <= 2:
-				continue
+	for real_x in range(-609, 671):
+		for real_y in range(-243, 282):
+			var x := (real_x + 609) * 3 / 2
+			var y := (real_y + 243) * 7 / 4
 			
 			var tile: Vector2i = Vector2i(real_x, real_y)
 			
@@ -211,12 +209,6 @@ func get_tiles_for_resources() -> Array:
 					toReturn[20][tile] = 1
 			elif color.r > 0.75 and color.r > (color.b + 0.1) and !is_tile_water(tile):
 				toReturn[20][tile] = 1
-			
-			
-			real_y += 1
-		if x % 3 != 0:
-			real_x += 1
-			real_y = -244
 	return toReturn
 
 #Resource_array is array[good_index] -> dict
