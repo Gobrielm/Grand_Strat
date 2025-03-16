@@ -61,7 +61,7 @@ func get_available_primary_recipes(coords: Vector2i) -> Array:
 	return toReturn
 
 func place_resources(_map: TileMapLayer):
-	var start: float = Time.get_ticks_msec()
+	
 	map = _map
 	var helper: Node = load("res://Map/Cargo_Maps/cargo_values_helper.gd").new(map)
 	var resource_array: Array = helper.create_resource_array()
@@ -75,6 +75,9 @@ func place_resources(_map: TileMapLayer):
 		thread.start(autoplace_resource.bind(resource_array[i], get_child(i), MAX_RESOURCES[i]))
 	for thread: Thread in threads:
 		thread.wait_to_finish()
+	
+	var start: float = Time.get_ticks_msec()
+	create_territories()
 	var end: float = Time.get_ticks_msec()
 	print(str((end - start) / 1000) + " Seconds passed")
 
@@ -88,6 +91,53 @@ func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
 		count += mag
 		if count > max and max != -1:
 			return
+
+func create_territories():
+	#TODO: USE this to create and save seperate tilemaplayer, from there
+	#edit and make better in editor, then save as map/TileMapLayer for player to use in-game
+	var im_provinces: Image = load("res://Map/Map_Images/provinces.png").get_image()
+	var coords_to_province_id := {}
+	var current_index := 0
+	for real_x in range(-609, 671):
+		for real_y in range(-243, 282):
+			var x := (real_x + 609) * 3 / 2
+			var y := (real_y + 243) * 7 / 4
+			var tile := Vector2i(real_x, real_y)
+			var color = im_provinces.get_pixel(x, y)
+			if is_tile_water(tile):
+				continue
+			
+			if get_left_color(x, y, im_provinces) == color and !is_tile_water(Vector2i(real_x - 1, real_y)):
+				var this_id = coords_to_province_id[Vector2i(real_x - 1, real_y)]
+				coords_to_province_id[tile] = this_id
+			elif get_up_color(x, y, im_provinces) == color and !is_tile_water(Vector2i(real_x, real_y - 1)):
+				var this_id = coords_to_province_id[Vector2i(real_x, real_y - 1)]
+				coords_to_province_id[tile] = this_id
+			else:
+				coords_to_province_id[tile] = current_index
+				current_index += 1
+	
+	var file := FileAccess.open("res://Map/Map_Info/Provinces.txt", FileAccess.WRITE)
+	for tile: Vector2i in coords_to_province_id:
+		var id: int = coords_to_province_id[tile]
+		file.store_string(str(tile) + ":" + str(id))
+	
+
+
+
+func get_left_color(x: int, y: int, im_provinces: Image) -> Color:
+	if x < 3/2:
+		return Color.BLACK
+	return im_provinces.get_pixel(x - 3/2, y)
+
+func get_up_color(x: int, y: int, im_provinces: Image) -> Color:
+	if y < 7/4:
+		return Color.BLACK
+	return im_provinces.get_pixel(x, y - 7/4)
+
+func is_tile_water(coords: Vector2i) -> bool:
+	var atlas = map.get_cell_atlas_coords(coords)
+	return atlas == Vector2i(6, 0) or atlas == Vector2i(7, 0)
 
 #func create_continents():
 	#var file = FileAccess.open("res://Map/Map_Info/North_America.txt", FileAccess.WRITE)
