@@ -99,19 +99,21 @@ func create_territories():
 	var provinces: TileMapLayer = preload("res://Map/Map_Info/provinces.tscn").instantiate()
 	var coords_to_province_id := {}
 	var colors_to_province_id := {}
-	var current_index := 0
+	create_colors_to_province_id(colors_to_province_id)
 	for real_x in range(-609, 671):
 		for real_y in range(-243, 282):
 			var x := (real_x + 609) * 3 / 2
 			var y := (real_y + 243) * 7 / 4
 			var tile := Vector2i(real_x, real_y)
-			var color = im_provinces.get_pixel(x, y)
+			var color = get_closest_color(im_provinces.get_pixel(x, y))
 			if is_tile_water(tile):
 				continue
 			
 			if !colors_to_province_id.has(color):
-				colors_to_province_id[color] = current_index
-				current_index += 1
+				if randi() % 30 == 0:
+					print(color)
+				provinces.erase_cell(tile)
+				continue
 			
 			coords_to_province_id[tile] = colors_to_province_id[color]
 			provinces.add_tile_to_province(tile, colors_to_province_id[color])
@@ -124,6 +126,28 @@ func create_territories():
 		if error != OK:
 			push_error("An error occurred while saving the scene to disk.")
 	provinces.queue_free()
+
+func get_closest_color(color: Color) -> Color:
+	var red := 0.0
+	var blue := 0.0
+	var green := 0.0
+	if color.r > 0.45 and color.r < 0.55:
+		red = 0.5
+	if color.g > 0.45 and color.g < 0.55:
+		green = 0.5
+	if color.b > 0.45 and color.b < 0.55:
+		blue = 0.5
+	#if red == blue == green == 0.0:
+		#return color
+	return Color(red, green, blue)
+
+func create_colors_to_province_id(colors_to_province_id: Dictionary):
+	colors_to_province_id[Color(1, 0, 0, 1)] = 0
+	colors_to_province_id[Color(0, 1, 0, 1)] = 1
+	colors_to_province_id[Color(0, 0, 1, 1)] = 2
+	colors_to_province_id[Color(0.5, 0.5, 0, 1)] = 3
+	colors_to_province_id[Color(0.5, 0, 0.5, 1)] = 4
+	colors_to_province_id[Color(0, 0.5, 0.5, 1)] = 5
 
 func is_tile_water(coords: Vector2i) -> bool:
 	var atlas = map.get_cell_atlas_coords(coords)
