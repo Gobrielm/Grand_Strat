@@ -96,7 +96,9 @@ func create_territories():
 	#TODO: USE this to create and save seperate tilemaplayer, from there
 	#edit and make better in editor, then save as map/TileMapLayer for player to use in-game
 	var im_provinces: Image = load("res://Map/Map_Images/provinces.png").get_image()
+	var provinces: TileMapLayer = preload("res://Map/Map_Info/provinces.tscn").instantiate()
 	var coords_to_province_id := {}
+	var colors_to_province_id := {}
 	var current_index := 0
 	for real_x in range(-609, 671):
 		for real_y in range(-243, 282):
@@ -107,33 +109,21 @@ func create_territories():
 			if is_tile_water(tile):
 				continue
 			
-			if get_left_color(x, y, im_provinces) == color and !is_tile_water(Vector2i(real_x - 1, real_y)):
-				var this_id = coords_to_province_id[Vector2i(real_x - 1, real_y)]
-				coords_to_province_id[tile] = this_id
-			elif get_up_color(x, y, im_provinces) == color and !is_tile_water(Vector2i(real_x, real_y - 1)):
-				var this_id = coords_to_province_id[Vector2i(real_x, real_y - 1)]
-				coords_to_province_id[tile] = this_id
-			else:
-				coords_to_province_id[tile] = current_index
+			if !colors_to_province_id.has(color):
+				colors_to_province_id[color] = current_index
 				current_index += 1
+			
+			coords_to_province_id[tile] = colors_to_province_id[color]
+			provinces.add_tile_to_province(tile, colors_to_province_id[color])
 	
-	var file := FileAccess.open("res://Map/Map_Info/Provinces.txt", FileAccess.WRITE)
-	for tile: Vector2i in coords_to_province_id:
-		var id: int = coords_to_province_id[tile]
-		file.store_string(str(tile) + ":" + str(id))
-	
-
-
-
-func get_left_color(x: int, y: int, im_provinces: Image) -> Color:
-	if x < 3/2:
-		return Color.BLACK
-	return im_provinces.get_pixel(x - 3/2, y)
-
-func get_up_color(x: int, y: int, im_provinces: Image) -> Color:
-	if y < 7/4:
-		return Color.BLACK
-	return im_provinces.get_pixel(x, y - 7/4)
+	var scene := PackedScene.new()
+	scene.pack(provinces)
+	var file = "res://Map/Map_Info/provinces.tscn"
+	if FileAccess.file_exists(file):
+		var error = ResourceSaver.save(scene, file)
+		if error != OK:
+			push_error("An error occurred while saving the scene to disk.")
+	provinces.queue_free()
 
 func is_tile_water(coords: Vector2i) -> bool:
 	var atlas = map.get_cell_atlas_coords(coords)
