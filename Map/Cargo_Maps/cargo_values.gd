@@ -88,7 +88,7 @@ func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max_resouces: in
 			return
 
 func place_population():
-	var helper: Node = load("res://Map/Cargo_Maps/population_helper.gd").new(map)
+	var helper: Node = load("res://Map/Cargo_Maps/population_helper.gd").new()
 	helper.create_population_map()
 	helper.queue_free()
 

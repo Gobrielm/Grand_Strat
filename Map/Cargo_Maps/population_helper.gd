@@ -1,13 +1,14 @@
 extends Node
 
-var map: TileMapLayer
-var im_population: Image = load("res://Map/Map_Images/population.png").get_image()
+var im_population: Image = preload("res://Map/Map_Images/population.png").get_image()
+var population: TileMapLayer
 var mutex := Mutex.new()
 
-func _init(_map: TileMapLayer):
-	map = _map
+func _init():
+	pass
 
 func create_population_map():
+	population = preload("res://Map/Map_Info/population.tscn").instantiate()
 	var tile_info = Utils.tile_info
 	assert(tile_info != null)
 	var thread := Thread.new()
@@ -21,6 +22,8 @@ func create_population_map():
 	var threads := [thread, thread1, thread2, thread3]
 	for thd: Thread in threads:
 		thd.wait_to_finish()
+	save_population()
+	population.queue_free()
 
 func create_part_of_array(from_x: int, to_x: int, from_y: int, to_y: int, tile_info):
 	var total = 0
@@ -33,29 +36,49 @@ func create_part_of_array(from_x: int, to_x: int, from_y: int, to_y: int, tile_i
 	print(total)
 
 func helper(x: int, y: int, tile: Vector2i, tile_info) -> int:
+	if Utils.is_tile_water(tile):
+		return 0
 	var color: Color = im_population.get_pixel(x, y)
 	var num := 0
+	var other_num := -1
 	var multipler := 0.1
 	if color.r > 0.9:
 		if color.b > 0.98:
 			num = (randi() % 10000) * multipler
+			other_num = 0
 		elif color.b > 0.7:
 			num = (randi() % 40000 + 10000) * multipler
+			other_num = 1
 		elif color.b > 0.60:
 			num = (randi() % 50000 + 50000) * multipler
+			other_num = 2
 		elif color.b > 0.30:
 			num = (randi() % 200000 + 100000) * multipler
+			other_num = 3
 		elif color.b > 0.20:
 			num = (randi() % 200000 + 300000) * multipler
+			other_num = 4
 		elif color.b == 0.0:
 			num = (randi() % 300000 + 500000) * multipler
+			other_num = 5
 	else:
 		if color.b > 0.5:
 			num = (randi() % 100000 + 500000)
+			other_num = 6
 		elif color.b > 0.3:
 			num = (randi() % 300000 + 1000000)
+			other_num = 7
 	mutex.lock()
 	tile_info.set_population(tile, num)
+	population.set_population(tile, other_num)
 	mutex.unlock()
 	return num
-	
+
+func save_population():
+	var scene := PackedScene.new()
+	var result = scene.pack(population)
+	if result == OK:
+		var file = "res://Map/Map_Info/population.tscn"
+		var error = ResourceSaver.save(scene, file)
+		if error != OK:
+			push_error("An error occurred while saving the scene to disk.")
