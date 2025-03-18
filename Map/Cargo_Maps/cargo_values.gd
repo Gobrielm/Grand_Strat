@@ -125,6 +125,25 @@ func create_territories():
 		var error = ResourceSaver.save(scene, file)
 		if error != OK:
 			push_error("An error occurred while saving the scene to disk.")
+	
+	var new_image := Image.create(1920, 919, false, Image.FORMAT_RGBA8)
+	var last_color: Color
+	for real_x in range(-609, 671):
+		for real_y in range(-243, 282):
+			var x := (real_x + 609) * 3 / 2
+			var y := (real_y + 243) * 7 / 4
+			var tile := Vector2i(real_x, real_y)
+			if is_tile_water(tile):
+				continue
+			new_image.set_pixel(x, y, provinces.get_color(tile))
+			if x != 0 and y != 0:
+				new_image.set_pixel(x - 1, y - 1, provinces.get_color(tile))
+			if y != 0:
+				new_image.set_pixel(x, y - 1, provinces.get_color(tile))
+			if x != 0:
+				new_image.set_pixel(x - 1, y, provinces.get_color(tile))
+	file = "res://Map/Map_Info/picture.png"
+	new_image.save_png(file)
 	provinces.queue_free()
 
 func get_closest_color(color: Color) -> Color:
@@ -137,8 +156,8 @@ func get_closest_color(color: Color) -> Color:
 		green = 0.5
 	if color.b > 0.45 and color.b < 0.55:
 		blue = 0.5
-	#if red == blue == green == 0.0:
-		#return color
+	if red == blue and blue == green and red == 0.0:
+		return color
 	return Color(red, green, blue)
 
 func create_colors_to_province_id(colors_to_province_id: Dictionary):
