@@ -3,6 +3,7 @@ class_name Utils extends Node
 static var cargo_values
 static var tile_ownership: TileMapLayer
 static var world_map: TileMapLayer
+static var tile_info
 
 static func round(num, places) -> float:
 	return round(num * pow(10, places)) / pow(10, places)
@@ -15,3 +16,6 @@ static func assign_tile_ownership(_tile_ownership):
 
 static func assign_world_map(_world_map):
 	world_map = _world_map
+
+static func assign_tile_info(_tile_info):
+	tile_info = _tile_info

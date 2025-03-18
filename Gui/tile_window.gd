@@ -8,6 +8,7 @@ func open_window(_coords: Vector2i):
 	coords = _coords
 	$Control/Coords.text = str(coords)
 	request_biome.rpc_id(1, coords)
+	request_population.rpc_id(1, coords)
 	request_resources_available.rpc_id(1, coords)
 	popup()
 
@@ -18,6 +19,14 @@ func request_biome(coords: Vector2i):
 @rpc("authority", "call_local")
 func set_biome(biome: String):
 	$Control/Biome.text = biome
+
+@rpc("any_peer", "call_local")
+func request_population(coords: Vector2i):
+	set_population.rpc_id(multiplayer.get_remote_sender_id(), Utils.tile_info.get_population(coords))
+
+@rpc("authority", "call_local")
+func set_population(num: int):
+	$Control/Population.text = str(num)
 
 @rpc("any_peer", "call_local")
 func request_resources_available(coords: Vector2i):

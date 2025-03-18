@@ -6,8 +6,11 @@ var depots = {}
 
 var holds = {}
 
+var population = {}
+
 func _init(new_map):
 	map = new_map
+	Utils.assign_tile_info(self)
 
 func add_depot(coords: Vector2i, depot: terminal, player_id: int):
 	depots[coords] = [depot, player_id]
@@ -41,3 +44,9 @@ func is_hold(coords: Vector2i) -> bool:
 
 func is_owned_hold(coords: Vector2i, id: int) -> bool:
 	return holds.has(coords) and holds[coords][1] == id
+
+func set_population(coords: Vector2i, amount: int):
+	population[coords] = amount
+
+func get_population(coords: Vector2i) -> int:
+	return population[coords]

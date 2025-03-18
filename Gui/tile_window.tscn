@@ -18,7 +18,6 @@ font_color = Color(0, 0, 0, 1)
 [node name="tile_window" type="Window"]
 position = Vector2i(0, 124)
 size = Vector2i(500, 400)
-visible = false
 unresizable = true
 borderless = true
 script = ExtResource("1_lgrtb")
@@ -115,6 +114,34 @@ offset_top = -0.988
 offset_right = 128.93
 offset_bottom = 22.012
 text = "Available Goods:"
+label_settings = SubResource("LabelSettings_pqrux")
+
+[node name="Population" type="Label" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.072
+anchor_top = 0.399
+anchor_right = 0.072
+anchor_bottom = 0.399
+offset_left = 0.119995
+offset_top = 0.0679932
+offset_right = 37.12
+offset_bottom = 23.068
+text = "(3, 5)"
+label_settings = SubResource("LabelSettings_86m3j")
+
+[node name="Label2" type="Label" parent="Control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.113
+anchor_top = 0.276
+anchor_right = 0.113
+anchor_bottom = 0.276
+offset_left = 0.105
+offset_top = 0.0319977
+offset_right = 128.105
+offset_bottom = 23.032
+text = "Population:"
 label_settings = SubResource("LabelSettings_pqrux")
 
 [connection signal="about_to_popup" from="." to="." method="_on_about_to_popup"]

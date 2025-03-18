@@ -44,6 +44,7 @@ func get_tile_magnitude(type: int, coords: Vector2i) -> int:
 	return atlas.y * TILES_PER_ROW + atlas.x
 
 func get_atlas_for_magnitude(num: int) -> Vector2i:
+	@warning_ignore("integer_division")
 	return Vector2i(num % TILES_PER_ROW, num / TILES_PER_ROW)
 	
 func get_good_name_uppercase(type: int) -> String:
@@ -66,8 +67,7 @@ func place_resources(_map: TileMapLayer):
 	var helper: Node = load("res://Map/Cargo_Maps/cargo_values_helper.gd").new(map)
 	var resource_array: Array = helper.create_resource_array()
 	helper.queue_free()
-	
-	
+	place_population()
 	var threads := []
 	for i in get_child_count():
 		var thread = Thread.new()
@@ -75,13 +75,8 @@ func place_resources(_map: TileMapLayer):
 		thread.start(autoplace_resource.bind(resource_array[i], get_child(i), MAX_RESOURCES[i]))
 	for thread: Thread in threads:
 		thread.wait_to_finish()
-	
-	var start: float = Time.get_ticks_msec()
-	create_territories()
-	var end: float = Time.get_ticks_msec()
-	print(str((end - start) / 1000) + " Seconds passed")
 
-func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
+func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max_resouces: int):
 	var array: Array = tiles.keys()
 	array.shuffle()
 	var count = 0
@@ -89,12 +84,15 @@ func autoplace_resource(tiles: Dictionary, layer: TileMapLayer, max: int):
 		var mag = randi() % 4 + tiles[cell]
 		layer.call_deferred_thread_group("set_cell", cell, 1, get_atlas_for_magnitude(mag))
 		count += mag
-		if count > max and max != -1:
+		if count > max_resouces and max_resouces != -1:
 			return
 
+func place_population():
+	var helper: Node = load("res://Map/Cargo_Maps/population_helper.gd").new(map)
+	helper.create_population_map()
+	helper.queue_free()
+
 func create_territories():
-	#TODO: USE this to create and save seperate tilemaplayer, from there
-	#edit and make better in editor, then save as map/TileMapLayer for player to use in-game
 	var im_provinces: Image = load("res://Map/Map_Images/provinces.png").get_image()
 	var provinces: TileMapLayer = preload("res://Map/Map_Info/provinces.tscn").instantiate()
 	var coords_to_province_id := {}
@@ -102,7 +100,9 @@ func create_territories():
 	create_colors_to_province_id(colors_to_province_id)
 	for real_x in range(-609, 671):
 		for real_y in range(-243, 282):
+			@warning_ignore("integer_division")
 			var x := (real_x + 609) * 3 / 2
+			@warning_ignore("integer_division")
 			var y := (real_y + 243) * 7 / 4
 			var tile := Vector2i(real_x, real_y)
 			var color = get_closest_color(im_provinces.get_pixel(x, y))
@@ -127,10 +127,11 @@ func create_territories():
 			push_error("An error occurred while saving the scene to disk.")
 	
 	var new_image := Image.create(1920, 919, false, Image.FORMAT_RGBA8)
-	var last_color: Color
 	for real_x in range(-609, 671):
 		for real_y in range(-243, 282):
+			@warning_ignore("integer_division")
 			var x := (real_x + 609) * 3 / 2
+			@warning_ignore("integer_division")
 			var y := (real_y + 243) * 7 / 4
 			var tile := Vector2i(real_x, real_y)
 			if is_tile_water(tile):
