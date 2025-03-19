@@ -94,11 +94,43 @@ func place_population():
 	helper.queue_free()
 
 func create_territories():
+	var provinces: TileMapLayer = preload("res://Map/Map_Info/provinces.tscn").instantiate()
+	var tile_info = Utils.tile_info
+	for real_x in range(-609, 671):
+		for real_y in range(-243, 282):
+			var tile := Vector2i(real_x, real_y)
+			if !tile_info.is_tile_a_province(tile) and provinces.get_cell_atlas_coords(tile) != Vector2i(-1, -1):
+				var group: Array = create_territory(tile, provinces)
+				var province_id: int = tile_info.create_new_province()
+				tile_info.add_many_tiles_to_province(province_id, group)
+
+func create_territory(start: Vector2i, provinces: TileMapLayer) -> Array:
+	var atlas = provinces.get_cell_atlas_coords(start)
+	var visited := {}
+	visited[start] = 0
+	var toReturn = []
+	var queue := [start]
+	while !queue.is_empty():
+		var curr: Vector2i = queue.pop_front()
+		for tile in provinces.get_surrounding_cells(curr):
+			if !visited.has(tile):
+				if provinces.get_cell_atlas_coords(tile) == atlas:
+					visited[tile] = 0
+					toReturn.push_back(tile)
+					queue.push_back(tile)
+				#Broken
+				#elif is_tile_water(tile) and visited[curr] < 20:
+					#visited[tile] = visited[curr] + 1
+					#queue.push_back(tile)
+				
+	return toReturn
+
+
+func refresh_territories():
 	var im_provinces: Image = load("res://Map/Map_Info/provinces.png").get_image()
 	var provinces: TileMapLayer = preload("res://Map/Map_Info/provinces.tscn").instantiate()
 	var coords_to_province_id := {}
 	var colors_to_province_id := {}
-	var check = true
 	create_colors_to_province_id(colors_to_province_id)
 	for real_x in range(-609, 671):
 		for real_y in range(-243, 282):
@@ -110,9 +142,6 @@ func create_territories():
 			var color = get_closest_color(im_provinces.get_pixel(x, y))
 			if is_tile_water(tile):
 				continue
-			if color == Color.BLACK:
-				print("error at " + str(x) + ", " + str(y))
-				check = false
 			
 			if !colors_to_province_id.has(color):
 				provinces.erase_cell(tile)
@@ -120,7 +149,6 @@ func create_territories():
 			
 			coords_to_province_id[tile] = colors_to_province_id[color]
 			provinces.add_tile_to_province(tile, colors_to_province_id[color])
-	assert(check)
 	var scene := PackedScene.new()
 	scene.pack(provinces)
 	var file = "res://Map/Map_Info/provinces.tscn"

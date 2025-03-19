@@ -6,9 +6,9 @@ var depots = {}
 
 var holds = {}
 
-var provinces := []
+var provinces := {}
 
-var population = {}
+var tiles_to_province_id := {}
 
 func _init(new_map):
 	map = new_map
@@ -47,8 +47,29 @@ func is_hold(coords: Vector2i) -> bool:
 func is_owned_hold(coords: Vector2i, id: int) -> bool:
 	return holds.has(coords) and holds[coords][1] == id
 
-func set_population(coords: Vector2i, amount: int):
-	population[coords] = amount
+func create_new_province() -> int:
+	var province_id = provinces.size()
+	provinces[province_id] = province.new(province_id)
+	return province_id
 
-func get_population(coords: Vector2i) -> int:
-	return population[coords]
+func create_new_if_empty(province_id: int):
+	if !provinces.has(province_id):
+		provinces[province_id] = province.new(province_id)
+
+func add_tile_to_province(province_id: int, tile: Vector2i):
+	assert(!tiles_to_province_id.has(tile))
+	tiles_to_province_id[tile] = province_id
+	provinces[province_id].add_tile(tile)
+
+func add_many_tiles_to_province(province_id: int, tiles: Array):
+	for tile in tiles:
+		add_tile_to_province(province_id, tile)
+
+func is_tile_a_province(tile: Vector2i) -> bool:
+	return tiles_to_province_id.has(tile)
+
+func get_province_id(tile: Vector2i) -> int:
+	return tiles_to_province_id[tile]
+
+func get_province(province_id: int) -> province:
+	return provinces[province_id]
