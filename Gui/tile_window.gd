@@ -13,24 +13,24 @@ func open_window(_coords: Vector2i):
 	popup()
 
 @rpc("any_peer", "call_local")
-func request_biome(coords: Vector2i):
-	set_biome.rpc_id(multiplayer.get_remote_sender_id(), Utils.world_map.get_biome_name(coords))
+func request_biome(_coords: Vector2i):
+	set_biome.rpc_id(multiplayer.get_remote_sender_id(), Utils.world_map.get_biome_name(_coords))
 
 @rpc("authority", "call_local")
 func set_biome(biome: String):
 	$Control/Biome.text = biome
 
 @rpc("any_peer", "call_local")
-func request_population(coords: Vector2i):
-	set_population.rpc_id(multiplayer.get_remote_sender_id(), Utils.tile_info.get_population(coords))
+func request_population(_coords: Vector2i):
+	set_population.rpc_id(multiplayer.get_remote_sender_id(), Utils.tile_info.get_population(_coords))
 
 @rpc("authority", "call_local")
 func set_population(num: int):
 	$Control/Population.text = str(num)
 
 @rpc("any_peer", "call_local")
-func request_resources_available(coords: Vector2i):
-	var resource_dict := terminal_map.get_available_resources(coords)
+func request_resources_available(_coords: Vector2i):
+	var resource_dict := terminal_map.get_available_resources(_coords)
 	set_resources_available.rpc_id(multiplayer.get_remote_sender_id(), resource_dict)
 
 @rpc("authority", "call_local")
@@ -40,10 +40,6 @@ func set_resources_available(resource_dict: Dictionary):
 		var mag = resource_dict[type]
 		$Control/ItemList.add_item(terminal_map.get_cargo_name(type) + " - " + str(mag))
 	
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
 
 func _on_close_requested():
 	hide()

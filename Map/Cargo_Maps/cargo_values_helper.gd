@@ -58,7 +58,9 @@ func get_tiles_for_clay() -> Dictionary:
 func create_part_of_array(from_x: int, to_x: int, from_y: int, to_y: int, toReturn: Array):
 	for real_x in range(from_x, to_x):
 		for real_y in range(from_y, to_y):
+			@warning_ignore("integer_division")
 			var x := (real_x + 609) * 3 / 2
+			@warning_ignore("integer_division")
 			var y := (real_y + 243) * 7 / 4
 			var tile := Vector2i(real_x, real_y)
 			helper(x, y, tile, toReturn)

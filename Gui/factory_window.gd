@@ -45,8 +45,8 @@ func request_current_cargo(coords: Vector2i):
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_cash(coords: Vector2i):
-	var current_cash = terminal_map.get_cash_of_firm(coords)
-	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), current_cash)
+	var _current_cash = terminal_map.get_cash_of_firm(coords)
+	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), _current_cash)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_prices(coords: Vector2i):

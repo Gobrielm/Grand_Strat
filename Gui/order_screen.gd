@@ -64,7 +64,6 @@ func create_order_locally(type: int, amount: int, buy: bool):
 
 func set_order_icon(index: int, buy: bool):
 	if buy:
-		$Cargo_List.item_count
 		$Cargo_List.set_item_icon(index, buy_icon)
 	else:
 		$Cargo_List.set_item_icon(index, sell_icon)

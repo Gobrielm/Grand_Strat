@@ -51,8 +51,8 @@ func request_station_cargo(coords: Vector2i):
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_cash(coords: Vector2i):
-	var current_cash = terminal_map.get_cash_of_firm(coords)
-	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), current_cash)
+	var _current_cash = terminal_map.get_cash_of_firm(coords)
+	update_current_cash.rpc_id(multiplayer.get_remote_sender_id(), _current_cash)
 
 @rpc("any_peer", "call_local", "unreliable")
 func request_current_orders(coords: Vector2i):
@@ -65,7 +65,7 @@ func update_current_cargo(new_cargo_dict: Dictionary):
 
 @rpc("authority", "call_local", "unreliable")
 func update_current_name(new_name: String):
-	$Name.text = "[center][font_size=30]" + hold_name + "[/font_size][/center]"
+	$Name.text = "[center][font_size=30]" + new_name + "[/font_size][/center]"
 
 @rpc("authority", "call_local", "unreliable")
 func update_current_cash(new_cash: int):

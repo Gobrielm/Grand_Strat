@@ -47,16 +47,16 @@ func populate_recipes_by_inputs(inputs: Dictionary, outputs: Dictionary):
 	var filter_text = filter.text
 	for input: String in inputs:
 		if input.begins_with(filter_text):
-			var str = get_name_for_recipe(inputs, outputs)
-			recipes.add_item(str)
+			var recipe_str = get_name_for_recipe(inputs, outputs)
+			recipes.add_item(recipe_str)
 			break
 
 func populate_recipes_by_outputs(inputs: Dictionary, outputs: Dictionary):
 	var filter_text = filter.text
 	for output: String in outputs:
 		if output.begins_with(filter_text):
-			var str = get_name_for_recipe(inputs, outputs)
-			recipes.add_item(str)
+			var recipe_str = get_name_for_recipe(inputs, outputs)
+			recipes.add_item(recipe_str)
 			break
 
 func get_name_for_recipe(inputs: Dictionary, outputs: Dictionary) -> String:

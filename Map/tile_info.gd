@@ -6,6 +6,8 @@ var depots = {}
 
 var holds = {}
 
+var provinces := []
+
 var population = {}
 
 func _init(new_map):

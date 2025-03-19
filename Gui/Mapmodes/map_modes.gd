@@ -6,11 +6,6 @@ func _ready():
 	press_button($diplomatic)
 
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
-
 func is_gui_hovered() -> bool:
 	for child in get_children():
 		if child.has_method("is_hovered") and child.is_hovered():
