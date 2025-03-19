@@ -16,5 +16,5 @@ func get_color(tile: Vector2i) -> Color:
 	var atlas = get_cell_atlas_coords(tile)
 	var num = atlas.y * 8 + atlas.x
 	if num < 0:
-		return Color(0, 0, 0, 0)
+		return Color(0, 0, 0, 1)
 	return colors[num]

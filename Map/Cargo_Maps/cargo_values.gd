@@ -67,7 +67,8 @@ func place_resources(_map: TileMapLayer):
 	var helper: Node = load("res://Map/Cargo_Maps/cargo_values_helper.gd").new(map)
 	var resource_array: Array = helper.create_resource_array()
 	helper.queue_free()
-	place_population()
+	#place_population()
+	create_territories()
 	var threads := []
 	for i in get_child_count():
 		var thread = Thread.new()
@@ -93,10 +94,11 @@ func place_population():
 	helper.queue_free()
 
 func create_territories():
-	var im_provinces: Image = load("res://Map/Map_Images/provinces.png").get_image()
+	var im_provinces: Image = load("res://Map/Map_Info/provinces.png").get_image()
 	var provinces: TileMapLayer = preload("res://Map/Map_Info/provinces.tscn").instantiate()
 	var coords_to_province_id := {}
 	var colors_to_province_id := {}
+	var check = true
 	create_colors_to_province_id(colors_to_province_id)
 	for real_x in range(-609, 671):
 		for real_y in range(-243, 282):
@@ -108,16 +110,17 @@ func create_territories():
 			var color = get_closest_color(im_provinces.get_pixel(x, y))
 			if is_tile_water(tile):
 				continue
+			if color == Color.BLACK:
+				print("error at " + str(x) + ", " + str(y))
+				check = false
 			
 			if !colors_to_province_id.has(color):
-				if randi() % 30 == 0:
-					print(color)
 				provinces.erase_cell(tile)
 				continue
 			
 			coords_to_province_id[tile] = colors_to_province_id[color]
 			provinces.add_tile_to_province(tile, colors_to_province_id[color])
-	
+	assert(check)
 	var scene := PackedScene.new()
 	scene.pack(provinces)
 	var file = "res://Map/Map_Info/provinces.tscn"
@@ -143,7 +146,7 @@ func create_territories():
 				new_image.set_pixel(x, y - 1, provinces.get_color(tile))
 			if x != 0:
 				new_image.set_pixel(x - 1, y, provinces.get_color(tile))
-	file = "res://Map/Map_Info/picture.png"
+	file = "res://Map/Map_Info/provinces.png"
 	new_image.save_png(file)
 	provinces.queue_free()
 
@@ -171,7 +174,7 @@ func create_colors_to_province_id(colors_to_province_id: Dictionary):
 
 func is_tile_water(coords: Vector2i) -> bool:
 	var atlas = map.get_cell_atlas_coords(coords)
-	return atlas == Vector2i(6, 0) or atlas == Vector2i(7, 0)
+	return atlas == Vector2i(6, 0) or atlas == Vector2i(7, 0) or atlas == Vector2i(-1, -1)
 
 #func create_continents():
 	#var file = FileAccess.open("res://Map/Map_Info/North_America.txt", FileAccess.WRITE)
