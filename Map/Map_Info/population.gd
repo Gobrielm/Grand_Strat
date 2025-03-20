@@ -14,9 +14,9 @@ func set_population(tile: Vector2i, num: int):
 		atlas = Vector2i(7,1)
 	#Cities
 	elif num == 6:
-		atlas = Vector2i(1,0)
-	elif num == 7:
 		atlas = Vector2i(2,0)
+	elif num == 7:
+		atlas = Vector2i(6,2)
 	else:
 		atlas = Vector2i(1, 3)
 	set_cell(tile, 0, atlas)

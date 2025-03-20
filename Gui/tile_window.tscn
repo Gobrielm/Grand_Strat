@@ -146,6 +146,7 @@ offset_bottom = 23.032
 text = "Population: "
 
 [node name="Population" type="Label" parent="State_control"]
+layout_mode = 0
 offset_left = 95.0
 offset_top = 46.0
 offset_right = 135.0

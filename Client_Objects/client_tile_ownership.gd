@@ -23,5 +23,5 @@ func select_nation(color: Vector2i, past_color: Vector2i):
 		set_cell(cell, 1, color)
 
 @rpc("any_peer", "call_local", "unreliable")
-func add_player_to_color(player_id: int, coords: Vector2i):
+func add_player_to_country(player_id: int, coords: Vector2i):
 	pass

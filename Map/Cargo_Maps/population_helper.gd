@@ -44,7 +44,7 @@ func helper(x: int, y: int, tile: Vector2i, tile_info):
 	var multipler := 0.2
 	if color.r > 0.9:
 		if color.b > 0.98:
-			num = (randi() % 1000) * multipler
+			num = (randi() % 100) * multipler
 			other_num = 0
 		elif color.b > 0.7:
 			num = (randi() % 40000 + 10000) * multipler
@@ -65,7 +65,7 @@ func helper(x: int, y: int, tile: Vector2i, tile_info):
 		if color.b > 0.5:
 			num = (randi() % 100000 + 500000)
 			other_num = 6
-		elif color.b > 0.3:
+		elif color.b > 0.25:
 			num = (randi() % 300000 + 1000000)
 			other_num = 7
 	mutex.lock()

@@ -5,11 +5,9 @@ var map := {}
 var last_state: float
 var id := 1
 const CARGO_TYPE = 0
-var available_tiles = []
 
 #Q - Table
 var alpha = 0.1    # Learning rate
-var gamma = 0.9    # Discount factor
 var epsilon = 0.1  # Exploration rate
 
 #Set of States
@@ -125,9 +123,6 @@ func get_encoded_vector(coords: Vector2i) -> Array:
 	toReturn.append(get_magnitude(coords))
 	return toReturn
 
-func get_status_state() -> float:
-	return get_rail_state() / 15 + get_town_state()
-
 func get_rail_state() -> float:
 	var total := 0.0
 	for tile: Vector2i in available_tiles:
@@ -136,13 +131,17 @@ func get_rail_state() -> float:
 			total -= 1
 	return total
 
-func get_town_state() -> float:
+func get_town_state(type: int) -> float:
 	var total := 0.0
+	var towns := 0
 	for tile: Vector2i in available_tiles:
 		#Get Town Status
 		if map.has(tile) and map[tile] == 2:
 			total += get_town_fulfillment(tile)
 	return total
+
+func get_town_tiles() -> Array:
+	
 
 func get_town_fulfillment(coords: Vector2i) -> float:
 	var demand = 5
