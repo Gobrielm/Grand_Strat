@@ -14,13 +14,20 @@ func prepare_refresh_tile_ownership():
 	pass
 
 @rpc("any_peer", "call_local", "reliable")
-func select_nation(color: Vector2i, past_color: Vector2i):
-	if past_color != Vector2i(-1, -1):
-		for cell in get_used_cells_by_id(1, past_color):
-			set_cell(cell, 0, past_color)
+func select_nation(cells_to_change: Array):
+	var atlas = get_cell_atlas_coords(cells_to_change[0])
+	for cell in cells_to_change:
+		set_cell(cell, 1, atlas)
+
+@rpc("authority", "call_local", "reliable")
+func play_noise():
 	$click_noise.play()
-	for cell in get_used_cells_by_id(0, color):
-		set_cell(cell, 1, color)
+
+@rpc("any_peer", "call_local", "reliable")
+func unselect_nation(cells_to_change: Array):
+	var atlas = get_cell_atlas_coords(cells_to_change[0])
+	for cell in cells_to_change:
+		set_cell(cell, 0, atlas)
 
 @rpc("any_peer", "call_local", "unreliable")
 func add_player_to_country(player_id: int, coords: Vector2i):

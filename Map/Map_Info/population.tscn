@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=4]
+[gd_scene load_steps=5 format=4 uid="uid://dtgqe8oukl8gv"]
 
-[ext_resource type="Texture2D" path="res://Map_Icons/country_tags.png" id="1_3pij7"]
-[ext_resource type="Script" path="res://Map/Map_Info/population.gd" id="2_ymjfm"]
+[ext_resource type="Texture2D" uid="uid://c8np01jiqqnap" path="res://Map_Icons/country_tags.png" id="1_3pij7"]
+[ext_resource type="Script" uid="uid://02pylybwc2qu" path="res://Map/Map_Info/population.gd" id="2_ymjfm"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ymjfm"]
 texture = ExtResource("1_3pij7")

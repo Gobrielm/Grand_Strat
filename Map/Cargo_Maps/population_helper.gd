@@ -23,8 +23,8 @@ func create_population_map():
 	var threads := [thread, thread1, thread2, thread3]
 	for thd: Thread in threads:
 		thd.wait_to_finish()
-	save_population()
-	print(total)
+	#save_population()
+	#print(total)
 	population.queue_free()
 
 func create_part_of_array(from_x: int, to_x: int, from_y: int, to_y: int, tile_info):

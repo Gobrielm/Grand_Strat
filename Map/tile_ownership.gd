@@ -19,8 +19,14 @@ func create_countries():
 	for cell: Vector2i in provinces_to_add:
 		var prov: province = tile_info.get_province(tile_info.get_province_id(cell))
 		for tile: Vector2i in prov.tiles:
-			tile_to_country_id[tile] = 1
+			add_tile_to_country(tile, 1)
 			set_cell(tile, 0, Vector2i(0, 0))
+
+func add_tile_to_country(tile: Vector2i, country_id: int):
+	if !country_id_to_tiles_owned.has(country_id):
+		country_id_to_tiles_owned[country_id] = []
+	country_id_to_tiles_owned[country_id].append(tile)
+	tile_to_country_id[tile] = country_id
 
 @rpc("authority", "call_local", "reliable")
 func refresh_tile_ownership(_resource: Dictionary):
@@ -39,31 +45,31 @@ func add_player_to_country(player_id: int, coords: Vector2i):
 	
 	if !country_id_to_player_id.has(country_id):
 		if player_id_to_country_id.has(player_id):
-			country_id_to_player_id.erase(player_id_to_country_id[player_id])
+			var last_country_id: int = player_id_to_country_id[player_id]
+			country_id_to_player_id.erase(last_country_id)
+			unselect_nation.rpc(last_country_id)
 		
 		country_id_to_player_id[country_id] = player_id
 		player_id_to_country_id[player_id] = country_id
-	
-	#var color = get_cell_atlas_coords(coords)
-	#if color == Vector2i(-1, -1):
-		#return
-	#if !colors_owned.has(color):
-		#var past_color = Vector2i(-1, -1)
-		#if id_to_atlas.has(player_id):
-			#past_color = id_to_atlas[player_id]
-			#colors_owned.erase(past_color)
-		#select_nation.rpc_id(player_id, color, past_color)
-		#id_to_atlas[player_id] = color
-		#colors_owned[color] = true
+		$click_noise.play()
+		select_nation.rpc(country_id_to_tiles_owned[country_id])
+		play_noise.rpc_id(player_id)
 
 @rpc("any_peer", "call_local", "reliable")
-func select_nation(color: Vector2i, past_color: Vector2i):
-	if past_color != Vector2i(-1, -1):
-		for cell in get_used_cells_by_id(1, past_color):
-			set_cell(cell, 0, past_color)
+func select_nation(cells_to_change: Array):
+	var atlas = get_cell_atlas_coords(cells_to_change[0])
+	for cell in cells_to_change:
+		set_cell(cell, 1, atlas)
+
+@rpc("authority", "call_local", "reliable")
+func play_noise():
 	$click_noise.play()
-	for cell in get_used_cells_by_id(0, color):
-		set_cell(cell, 1, color)
+
+@rpc("any_peer", "call_local", "reliable")
+func unselect_nation(cells_to_change: Array):
+	var atlas = get_cell_atlas_coords(cells_to_change[0])
+	for cell in cells_to_change:
+		set_cell(cell, 0, atlas)
 
 func is_owned(player_id: int, coords: Vector2i) -> bool:
 	var country_id: int = tile_to_country_id[coords]

@@ -33,17 +33,10 @@ func _init(_world_map: TileMapLayer, _tile_ownership: TileMapLayer):
 	rail_placer = world_map.rail_placer
 	tile_ownership = _tile_ownership
 	tile_ownership.add_player_to_color(id, Vector2i(113, -108))
-	create_available_tiles()
-	for tile in available_tiles:
+	for tile in []:
 		if terminal_map.get_terminal(tile) is apex_factory:
 			build_town(tile)
 	cargo_layer = cargo_values.get_layer(CARGO_TYPE)
-
-
-func create_available_tiles():
-	for tile in tile_ownership.get_owned_tiles(id):
-		if world_map.get_cell_atlas_coords(tile) != Vector2i(5, 0):
-			available_tiles.append(tile)
 
 func build_town(coords: Vector2i):
 	map[coords] = 2
@@ -58,7 +51,7 @@ func run_ai_cycle():
 	
 	var actions = get_valid_actions(action_type)
 	var state = get_state()
-	if actions.is_empty() or get_town_state() > 14:
+	if actions.is_empty():
 		return
 	var action = choose_action(state, actions)
 	var reward = get_reward()
@@ -74,7 +67,7 @@ func choose_action(state: Array, actions: Array):
 	return actions[0]
 
 func get_type_of_action():
-	if get_town_state() < 15 and num_mines == 0:
+	if num_mines == 0:
 		#Build mine
 		return 1
 	elif num_mines > 0:
@@ -86,7 +79,7 @@ func get_type_of_action():
 
 func get_valid_actions(action_type) -> Array:
 	var toReturn = []
-	for tile in available_tiles:
+	for tile in []:
 		var action = get_encoded_action(tile, action_type)
 		if !action.is_empty():
 			toReturn.append(action)
@@ -111,7 +104,7 @@ func get_encoded_action(coords: Vector2i, action_type) -> Array:
 
 func get_state() -> Array:
 	var toReturn := []
-	for tile in available_tiles:
+	for tile in []:
 		toReturn.append(get_encoded_vector(tile))
 	return toReturn
 
@@ -125,7 +118,7 @@ func get_encoded_vector(coords: Vector2i) -> Array:
 
 func get_rail_state() -> float:
 	var total := 0.0
-	for tile: Vector2i in available_tiles:
+	for tile: Vector2i in []:
 		#Get amount of rails
 		if map.has(tile) and map[tile] == 3:
 			total -= 1
@@ -134,14 +127,14 @@ func get_rail_state() -> float:
 func get_town_state(type: int) -> float:
 	var total := 0.0
 	var towns := 0
-	for tile: Vector2i in available_tiles:
+	for tile: Vector2i in []:
 		#Get Town Status
 		if map.has(tile) and map[tile] == 2:
 			total += get_town_fulfillment(tile)
 	return total
 
 func get_town_tiles() -> Array:
-	
+	return []
 
 func get_town_fulfillment(coords: Vector2i) -> float:
 	var demand = 5
@@ -169,7 +162,7 @@ func take_action(action):
 		place_rail(coords)
 
 func get_reward() -> float:
-	return get_status_state() - last_state
+	return 0.0
 
 func build_mine(x: int, y: int):
 	cargo_map.create_factory(id, Vector2i(x, y))
