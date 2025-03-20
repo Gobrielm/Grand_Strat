@@ -65,6 +65,14 @@ func add_many_tiles_to_province(province_id: int, tiles: Array):
 	for tile in tiles:
 		add_tile_to_province(province_id, tile)
 
+func add_population_to_province(tile: Vector2i, pop: int):
+	var id := get_province_id(tile)
+	get_province(id).population += pop
+
+func get_province_population(tile: Vector2i) -> int:
+	var id := get_province_id(tile)
+	return get_province(id).population
+
 func is_tile_a_province(tile: Vector2i) -> bool:
 	return tiles_to_province_id.has(tile)
 

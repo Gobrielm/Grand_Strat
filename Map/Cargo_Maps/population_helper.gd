@@ -3,6 +3,7 @@ extends Node
 var im_population: Image = preload("res://Map/Map_Images/population.png").get_image()
 var population: TileMapLayer
 var mutex := Mutex.new()
+var total := 0
 
 func _init():
 	pass
@@ -23,28 +24,27 @@ func create_population_map():
 	for thd: Thread in threads:
 		thd.wait_to_finish()
 	save_population()
+	print(total)
 	population.queue_free()
 
 func create_part_of_array(from_x: int, to_x: int, from_y: int, to_y: int, tile_info):
-	var total = 0
 	for real_x in range(from_x, to_x):
 		for real_y in range(from_y, to_y):
 			var x := (real_x + 609) * 3 / 2
 			var y := (real_y + 243) * 7 / 4
 			var tile := Vector2i(real_x, real_y)
-			total += helper(x, y, tile, tile_info)
-	print(total)
+			helper(x, y, tile, tile_info)
 
-func helper(x: int, y: int, tile: Vector2i, tile_info) -> int:
+func helper(x: int, y: int, tile: Vector2i, tile_info):
 	if Utils.is_tile_water(tile):
 		return 0
 	var color: Color = im_population.get_pixel(x, y)
 	var num := 0
 	var other_num := -1
-	var multipler := 0.1
+	var multipler := 0.2
 	if color.r > 0.9:
 		if color.b > 0.98:
-			num = (randi() % 10000) * multipler
+			num = (randi() % 1000) * multipler
 			other_num = 0
 		elif color.b > 0.7:
 			num = (randi() % 40000 + 10000) * multipler
@@ -69,10 +69,11 @@ func helper(x: int, y: int, tile: Vector2i, tile_info) -> int:
 			num = (randi() % 300000 + 1000000)
 			other_num = 7
 	mutex.lock()
-	tile_info.set_population(tile, num)
+	tile_info.add_population_to_province(tile, num)
 	population.set_population(tile, other_num)
+	total += num
 	mutex.unlock()
-	return num
+	
 
 func save_population():
 	var scene := PackedScene.new()

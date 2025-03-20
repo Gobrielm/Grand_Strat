@@ -67,8 +67,8 @@ func place_resources(_map: TileMapLayer):
 	var helper: Node = load("res://Map/Cargo_Maps/cargo_values_helper.gd").new(map)
 	var resource_array: Array = helper.create_resource_array()
 	helper.queue_free()
-	#place_population()
 	create_territories()
+	place_population()
 	var threads := []
 	for i in get_child_count():
 		var thread = Thread.new()

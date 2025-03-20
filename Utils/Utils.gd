@@ -22,4 +22,4 @@ static func assign_tile_info(_tile_info):
 
 static func is_tile_water(coords: Vector2i) -> bool:
 	var atlas = world_map.get_cell_atlas_coords(coords)
-	return atlas == Vector2i(6, 0) or atlas == Vector2i(7, 0)
+	return atlas == Vector2i(6, 0) or atlas == Vector2i(7, 0) or atlas == Vector2i(-1, -1)

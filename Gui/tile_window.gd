@@ -15,6 +15,7 @@ func open_window(_coords: Vector2i):
 func open_state_window():
 	$Province_control.visible = false
 	request_province_id.rpc_id(1, coords)
+	request_province_pop.rpc_id(1, coords)
 	$State_control.visible = true
 
 func open_province_window():
@@ -33,6 +34,15 @@ func request_province_id(coords: Vector2i):
 @rpc("authority", "call_local")
 func set_province_id(id: int):
 	$State_control/Province_ID.text = str(id)
+
+@rpc("any_peer", "call_local")
+func request_province_pop(coords: Vector2i):
+	var tile_info = Utils.tile_info
+	set_province_pop.rpc_id(multiplayer.get_remote_sender_id(), tile_info.get_province_population(coords))
+
+@rpc("authority", "call_local")
+func set_province_pop(pop: int):
+	$State_control/Population.text = str(pop)
 
 @rpc("any_peer", "call_local")
 func request_biome(_coords: Vector2i):

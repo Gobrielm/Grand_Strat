@@ -39,6 +39,7 @@ icon = ExtResource("3_47p3e")
 flat = true
 
 [node name="Province_control" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -103,7 +104,6 @@ text = "Available Goods:"
 label_settings = SubResource("LabelSettings_pqrux")
 
 [node name="State_control" type="Control" parent="."]
-visible = false
 layout_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
@@ -131,6 +131,26 @@ offset_right = 136.0
 offset_bottom = 48.5
 text = "1
 "
+
+[node name="Label2" type="Label" parent="State_control"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.002
+anchor_top = 0.131
+anchor_right = 0.002
+anchor_bottom = 0.131
+offset_left = 0.112
+offset_top = 0.0319977
+offset_right = 97.112
+offset_bottom = 23.032
+text = "Population: "
+
+[node name="Population" type="Label" parent="State_control"]
+offset_left = 95.0
+offset_top = 46.0
+offset_right = 135.0
+offset_bottom = 95.0
+text = "10000"
 
 [node name="TabBar" type="TabBar" parent="."]
 offset_right = 253.0
