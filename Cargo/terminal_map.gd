@@ -227,8 +227,14 @@ static func is_cargo_primary(cargo_type: int) -> bool:
 static func get_available_primary_recipes(coords: Vector2i) -> Array:
 	return cargo_map.get_available_primary_recipes(coords)
 	
-static func get_town_fulfillment(coords: Vector2i) -> float:
+static func get_town_fulfillment(coords: Vector2i, type: int) -> float:
 	var term = get_terminal(coords)
 	if term != null and term is apex_factory:
-		return term.get_fulfillment()
+		return term.get_fulfillment(type)
 	return 0.0
+
+static func get_town_wants(coords: Vector2i) -> Array:
+	var term = get_terminal(coords)
+	if term != null and term is apex_factory:
+		return term.get_town_wants()
+	return []

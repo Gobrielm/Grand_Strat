@@ -6,9 +6,6 @@ var country_id_to_tiles_owned := {}
 var country_id_to_player_id := {}
 var player_id_to_country_id := {}
 
-var id_to_atlas: Dictionary = {}
-var colors_owned: Dictionary = {}
-
 func _ready():
 	Utils.assign_tile_ownership(self)
 	call_deferred("create_countries")

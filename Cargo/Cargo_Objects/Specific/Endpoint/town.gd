@@ -7,6 +7,7 @@ func _init(new_location: Vector2i, _player_id: int):
 
 func create_inputs() -> Dictionary:
 	var toReturn = {}
+	toReturn[terminal_map.get_cargo_type("grain")] = 1
 	toReturn[terminal_map.get_cargo_type("wood")] = 1
 	toReturn[terminal_map.get_cargo_type("wine")] = 1
 	toReturn[terminal_map.get_cargo_type("furniture")] = 1
@@ -32,12 +33,11 @@ func check_input(type: int) -> bool:
 func remove_input(type: int):
 	remove_cargo(type, inputs[type])
 
-func get_fulfillment() -> float:
-	var total := 0.0
-	for type: int in inputs:
-		var fulfillment: float = local_pricer.get_change(type) / inputs[type]
-		total += fulfillment
-	return total
+func get_fulfillment(type: int) -> float:
+	return local_pricer.get_change(type) / inputs[type]
+
+func get_town_wants() -> Array:
+	return inputs.keys()
 
 func withdraw():
 	for type in inputs:

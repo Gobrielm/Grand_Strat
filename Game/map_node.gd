@@ -32,7 +32,7 @@ func _ready():
 		terminal_map.assign_cargo_map(cargo_map)
 	enable_nation_picker()
 	cargo_map.place_resources(main_map)
-	#ai = load("res://AI/economy_ai.gd").new(main_map, tile_ownership)
+	call_deferred("create_ai")
 
 func _input(event):
 	main_map.update_hover()
@@ -88,9 +88,15 @@ func _on_day_tick_timeout():
 func _on_month_tick_timeout():
 	pass
 
+
+
+#Ai
+func create_ai():
+	ai = load("res://AI/economy_ai.gd").new(main_map, tile_ownership)
+
 func _on_ai_timer_timeout():
-	pass
-	#ai.process()
+	if ai != null:
+		ai.process()
 
 #Factory
 func create_factory():
