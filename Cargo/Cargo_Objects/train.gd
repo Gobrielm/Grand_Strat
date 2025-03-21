@@ -367,6 +367,7 @@ func create_route_between_start_and_end(start: Vector2i, end: Vector2i) -> Array
 				if can_direction_reach_dir(direction, dir) and tile_to_prev[curr][dir] != null:
 					curr = tile_to_prev[curr][dir]
 					direction = dir
+					#Possibly needs break
 			
 	if found:
 		return to_return

@@ -17,7 +17,8 @@ var rail_placer
 #Set of Actions
 enum ai_actions {
 	PLACE_FACTORY,
-	CONNECT_FACTORY
+	CONNECT_FACTORY,
+	CONNECT_STATION
 }
 
 func _init(_world_map: TileMapLayer, _tile_ownership: TileMapLayer): 
@@ -45,6 +46,8 @@ func run_ai_cycle():
 		place_factory(get_most_needed_cargo())
 	elif action_type == ai_actions.CONNECT_FACTORY:
 		connect_factory(stored_tile)
+	elif action_type == ai_actions.CONNECT_STATION:
+		connect_station(stored_tile)
 	var end: float = Time.get_ticks_msec()
 	print(str((end - start) / 1000) + " Seconds passed for one cycle")
 
@@ -52,6 +55,8 @@ func choose_type_of_action() -> ai_actions:
 	#Criteria to choose later
 	if is_unconnected_buildings():
 		return ai_actions.CONNECT_FACTORY
+	elif is_unconnected_stations():
+		return ai_actions.CONNECT_STATION
 	return ai_actions.PLACE_FACTORY
 
 func is_unconnected_buildings() -> bool:
@@ -61,6 +66,19 @@ func is_unconnected_buildings() -> bool:
 			for cell in world_map.get_surrounding_cells(tile):
 				if tile_ownership.is_owned(id, cell) and terminal_map.is_station(cell):
 					found = true
+			if !found:
+				stored_tile = tile
+				return true
+	return false
+
+func is_unconnected_stations() -> bool:
+	for tile: Vector2i in get_owned_tiles():
+		if terminal_map.is_station(tile):
+			var found := false
+			for cell in world_map.get_surrounding_cells(tile):
+				if world_map.do_tiles_connect(tile, cell):
+					found = true
+				#Check if there is rail
 			if !found:
 				stored_tile = tile
 				return true
@@ -81,9 +99,15 @@ func get_optimal_primary_industry(type: int) -> Vector2i:
 	var best_location: Vector2i
 	var score := -10000
 	for tile: Vector2i in get_owned_tiles():
-		if terminal_map.is_tile_taken(tile):
+		if !is_cell_available(tile):
 			continue
 		var current_score = get_cargo_magnitude(tile, type) - round(distance_to_closest_station(tile) / 7.0)
+		var free_tile := false
+		for cell in world_map.get_surrounding_cells(tile):
+			if is_cell_available(cell):
+				free_tile = true
+		if !free_tile:
+			continue
 		if current_score > score:
 			score = current_score
 			best_location = tile
@@ -151,22 +175,33 @@ func connect_factory(coords: Vector2i):
 func place_station(center: Vector2i, dest: Vector2i):
 	var score := -1000
 	var best: Vector2i
+	var orientation: int
+	var orientation_tracker := 2
 	for tile in world_map.get_surrounding_cells(center):
-		if tile_ownership.is_owned(id, tile) and !terminal_map.is_tile_taken(tile):
+		if is_cell_available(tile):
 			var curr_score = round(20.0 / center.distance_to(dest))
 			if curr_score > score:
 				score = curr_score
 				best = tile
+				orientation = orientation_tracker
+		orientation_tracker = (orientation_tracker + 1) % 6
 	if best == Vector2i(0, 0):
 		print("problems")
 		return
-	create_station(best)
+	create_station(best, orientation)
 
-func create_station(location: Vector2i):
-	world_map.call_deferred("place_rail_general", location, 0, 2)
+func create_station(location: Vector2i, orientation: int):
+	world_map.call_deferred("place_rail_general", location, orientation, 2)
+
+func connect_station(coords: Vector2i):
+	var closest_station := coords_of_closest_station(coords)
+	build_rail(coords, closest_station)
 
 func get_owned_tiles() -> Array:
 	return tile_ownership.get_owned_tiles(id)
+
+func is_cell_available(coords: Vector2i) -> bool:
+	return !terminal_map.is_tile_taken(coords) and tile_ownership.is_owned(id, coords) 
 
 func get_town_tiles() -> Array:
 	var toReturn := []
@@ -178,26 +213,14 @@ func get_town_tiles() -> Array:
 func get_reward() -> float:
 	return 0.0
 
-func build_rail(x1: int, y1: int, x2: int, y2: int):
-	place_to_end_rail(Vector2i(x1, y1), Vector2i(x2, y2))
+func build_rail(start: Vector2i, end: Vector2i):
+	var route: Dictionary = world_map.get_rails_from(start, end)
+	for tile: Vector2i in route:
+		for cell: Vector2i in route[tile]:
+			place_rail(tile, cell.x)
 
-func place_rail(coords: Vector2i):
-	#TODO
-	pass
-
-func place_to_end_rail(start: Vector2i, end: Vector2i):
-	#TODO, Broken
-	assert(false)
-	var queue = []
-	var current: Vector2i
-	var prev = null
-	queue.push_back(start)
-	while !queue.is_empty():
-		current = queue.pop_front()
-		place_rail(current)
-		if current == end:
-			break
-		queue.push_back(find_tile_with_min_distance(world_map.get_surrounding_cells(current), end))
+func place_rail(coords: Vector2i, orientation: int):
+	world_map.call_deferred("place_rail_general", coords, orientation, 0)
 
 func find_tile_with_min_distance(tiles_to_check: Array[Vector2i], target_tile: Vector2i):
 	var min_distance = 10000

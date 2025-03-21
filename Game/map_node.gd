@@ -80,7 +80,9 @@ func _input(event):
 	elif event.is_action_pressed("debug_place_train") and state_machine.is_controlling_camera():
 		main_map.create_train.rpc(get_cell_position())
 	elif event.is_action_pressed("debug_print") and state_machine.is_controlling_camera():
-		unit_creator_window.popup()
+		#ai.process()
+		print(main_map.debug())
+		#unit_creator_window.popup()
 
 func _on_day_tick_timeout():
 	pass
@@ -95,8 +97,9 @@ func create_ai():
 	ai = load("res://AI/economy_ai.gd").new(main_map, tile_ownership)
 
 func _on_ai_timer_timeout():
-	if ai != null:
-		ai.process()
+	return
+	#if ai != null:
+		#ai.process()
 
 #Factory
 func create_factory():

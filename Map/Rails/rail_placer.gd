@@ -49,6 +49,10 @@ func hover(coordinates: Vector2i, new_type: int, coords_middle: Vector2, coords_
 	type = new_type
 	hover_tile(coordinates, coords_middle, coords_mouse)
 
+func hover_debug(coords: Vector2i, orientation: int):
+	var temp_layer = get_temp_layer(orientation)
+	temp_layer.set_cell(coords, 0, Vector2i(orientation, 0))
+
 func hover_many_tiles(tiles: Dictionary):
 	clear_all_temps()
 	for coords: Vector2i in tiles:
@@ -84,6 +88,7 @@ func place_road_depot(coords: Vector2i, player_id):
 
 func is_already_built(coords: Vector2i, new_orientation: int) -> bool:
 	var rail_layer: TileMapLayer = get_rail_layer(new_orientation)
+	assert(rail_layer != null)
 	return rail_layer.get_cell_atlas_coords(coords).x == new_orientation
 
 func place_hover():
