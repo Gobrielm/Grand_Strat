@@ -11,7 +11,7 @@ func _ready():
 	Utils.assign_cargo_values(self)
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
-	return get_tile_magnitude(type, coords) > 0
+	return get_tile_magnitude(coords, type) > 0
 
 func get_layer(type: int) -> TileMapLayer:
 	var cargo_name = get_good_name_uppercase(type)
@@ -19,10 +19,13 @@ func get_layer(type: int) -> TileMapLayer:
 	assert(layer != null)
 	return layer
 
+func get_layers() -> Array:
+	return get_children()
+
 func get_available_resources(coords: Vector2i) -> Dictionary:
 	var toReturn := {}
 	for type in get_child_count():
-		var mag := get_tile_magnitude(type, coords)
+		var mag := get_tile_magnitude(coords, type)
 		if mag > 0:
 			toReturn[type] = mag
 	return toReturn
@@ -34,7 +37,7 @@ func close_all_layers():
 	for i in terminal_map.amount_of_primary_goods:
 		get_layer(i).visible = false
 
-func get_tile_magnitude(type: int, coords: Vector2i) -> int:
+func get_tile_magnitude(coords: Vector2i, type: int) -> int:
 	var cargo_name = get_good_name_uppercase(type)
 	var layer: TileMapLayer = get_node("Layer" + str(type) + cargo_name)
 	assert(layer != null)

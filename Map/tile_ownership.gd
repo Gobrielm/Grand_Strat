@@ -69,6 +69,9 @@ func unselect_nation(cells_to_change: Array):
 		set_cell(cell, 0, atlas)
 
 func is_owned(player_id: int, coords: Vector2i) -> bool:
+	if !tile_to_country_id.has(coords):
+		#TODO: FIX BUT ALL TILES SHOULD HAVE COUTNRY ID EVENTUALLY
+		return false
 	var country_id: int = tile_to_country_id[coords]
 	return country_id_to_player_id.has(country_id) and country_id_to_player_id[country_id] == player_id
 

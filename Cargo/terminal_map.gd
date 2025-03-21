@@ -86,6 +86,9 @@ static func add_connected_terminals(coords: Vector2i, new_terminal: terminal):
 static func is_hold(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is hold
 
+static func is_tile_taken(coords: Vector2i) -> bool:
+	return cargo_map_terminals.has(coords)
+
 static func get_hold(coords: Vector2i) -> Dictionary:
 	if is_hold(coords):
 		return cargo_map_terminals[coords].get_current_hold()
@@ -226,15 +229,19 @@ static func is_cargo_primary(cargo_type: int) -> bool:
 
 static func get_available_primary_recipes(coords: Vector2i) -> Array:
 	return cargo_map.get_available_primary_recipes(coords)
-	
+
+static func is_town(coords: Vector2i) -> bool:
+	var term = get_terminal(coords)
+	return term != null and term is apex_factory
+
 static func get_town_fulfillment(coords: Vector2i, type: int) -> float:
 	var term = get_terminal(coords)
-	if term != null and term is apex_factory:
+	if is_town(coords):
 		return term.get_fulfillment(type)
 	return 0.0
 
 static func get_town_wants(coords: Vector2i) -> Array:
 	var term = get_terminal(coords)
-	if term != null and term is apex_factory:
+	if is_town(coords):
 		return term.get_town_wants()
 	return []

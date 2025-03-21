@@ -1,25 +1,18 @@
 extends Node
 
-var map := {}
-
-var last_state: float
+#AI States
 var id := 1
-const CARGO_TYPE = 0
-
-#Q - Table
-var alpha = 0.1    # Learning rate
-var epsilon = 0.1  # Exploration rate
+var thread: Thread
 
 #Set of States
 var world_map: TileMapLayer
 var tile_ownership: TileMapLayer
 var cargo_map := terminal_map.cargo_map
 var cargo_values = cargo_map.cargo_values
+var magnitude_layers := []
 var rail_placer
-var cargo_layer: TileMapLayer
 
-#Just to test system
-var num_mines = 0
+#
 
 #Set of Actions
 enum ai_actions {
@@ -33,10 +26,12 @@ func _init(_world_map: TileMapLayer, _tile_ownership: TileMapLayer):
 	rail_placer = world_map.rail_placer
 	tile_ownership = _tile_ownership
 	tile_ownership.add_player_to_country(id, Vector2i(96, -111))
-	cargo_layer = cargo_values.get_layer(CARGO_TYPE)
+	magnitude_layers = cargo_values.get_layers()
 
 func process():
-	var thread := Thread.new()
+	if thread != null and thread.is_alive():
+		return
+	thread = Thread.new()
 	thread.start(run_ai_cycle.bind())
 
 func run_ai_cycle():
@@ -54,13 +49,49 @@ func choose_type_of_action() -> ai_actions:
 	return ai_actions.PLACE_FACTORY
 
 func place_factory(type: int):
-	print(terminal_map.get_cargo_name(type))
+	var best_tile: Vector2i
+	if is_cargo_primary(type):
+		best_tile = get_optimal_primary_industry(type)
+		if best_tile != Vector2i(0, 0):
+			create_factory(best_tile, type)
 
-func get_magnitude(coords: Vector2i) -> int:
-	var atlas := cargo_layer.get_cell_atlas_coords(coords)
+func create_factory(location: Vector2i, type: int):
+	cargo_map.create_factory(id, location)
+
+func get_optimal_primary_industry(type: int) -> Vector2i:
+	var best_location: Vector2i
+	var score := -10000
+	for tile: Vector2i in get_owned_tiles():
+		if terminal_map.is_tile_taken(tile):
+			continue
+		var current_score = get_cargo_magnitude(tile, type) - distance_to_closet_town(tile) / 3
+		if current_score > score:
+			score = current_score
+			best_location = tile
+	return best_location
+
+func get_cargo_magnitude(coords: Vector2i, type: int) -> int:
+	var layer: TileMapLayer = magnitude_layers[type]
+	var atlas := layer.get_cell_atlas_coords(coords)
 	if atlas == Vector2i(-1, -1):
 		return 0
-	return atlas.y * 8 + atlas.x
+	return atlas.y * cargo_values.TILES_PER_ROW + atlas.x
+
+func distance_to_closet_town(coords: Vector2i) -> int:
+	var queue := [coords]
+	var visited := {}
+	visited[coords] = 0
+	while !queue.is_empty():
+		var curr: Vector2i = queue.pop_front()
+		for tile in world_map.get_surrounding_cells(curr):
+			#TODO: Add logic to account for docks and disconnected territory
+			if !visited.has(tile):
+				if terminal_map.is_town(tile):
+					return (visited[curr] + 1)
+				elif tile_ownership.is_owned(id, tile):
+					visited[tile] = visited[curr] + 1
+					queue.append(tile)
+	return 10000000
 
 func is_cargo_primary(type: int) -> bool:
 	return terminal_map.amount_of_primary_goods > type
@@ -98,16 +129,12 @@ func get_owned_tiles() -> Array:
 func get_town_tiles() -> Array:
 	var toReturn := []
 	for tile in get_owned_tiles():
-		if terminal_map.get_terminal(tile) is apex_factory:
+		if terminal_map.is_town(tile):
 			toReturn.append(tile)
 	return toReturn
 
 func get_reward() -> float:
 	return 0.0
-
-func build_mine(x: int, y: int):
-	cargo_map.create_factory(id, Vector2i(x, y))
-	map[Vector2i(x, y)] = 1
 
 func build_rail(x1: int, y1: int, x2: int, y2: int):
 	place_to_end_rail(Vector2i(x1, y1), Vector2i(x2, y2))
