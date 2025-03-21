@@ -2,25 +2,32 @@ extends Node2D
 
 var map: TileMapLayer
 
+
 const TILES_PER_ROW := 8
 const MAX_RESOURCES = [5000, 5000, 5000, 5000, 5000, 5000, 5000, 5000, -1, 5000
 , -1, -1, -1, -1, 5000, 5000, 5000, 5000, 5000, 50000
 , 1000]
+var magnitude_layers := []
 
 func _ready():
 	Utils.assign_cargo_values(self)
+	create_magnitude_layers()
 
 func can_build_type(type: int, coords: Vector2i) -> bool:
 	return get_tile_magnitude(coords, type) > 0
 
+func create_magnitude_layers():
+	for child in get_children():
+		if child is TileMapLayer:
+			magnitude_layers.append(child)
+
 func get_layer(type: int) -> TileMapLayer:
-	var cargo_name = get_good_name_uppercase(type)
-	var layer: TileMapLayer = get_node("Layer" + str(type) + cargo_name)
-	assert(layer != null)
+	var layer: TileMapLayer = magnitude_layers[type]
+	assert(layer != null and layer.name == ("Layer" + str(type) + get_good_name_uppercase(type)))
 	return layer
 
 func get_layers() -> Array:
-	return get_children()
+	return magnitude_layers
 
 func get_available_resources(coords: Vector2i) -> Dictionary:
 	var toReturn := {}
@@ -38,8 +45,7 @@ func close_all_layers():
 		get_layer(i).visible = false
 
 func get_tile_magnitude(coords: Vector2i, type: int) -> int:
-	var cargo_name = get_good_name_uppercase(type)
-	var layer: TileMapLayer = get_node("Layer" + str(type) + cargo_name)
+	var layer: TileMapLayer = get_layer(type)
 	assert(layer != null)
 	var atlas: Vector2i = layer.get_cell_atlas_coords(coords)
 	if atlas == Vector2i(-1, -1):

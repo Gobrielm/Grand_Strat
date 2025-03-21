@@ -87,7 +87,7 @@ static func is_hold(coords: Vector2i) -> bool:
 	return cargo_map_terminals.has(coords) and cargo_map_terminals[coords] is hold
 
 static func is_tile_taken(coords: Vector2i) -> bool:
-	return cargo_map_terminals.has(coords)
+	return cargo_map_terminals.has(coords) or !map.is_tile_traversable(coords)
 
 static func get_hold(coords: Vector2i) -> Dictionary:
 	if is_hold(coords):

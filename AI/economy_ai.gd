@@ -3,36 +3,39 @@ extends Node
 #AI States
 var id := 1
 var thread: Thread
+var stored_tile: Vector2i
 
 #Set of States
 var world_map: TileMapLayer
 var tile_ownership: TileMapLayer
 var cargo_map := terminal_map.cargo_map
 var cargo_values = cargo_map.cargo_values
-var magnitude_layers := []
 var rail_placer
 
 #
 
 #Set of Actions
 enum ai_actions {
-	PLACE_RAIL,
 	PLACE_FACTORY,
-	PLACE_STATION
+	CONNECT_FACTORY
 }
 
 func _init(_world_map: TileMapLayer, _tile_ownership: TileMapLayer): 
+	thread = Thread.new()
 	world_map = _world_map
 	rail_placer = world_map.rail_placer
 	tile_ownership = _tile_ownership
 	tile_ownership.add_player_to_country(id, Vector2i(96, -111))
-	magnitude_layers = cargo_values.get_layers()
 
 func process():
-	if thread != null and thread.is_alive():
+	if thread.is_alive():
 		return
-	thread = Thread.new()
+	elif thread.is_started():
+		thread.wait_to_finish()
 	thread.start(run_ai_cycle.bind())
+
+func _exit_tree():
+	thread.wait_to_finish()
 
 func run_ai_cycle():
 	var start: float = Time.get_ticks_msec()
@@ -40,13 +43,28 @@ func run_ai_cycle():
 	#Add more actions later
 	if action_type == ai_actions.PLACE_FACTORY:
 		place_factory(get_most_needed_cargo())
-	
+	elif action_type == ai_actions.CONNECT_FACTORY:
+		connect_factory(stored_tile)
 	var end: float = Time.get_ticks_msec()
 	print(str((end - start) / 1000) + " Seconds passed for one cycle")
 
 func choose_type_of_action() -> ai_actions:
 	#Criteria to choose later
+	if is_unconnected_buildings():
+		return ai_actions.CONNECT_FACTORY
 	return ai_actions.PLACE_FACTORY
+
+func is_unconnected_buildings() -> bool:
+	for tile: Vector2i in get_owned_tiles():
+		if terminal_map.is_owned_construction_site(tile):
+			var found := false
+			for cell in world_map.get_surrounding_cells(tile):
+				if tile_ownership.is_owned(id, cell) and terminal_map.is_station(cell):
+					found = true
+			if !found:
+				stored_tile = tile
+				return true
+	return false
 
 func place_factory(type: int):
 	var best_tile: Vector2i
@@ -57,6 +75,7 @@ func place_factory(type: int):
 
 func create_factory(location: Vector2i, type: int):
 	cargo_map.create_factory(id, location)
+	#TODO: Pick Recipe
 
 func get_optimal_primary_industry(type: int) -> Vector2i:
 	var best_location: Vector2i
@@ -64,20 +83,22 @@ func get_optimal_primary_industry(type: int) -> Vector2i:
 	for tile: Vector2i in get_owned_tiles():
 		if terminal_map.is_tile_taken(tile):
 			continue
-		var current_score = get_cargo_magnitude(tile, type) - distance_to_closet_town(tile) / 3
+		var current_score = get_cargo_magnitude(tile, type) - round(distance_to_closest_station(tile) / 7.0)
 		if current_score > score:
 			score = current_score
 			best_location = tile
 	return best_location
 
 func get_cargo_magnitude(coords: Vector2i, type: int) -> int:
-	var layer: TileMapLayer = magnitude_layers[type]
-	var atlas := layer.get_cell_atlas_coords(coords)
-	if atlas == Vector2i(-1, -1):
-		return 0
-	return atlas.y * cargo_values.TILES_PER_ROW + atlas.x
+	return cargo_values.get_tile_magnitude(coords, type)
 
-func distance_to_closet_town(coords: Vector2i) -> int:
+func distance_to_closest_station(coords: Vector2i) -> int:
+	return info_of_closest_station(coords)[0]
+
+func coords_of_closest_station(coords: Vector2i) -> Vector2i:
+	return info_of_closest_station(coords)[1]
+
+func info_of_closest_station(coords: Vector2i) -> Array:
 	var queue := [coords]
 	var visited := {}
 	visited[coords] = 0
@@ -86,12 +107,12 @@ func distance_to_closet_town(coords: Vector2i) -> int:
 		for tile in world_map.get_surrounding_cells(curr):
 			#TODO: Add logic to account for docks and disconnected territory
 			if !visited.has(tile):
-				if terminal_map.is_town(tile):
-					return (visited[curr] + 1)
+				if terminal_map.is_station(tile) or terminal_map.is_town(tile):
+					return [(visited[curr] + 1), tile]
 				elif tile_ownership.is_owned(id, tile):
 					visited[tile] = visited[curr] + 1
 					queue.append(tile)
-	return 10000000
+	return [1000000, null]
 
 func is_cargo_primary(type: int) -> bool:
 	return terminal_map.amount_of_primary_goods > type
@@ -122,6 +143,27 @@ func get_town_fulfillment() -> Dictionary:
 	for type: int in total:
 		total[type] = total[type] / towns
 	return total
+
+func connect_factory(coords: Vector2i):
+	var closest_station: Vector2i = coords_of_closest_station(coords)
+	place_station(coords, closest_station)
+
+func place_station(center: Vector2i, dest: Vector2i):
+	var score := -1000
+	var best: Vector2i
+	for tile in world_map.get_surrounding_cells(center):
+		if tile_ownership.is_owned(id, tile) and !terminal_map.is_tile_taken(tile):
+			var curr_score = round(20.0 / center.distance_to(dest))
+			if curr_score > score:
+				score = curr_score
+				best = tile
+	if best == Vector2i(0, 0):
+		print("problems")
+		return
+	create_station(best)
+
+func create_station(location: Vector2i):
+	world_map.call_deferred("place_rail_general", location, 0, 2)
 
 func get_owned_tiles() -> Array:
 	return tile_ownership.get_owned_tiles(id)
