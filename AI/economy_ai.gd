@@ -214,21 +214,14 @@ func get_reward() -> float:
 	return 0.0
 
 func build_rail(start: Vector2i, end: Vector2i):
-	var route: Dictionary = world_map.get_rails_from(start, end)
+	#Add orientation check
+	var route: Dictionary = get_rails_to_build(start, -1, end, -1)
 	for tile: Vector2i in route:
-		for cell: Vector2i in route[tile]:
-			place_rail(tile, cell.x)
+		for orientation: int in route[tile]:
+			place_rail(tile, orientation)
 
 func place_rail(coords: Vector2i, orientation: int):
 	world_map.call_deferred("place_rail_general", coords, orientation, 0)
-
-func debug() -> Dictionary:
-	#var dict := get_rails_to_build(Vector2i(100, -115), 0, get_cell_position(), 0)
-	#for tile in dict:
-		#for orientation: int in dict[tile]:
-			#rail_placer.hover_debug(tile, orientation)
-	#return dict
-	return {}
 
 func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i, ending_orientation: int) -> Dictionary:
 	var queue := [from]
@@ -238,11 +231,20 @@ func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i,
 	visited[from] = [false, false, false, false, false, false]
 	visited[from][swap_direction(starting_orientation)] = true
 	visited[from][(starting_orientation)] = true
+	
+	#Used to only allow the top and bottom of the station to connect
+	var check = [null, null, null, null, null, null]
+	var surrounding = world_map.get_surrounding_cells(from)
+	check[(starting_orientation + 3) % 6] = (surrounding[(starting_orientation + 1) % 6])
+	check[starting_orientation] = (surrounding[(starting_orientation + 4) % 6])
+	
 	var found = false
 	var curr: Vector2i
 	while !queue.is_empty() and !found:
 		curr = queue.pop_front()
 		var cells_to_check = get_cells_in_front(curr, visited[curr])
+		if curr == from:
+			cells_to_check = check
 		for direction in cells_to_check.size():
 			var cell = cells_to_check[direction]
 			if cell == to and (direction == ending_orientation or direction == swap_direction(ending_orientation)):
@@ -261,7 +263,11 @@ func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i,
 	var direction = null
 	var prev = null
 	if found:
-		direction = order[to][0]
+		var index = 0
+		#To ensure it leads directly out of the station
+		while direction != ending_orientation and direction != ((ending_orientation + 3) % 6):
+			direction = order[to][index]
+			index += 1
 		curr = tile_to_prev[to][direction]
 		found = false
 		while !found:
