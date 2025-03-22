@@ -16,6 +16,7 @@ var type = -1
 var old_coordinates
 
 func _ready():
+	Utils.assign_rail_placer(self)
 	for item in get_children():
 		if item.name.begins_with("Rail_Temp_Layer"):
 			temp_layer_array.append(item)

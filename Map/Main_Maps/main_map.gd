@@ -307,26 +307,27 @@ func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i,
 		for direction in cells_to_check.size():
 			var cell = cells_to_check[direction]
 			if cell == to and !at_odd_angle(direction, ending_orientation):
+				intialize_visited(visited, cell, direction)
+				intialize_order(order, cell, direction)
+				intialize_tile_to_prev(tile_to_prev, cell, direction, curr)
 				found = true
 				break
-			elif cell != null and !check_visited(visited, cell, direction):
+			elif cell != null and !check_visited(visited, cell, direction) and Utils.is_tile_open(cell, unique_id):
 				intialize_visited(visited, cell, direction)
 				intialize_order(order, cell, direction)
 				intialize_tile_to_prev(tile_to_prev, cell, direction, curr)
 				queue.append(cell)
 	
 	var toReturn := {}
-	toReturn[to] = [starting_orientation]
 	var direction = null
 	var prev = null
 	if found:
-		direction = (ending_orientation + 3) % 6
+		direction = order[to][0]
+		curr = tile_to_prev[to][direction]
 		found = false
 		while !found:
-			if curr == from:
-			#and can_direction_reach_dir(swap_direction(direction), starting_orientation):
+			if curr == from and can_direction_reach_dir(direction, starting_orientation):
 				break
-			
 			toReturn[curr] = [direction]
 			if prev != null:
 				toReturn[prev].append((direction + 3) % 6)
