@@ -23,9 +23,8 @@ func _ready():
 
 func get_rail_layers() -> Array:
 	var toReturn = []
-	for item in get_children():
-		if item.name.begins_with("Rail_Layer"):
-			toReturn.append(item)
+	for num in range(6):
+		toReturn.append(get_rail_layer(num))
 	return toReturn
 
 func hover_tile(coordinates: Vector2i, coords_middle: Vector2, coords_mouse: Vector2):
@@ -162,3 +161,10 @@ func are_tiles_connected_by_rail(coord1: Vector2i, coord2: Vector2i, bordering_t
 		if bordering_to_coord1[direction] == coord2:
 			return track_connections1[real_direction] and track_connections2[(real_direction + 3) % 6]
 	return false
+
+func get_station_orientation(coords: Vector2i) -> int:
+	for rail_layer: TileMapLayer in get_rail_layers():
+		var atlas = rail_layer.get_cell_atlas_coords(coords)
+		if atlas.y == 2:
+			return atlas.x % 3
+	return -1

@@ -53,15 +53,15 @@ func run_ai_cycle():
 
 func choose_type_of_action() -> ai_actions:
 	#Criteria to choose later
-	if is_unconnected_buildings():
+	if are_there_unconnected_buildings():
 		return ai_actions.CONNECT_FACTORY
-	elif is_unconnected_stations():
+	elif are_there_unconnected_stations():
 		return ai_actions.CONNECT_STATION
 	return ai_actions.PLACE_FACTORY
 
-func is_unconnected_buildings() -> bool:
+func are_there_unconnected_buildings() -> bool:
 	for tile: Vector2i in get_owned_tiles():
-		if terminal_map.is_owned_construction_site(tile):
+		if terminal_map.is_owned_construction_site(tile) or terminal_map.is_town(tile):
 			var found := false
 			for cell in world_map.get_surrounding_cells(tile):
 				if tile_ownership.is_owned(id, cell) and terminal_map.is_station(cell):
@@ -71,14 +71,14 @@ func is_unconnected_buildings() -> bool:
 				return true
 	return false
 
-func is_unconnected_stations() -> bool:
+func are_there_unconnected_stations() -> bool:
 	for tile: Vector2i in get_owned_tiles():
 		if terminal_map.is_station(tile):
 			var found := false
 			for cell in world_map.get_surrounding_cells(tile):
+				#Check if there is rail
 				if world_map.do_tiles_connect(tile, cell):
 					found = true
-				#Check if there is rail
 			if !found:
 				stored_tile = tile
 				return true
@@ -126,17 +126,21 @@ func info_of_closest_station(coords: Vector2i) -> Array:
 	var queue := [coords]
 	var visited := {}
 	visited[coords] = 0
+	var closest_city = null
+	
 	while !queue.is_empty():
 		var curr: Vector2i = queue.pop_front()
 		for tile in world_map.get_surrounding_cells(curr):
 			#TODO: Add logic to account for docks and disconnected territory
 			if !visited.has(tile):
-				if terminal_map.is_station(tile) or terminal_map.is_town(tile):
+				if terminal_map.is_station(tile):
 					return [(visited[curr] + 1), tile]
 				elif tile_ownership.is_owned(id, tile):
 					visited[tile] = visited[curr] + 1
 					queue.append(tile)
-	return [1000000, null]
+				if closest_city == null and terminal_map.is_town(tile):
+					closest_city = [visited[curr] + 1, tile]
+	return closest_city
 
 func is_cargo_primary(type: int) -> bool:
 	return terminal_map.amount_of_primary_goods > type
@@ -173,13 +177,13 @@ func connect_factory(coords: Vector2i):
 	place_station(coords, closest_station)
 
 func place_station(center: Vector2i, dest: Vector2i):
-	var score := -1000
+	var score: float = -1000
 	var best: Vector2i
 	var orientation: int
 	var orientation_tracker := 2
 	for tile in world_map.get_surrounding_cells(center):
 		if is_cell_available(tile):
-			var curr_score = round(20.0 / center.distance_to(dest))
+			var curr_score: float = 20.0 / tile.distance_to(dest)
 			if curr_score > score:
 				score = curr_score
 				best = tile
@@ -214,8 +218,10 @@ func get_reward() -> float:
 	return 0.0
 
 func build_rail(start: Vector2i, end: Vector2i):
-	#Add orientation check
-	var route: Dictionary = get_rails_to_build(start, -1, end, -1)
+	var rail_placer = Utils.rail_placer
+	var s_orien: int = rail_placer.get_station_orientation(start)
+	var e_orien: int = rail_placer.get_station_orientation(end)
+	var route: Dictionary = get_rails_to_build(start, s_orien, end, e_orien)
 	for tile: Vector2i in route:
 		for orientation: int in route[tile]:
 			place_rail(tile, orientation)
@@ -224,6 +230,7 @@ func place_rail(coords: Vector2i, orientation: int):
 	world_map.call_deferred("place_rail_general", coords, orientation, 0)
 
 func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i, ending_orientation: int) -> Dictionary:
+	#TODO: Rail Algorithm navigates around pre-built rails, most solve
 	var queue := [from]
 	var tile_to_prev := {} # Vector2i -> Array[Tile for each direction]
 	var order := {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
