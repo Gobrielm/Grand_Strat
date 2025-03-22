@@ -230,7 +230,6 @@ func debug() -> Dictionary:
 	#return dict
 	return {}
 
-
 func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i, ending_orientation: int) -> Dictionary:
 	var queue := [from]
 	var tile_to_prev := {} # Vector2i -> Array[Tile for each direction]
@@ -266,7 +265,6 @@ func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i,
 		curr = tile_to_prev[to][direction]
 		found = false
 		while !found:
-			
 			if prev != null:
 				toReturn[prev].append((direction + 3) % 6)
 			if curr == from and (can_direction_reach_dir(direction, swap_direction(starting_orientation)) or can_direction_reach_dir(direction, starting_orientation)):
