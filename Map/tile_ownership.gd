@@ -38,6 +38,8 @@ func prepare_refresh_tile_ownership():
 
 @rpc("any_peer", "call_local", "unreliable")
 func add_player_to_country(player_id: int, coords: Vector2i):
+	if !tile_to_country_id.has(coords):
+		return
 	var country_id: int = tile_to_country_id[coords]
 	
 	if !country_id_to_player_id.has(country_id):

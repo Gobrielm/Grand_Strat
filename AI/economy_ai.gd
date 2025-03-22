@@ -222,11 +222,99 @@ func build_rail(start: Vector2i, end: Vector2i):
 func place_rail(coords: Vector2i, orientation: int):
 	world_map.call_deferred("place_rail_general", coords, orientation, 0)
 
-func find_tile_with_min_distance(tiles_to_check: Array[Vector2i], target_tile: Vector2i):
-	var min_distance = 10000
-	var to_return
-	for cell in tiles_to_check:
-		if cell.distance_to(target_tile) < min_distance:
-			min_distance = cell.distance_to(target_tile)
-			to_return = cell
-	return to_return
+func debug() -> Dictionary:
+	#var dict := get_rails_to_build(Vector2i(100, -115), 0, get_cell_position(), 0)
+	#for tile in dict:
+		#for orientation: int in dict[tile]:
+			#rail_placer.hover_debug(tile, orientation)
+	#return dict
+	return {}
+
+
+func get_rails_to_build(from: Vector2i, starting_orientation: int, to: Vector2i, ending_orientation: int) -> Dictionary:
+	var queue := [from]
+	var tile_to_prev := {} # Vector2i -> Array[Tile for each direction]
+	var order := {} # Vector2i -> Array[indices in order for tile_to_prev, first one is the fastest]
+	var visited := {} # Vector2i -> Array[Bool for each direction]
+	visited[from] = [false, false, false, false, false, false]
+	visited[from][swap_direction(starting_orientation)] = true
+	visited[from][(starting_orientation)] = true
+	var found = false
+	var curr: Vector2i
+	while !queue.is_empty() and !found:
+		curr = queue.pop_front()
+		var cells_to_check = get_cells_in_front(curr, visited[curr])
+		for direction in cells_to_check.size():
+			var cell = cells_to_check[direction]
+			if cell == to and (direction == ending_orientation or direction == swap_direction(ending_orientation)):
+				intialize_visited(visited, cell, direction)
+				intialize_order(order, cell, direction)
+				intialize_tile_to_prev(tile_to_prev, cell, direction, curr)
+				found = true
+				break
+			elif cell != null and !check_visited(visited, cell, direction) and Utils.is_tile_open(cell, id):
+				intialize_visited(visited, cell, direction)
+				intialize_order(order, cell, direction)
+				intialize_tile_to_prev(tile_to_prev, cell, direction, curr)
+				queue.append(cell)
+	
+	var toReturn := {}
+	var direction = null
+	var prev = null
+	if found:
+		direction = order[to][0]
+		curr = tile_to_prev[to][direction]
+		found = false
+		while !found:
+			
+			if prev != null:
+				toReturn[prev].append((direction + 3) % 6)
+			if curr == from and (can_direction_reach_dir(direction, swap_direction(starting_orientation)) or can_direction_reach_dir(direction, starting_orientation)):
+				break
+			toReturn[curr] = [direction]
+			for dir in order[curr]:
+				if can_direction_reach_dir(direction, dir) and tile_to_prev[curr][dir] != null:
+					prev = curr
+					curr = tile_to_prev[curr][dir]
+					direction = dir
+					break
+	
+	return toReturn
+
+func can_direction_reach_dir(direction: int, dir: int) -> bool:
+	return dir == direction or dir == (direction + 1) % 6 or dir == (direction + 5) % 6
+
+func at_odd_angle(station_orientation: int, rail_orientation: int) -> bool:
+	return rail_orientation == (station_orientation + 1) % 6 or rail_orientation == (station_orientation + 5) % 6
+
+func swap_direction(num: int) -> int: 
+	return (num + 3) % 6
+
+func get_cells_in_front(coords: Vector2i, directions: Array) -> Array:
+	var index = 2
+	var toReturn = [null, null, null, null, null, null]
+	for cell in world_map.get_surrounding_cells(coords):
+		if directions[index] or directions[(index + 1) % 6] or directions[(index + 5) % 6] and !terminal_map.is_tile_taken(cell):
+			toReturn[index] = cell
+		index = (index + 1) % 6
+	return toReturn
+
+func check_visited(visited: Dictionary, coords: Vector2i, direction: int) -> bool:
+	if visited.has(coords):
+		return visited[coords][direction]
+	return false
+
+func intialize_visited(visited: Dictionary, coords: Vector2i, direction: int):
+	if !visited.has(coords):
+		visited[coords] = [false, false, false, false, false, false]
+	visited[coords][direction] = true
+
+func intialize_tile_to_prev(tile_to_prev: Dictionary, coords: Vector2i, direction: int, prev: Vector2i):
+	if !tile_to_prev.has(coords):
+		tile_to_prev[coords] = [null, null, null, null, null, null]
+	tile_to_prev[coords][direction] = prev
+
+func intialize_order(order: Dictionary, coords: Vector2i, direction: int):
+	if !order.has(coords):
+		order[coords] = []
+	order[coords].append(direction)
